@@ -8,7 +8,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -31,8 +30,6 @@
         .input-minimal:focus { outline: none; border-color: #09090b; box-shadow: 0 0 0 1px #09090b; }
         .tab-active { border-bottom: 2px solid #b91c1c; color: #b91c1c; font-weight: 800; }
         .tab-inactive { color: #71717a; border-bottom: 2px solid transparent; }
-        
-        /* Stylování posuvníků pro hodnocení */
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #b91c1c; cursor: pointer; margin-top: -6px; }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #e4e4e7; border-radius: 2px; }
@@ -42,7 +39,7 @@
 
     <div id="loginScreen" class="flex flex-col items-center justify-center min-h-screen p-6 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-1 bg-poppy-700"></div>
-        <div class="bg-white p-10 border border-brand-border max-w-md w-full">
+        <div class="bg-white p-10 border border-brand-border max-w-md w-full shadow-sm">
             <div class="text-center mb-10">
                 <h1 class="text-3xl font-extrabold tracking-tight mb-2 uppercase">Poppy Beans</h1>
                 <p class="text-xs font-bold tracking-widest text-brand-muted uppercase">Internal System</p>
@@ -59,12 +56,13 @@
     <div id="mainApp" class="max-w-6xl mx-auto p-6 md:p-12 hidden">
         <header class="mb-8 flex flex-col md:flex-row justify-between items-center border-b border-brand-border pb-6 gap-6">
             <h1 class="text-3xl font-extrabold uppercase tracking-tight">Poppy Beans</h1>
-            <nav class="flex gap-8 text-sm uppercase tracking-widest font-bold">
-                <button onclick="switchTab('tab-cupping')" id="btn-tab-cupping" class="tab-active py-2">Cuppingy</button>
-                <button onclick="switchTab('tab-kavy')" id="btn-tab-kavy" class="tab-inactive py-2">Výběr Kávy</button>
-                <button onclick="switchTab('tab-recepty')" id="btn-tab-recepty" class="tab-inactive py-2">Recepty</button>
+            <nav class="flex gap-6 text-sm uppercase tracking-widest font-bold overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
+                <button onclick="switchTab('tab-cupping')" id="btn-tab-cupping" class="tab-active py-2 whitespace-nowrap">Cuppingy</button>
+                <button onclick="switchTab('tab-kavy')" id="btn-tab-kavy" class="tab-inactive py-2 whitespace-nowrap">Výběr Kávy</button>
+                <button onclick="switchTab('tab-recepty')" id="btn-tab-recepty" class="tab-inactive py-2 whitespace-nowrap">Knihovna Receptů</button>
+                <button onclick="switchTab('tab-advisor')" id="btn-tab-advisor" class="tab-inactive py-2 whitespace-nowrap text-poppy-700">Baristický Rádce</button>
             </nav>
-            <div class="flex items-center gap-4 text-xs font-bold">
+            <div class="flex items-center gap-4 text-xs font-bold whitespace-nowrap">
                 <span id="userGreeting" class="text-brand-muted uppercase"></span>
                 <button id="logoutBtn" class="text-poppy-700 hover:underline uppercase">Odhlásit</button>
             </div>
@@ -137,6 +135,46 @@
             </div>
             <div id="recipeList" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
         </section>
+
+        <section id="tab-advisor" class="tab-content hidden">
+            <div class="max-w-3xl mx-auto">
+                <div class="bg-white p-8 border border-brand-border mb-8 text-center">
+                    <h2 class="text-2xl font-extrabold uppercase tracking-tight mb-2">Espresso Kompas</h2>
+                    <p class="text-sm font-medium text-brand-muted">Nedaří se nastavit káva? Zadej parametry aktuální extrakce a získej radu.</p>
+                </div>
+
+                <div class="bg-brand-bg p-8 border border-brand-border grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-widest text-brand-dark mb-4 border-b border-brand-border pb-2">1. Jak to teče?</label>
+                        <select id="adv_flow" class="input-minimal font-bold bg-white cursor-pointer">
+                            <option value="ideal">Trefil jsem čas (cca 25-30s)</option>
+                            <option value="fast">Příliš rychle (pod 20s)</option>
+                            <option value="slow">Příliš pomalu / Kape (nad 35s)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-widest text-brand-dark mb-4 border-b border-brand-border pb-2">2. Jak to chutná?</label>
+                        <select id="adv_taste" class="input-minimal font-bold bg-white cursor-pointer">
+                            <option value="sour">Je to nepříjemně kyselé (až svíravé)</option>
+                            <option value="bitter">Je to spálené, drsné a hořké</option>
+                            <option value="watery">Chybí tomu tělo, je to vodové a prázdné</option>
+                            <option value="good">Chutná to skvěle, sladce a vyváženě</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button onclick="diagnoseEspresso()" class="w-full bg-poppy-700 text-white font-extrabold p-4 uppercase tracking-widest text-sm hover:bg-poppy-800 transition shadow-sm mb-8">
+                    Získat radu šéfbaristy
+                </button>
+
+                <div id="advisorResult" class="hidden bg-white p-8 border-l-4 border-poppy-700 shadow-sm relative">
+                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-2">Diagnóza:</h3>
+                    <div id="adv_diagnosis" class="text-lg font-bold mb-4 text-brand-dark"></div>
+                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-2">Akční krok:</h3>
+                    <div id="adv_solution" class="text-sm font-medium leading-relaxed bg-brand-bg p-4 border border-brand-border"></div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <div id="evalModal" class="fixed inset-0 bg-brand-dark/90 z-50 hidden flex items-center justify-center p-4">
@@ -179,7 +217,6 @@
                     <h3 class="text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-4">Průměrný profil všech vzorků</h3>
                     <div class="w-full max-w-[300px]"><canvas id="radarChart"></canvas></div>
                 </div>
-                
                 <div class="space-y-4">
                     <h3 class="text-[10px] font-bold uppercase tracking-widest text-brand-muted">Jednotlivá hodnocení kolegů</h3>
                     <div id="individualResults" class="space-y-3">
@@ -193,7 +230,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-        // Přidán import query, where, getDocs pro tahání výsledků
         import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, arrayUnion, arrayRemove, increment, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
         const ADMIN_EMAIL = "hradskydavid06@gmail.com"; 
@@ -212,8 +248,9 @@
 
         let currentUser = null;
         let isAdmin = false;
-        let myChartInstance = null; // Globální proměnná pro graf
+        let myChartInstance = null;
 
+        // AUTHENTICATION LOGIC
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
@@ -232,7 +269,7 @@
 
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
-                loadData();
+                loadData(); 
             } else {
                 document.getElementById('loginScreen').classList.remove('hidden');
                 document.getElementById('mainApp').classList.add('hidden');
@@ -247,18 +284,22 @@
 
         document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
+        // TAB SWITCH LOGIC
         window.switchTab = (tabId) => {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(tabId).classList.remove('hidden');
             document.querySelectorAll('nav button').forEach(btn => {
                 btn.classList.replace('tab-active', 'tab-inactive');
+                btn.classList.remove('text-poppy-700'); 
             });
-            document.getElementById('btn-' + tabId).classList.replace('tab-inactive', 'tab-active');
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.replace('tab-inactive', 'tab-active');
+            if(tabId === 'tab-advisor') activeBtn.classList.add('text-poppy-700');
         };
 
-        // --- ZÁKLADNÍ NAČÍTÁNÍ DAT ---
+        // REAL-TIME DATA FETCHING
         function loadData() {
-            // CUPPINGY 
+            // 1. CUPPINGY
             onSnapshot(collection(db, "cuppings"), (sn) => {
                 const list = document.getElementById('cuppingList');
                 list.innerHTML = '';
@@ -266,27 +307,19 @@
                     const data = d.data();
                     const isAttending = data.attendees?.includes(currentUser.email);
                     const isDeclined = data.declined?.includes(currentUser.email);
-
                     const card = document.createElement('div');
                     card.className = "bg-white border border-brand-border p-6";
                     
                     const adminReport = isAdmin ? `
                         <div class="mt-6 pt-6 border-t border-brand-border grid grid-cols-2 gap-4">
-                            <div>
-                                <div class="text-[10px] font-bold uppercase text-green-700 mb-2">✅ Potvrzeno (${data.attendees?.length || 0})</div>
-                                <div class="text-xs space-y-1">${data.attendees?.join('<br>') || 'nikdo'}</div>
-                            </div>
-                            <div>
-                                <div class="text-[10px] font-bold uppercase text-red-700 mb-2">❌ Omluveno (${data.declined?.length || 0})</div>
-                                <div class="text-xs space-y-1">${data.declined?.join('<br>') || 'nikdo'}</div>
-                            </div>
+                            <div><div class="text-[10px] font-bold uppercase text-green-700 mb-2">✅ Potvrzeno (${data.attendees?.length || 0})</div><div class="text-xs space-y-1">${data.attendees?.join('<br>') || 'nikdo'}</div></div>
+                            <div><div class="text-[10px] font-bold uppercase text-red-700 mb-2">❌ Omluveno (${data.declined?.length || 0})</div><div class="text-xs space-y-1">${data.declined?.join('<br>') || 'nikdo'}</div></div>
                         </div>
                         <div class="mt-4 pt-4 border-t border-brand-border">
                             <button onclick="openResultsModal('${d.id}')" class="w-full bg-poppy-700 text-white font-bold text-xs uppercase tracking-widest py-3 hover:bg-poppy-800 transition">📊 Zobrazit výsledky hodnocení</button>
                         </div>
                     ` : '';
 
-                    // Uživatel vidí tlačítko "Ohodnotit", pouze pokud se účastní
                     const evaluateButton = isAttending ? `
                         <div class="mt-4 pt-4 border-t border-brand-border">
                             <button onclick="openEvalModal('${d.id}')" class="w-full bg-brand-dark text-white font-bold text-xs uppercase tracking-widest py-3 hover:bg-black transition">📝 Ohodnotit vzorky</button>
@@ -295,10 +328,7 @@
 
                     card.innerHTML = `
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                            <div>
-                                <div class="text-xs font-bold text-poppy-700 uppercase mb-1 tracking-widest">${data.date} | ${data.time}</div>
-                                <h3 class="text-2xl font-extrabold uppercase tracking-tight">${data.title}</h3>
-                            </div>
+                            <div><div class="text-xs font-bold text-poppy-700 uppercase mb-1 tracking-widest">${data.date} | ${data.time}</div><h3 class="text-2xl font-extrabold uppercase tracking-tight">${data.title}</h3></div>
                             <div class="flex gap-2 w-full md:w-auto">
                                 <button onclick="updateAttendance('${d.id}', 'yes')" class="flex-1 md:flex-none px-6 py-2 text-xs font-bold uppercase border border-brand-dark transition ${isAttending ? 'bg-brand-dark text-white' : 'hover:bg-brand-dark hover:text-white'}">Příjdu</button>
                                 <button onclick="updateAttendance('${d.id}', 'no')" class="flex-1 md:flex-none px-6 py-2 text-xs font-bold uppercase border border-brand-border text-brand-muted transition ${isDeclined ? 'bg-poppy-700 text-white border-poppy-700' : 'hover:border-brand-dark hover:text-brand-dark'}">Nepříjdu</button>
@@ -312,55 +342,84 @@
                 });
             });
 
-            // Recepty a Kávy zůstávají beze změny z předchozí verze
-            onSnapshot(collection(db, "roasterySets"), (sn) => { /* kód nezměněn, schován pro přehlednost */ });
-            onSnapshot(collection(db, "recipes"), (sn) => { /* kód nezměněn, schován pro přehlednost */ });
+            // 2. KÁVY (SELECTION)
+            onSnapshot(collection(db, "roasterySets"), (sn) => {
+                const list = document.getElementById('roasteryList');
+                list.innerHTML = '';
+                sn.forEach(d => {
+                    const block = d.data();
+                    const hasVoted = block.votedBy?.includes(currentUser.uid);
+                    const card = document.createElement('div');
+                    card.className = "bg-white border border-brand-border p-8";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-center mb-8 border-b border-brand-border pb-4">
+                            <h3 class="text-2xl font-extrabold uppercase tracking-tight">${block.roasteryName}</h3>
+                            ${isAdmin ? `<button onclick="deleteDocById('roasterySets', '${d.id}')" class="text-xs uppercase underline hover:text-poppy-700">Smazat</button>` : ''}
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            ${block.coffees.map((c, i) => `
+                                <div class="border border-brand-border p-5 bg-brand-bg relative text-sm group hover:border-brand-dark transition">
+                                    <div class="text-[10px] font-bold text-poppy-700 mb-3 uppercase tracking-widest">Vzorek 0${i+1} | ${c.price} Kč/g</div>
+                                    <div class="font-extrabold text-base mb-1 uppercase">${c.name}</div>
+                                    <div class="text-[10px] text-brand-muted uppercase font-bold tracking-wider">${c.origin} • ${c.variety}</div>
+                                    <div class="mt-4 text-[11px] italic text-brand-dark leading-relaxed">"${c.notes}"</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="flex gap-4 items-center bg-brand-bg p-4 border border-brand-border">
+                            <span class="text-[10px] font-bold uppercase tracking-widest mr-auto">${hasVoted ? 'Zahlasováno' : 'Vaše volba:'}</span>
+                            <button ${hasVoted ? 'disabled' : `onclick="vote('${d.id}', 'up')"`} class="px-6 py-2 border border-brand-dark font-bold text-xs hover:bg-brand-dark hover:text-white transition">👍 ${block.votesUp || 0}</button>
+                            <button ${hasVoted ? 'disabled' : `onclick="vote('${d.id}', 'down')"`} class="px-6 py-2 border border-brand-border text-brand-muted font-bold text-xs hover:border-brand-dark hover:text-brand-dark transition">👎 ${block.votesDown || 0}</button>
+                        </div>
+                    `;
+                    list.appendChild(card);
+                });
+            });
+
+            // 3. RECEPTY
+            onSnapshot(collection(db, "recipes"), (sn) => {
+                const list = document.getElementById('recipeList');
+                list.innerHTML = '';
+                sn.forEach(d => {
+                    const data = d.data();
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-6 border border-brand-border hover:shadow-sm transition";
+                    card.innerHTML = `
+                        <div class="flex justify-between mb-4">
+                            <span class="text-[10px] font-bold bg-brand-dark text-white px-2 py-1 uppercase tracking-widest">${data.method}</span>
+                            <span class="text-[10px] text-brand-muted uppercase font-bold tracking-widest">${data.author.split('@')[0]}</span>
+                        </div>
+                        <h3 class="text-xl font-extrabold uppercase mb-2 tracking-tight">${data.bean}</h3>
+                        <div class="text-sm font-bold mb-4 border-b border-brand-border pb-2 inline-block text-poppy-700 uppercase tracking-wider">${data.ratio}</div>
+                        <div class="text-xs text-brand-dark bg-brand-bg p-4 font-medium leading-relaxed">"${data.steps}"</div>
+                        ${isAdmin ? `<button onclick="deleteDocById('recipes', '${d.id}')" class="mt-4 text-[10px] uppercase font-bold text-red-500 hover:underline">Smazat</button>` : ''}
+                    `;
+                    list.appendChild(card);
+                });
+            });
         }
 
-        // --- AKCE PRO DOCHÁZKU A MAZÁNÍ ---
+        // --- ACTIONS ---
         window.updateAttendance = async (id, status) => {
             const ref = doc(db, "cuppings", id);
-            if(status === 'yes') {
-                await updateDoc(ref, { attendees: arrayUnion(currentUser.email), declined: arrayRemove(currentUser.email) });
-            } else {
-                await updateDoc(ref, { declined: arrayUnion(currentUser.email), attendees: arrayRemove(currentUser.email) });
-            }
+            if(status === 'yes') await updateDoc(ref, { attendees: arrayUnion(currentUser.email), declined: arrayRemove(currentUser.email) });
+            else await updateDoc(ref, { declined: arrayUnion(currentUser.email), attendees: arrayRemove(currentUser.email) });
         };
-        window.deleteDocById = async (coll, id) => { if(confirm('Opravdu smazat?')) await deleteDoc(doc(db, coll, id)); };
+        window.vote = async (id, type) => {
+            const ref = doc(db, "roasterySets", id);
+            await updateDoc(ref, { [type === 'up' ? 'votesUp' : 'votesDown']: increment(1), votedBy: arrayUnion(currentUser.uid) });
+        };
+        window.deleteDocById = async (coll, id) => { if(confirm('Tuto položku opravdu smazat?')) await deleteDoc(doc(db, coll, id)); };
 
-        // --- MODALS (OKNA) ---
+        // --- MODALS & CHARTS ---
         window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); };
-        
         window.openEvalModal = (cuppingId) => {
             document.getElementById('eval_cuppingId').value = cuppingId;
             document.getElementById('evalForm').reset();
             ['aroma', 'acid', 'sweet', 'body', 'after'].forEach(i => document.getElementById(`val_${i}`).innerText = "5");
             document.getElementById('evalModal').classList.remove('hidden');
         };
-
-        // --- UKLÁDÁNÍ HODNOCENÍ ---
-        document.getElementById('evalForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const scoreData = {
-                cuppingId: document.getElementById('eval_cuppingId').value,
-                userEmail: currentUser.email,
-                sample: document.getElementById('eval_sample').value,
-                aroma: parseFloat(document.getElementById('sl_aroma').value),
-                acidity: parseFloat(document.getElementById('sl_acid').value),
-                sweetness: parseFloat(document.getElementById('sl_sweet').value),
-                body: parseFloat(document.getElementById('sl_body').value),
-                aftertaste: parseFloat(document.getElementById('sl_after').value),
-                note: document.getElementById('eval_note').value,
-                timestamp: new Date()
-            };
-            try {
-                await addDoc(collection(db, "cuppingScores"), scoreData);
-                alert('Hodnocení úspěšně uloženo!');
-                closeModal('evalModal');
-            } catch (error) { console.error("Chyba při ukládání hodnocení", error); }
-        });
-
-        // --- VYKRESLOVÁNÍ VÝSLEDKŮ PRO ADMINA ---
+        
         window.openResultsModal = async (cuppingId) => {
             document.getElementById('resultsModal').classList.remove('hidden');
             const indResultsDiv = document.getElementById('individualResults');
@@ -368,7 +427,6 @@
 
             const q = query(collection(db, "cuppingScores"), where("cuppingId", "==", cuppingId));
             const querySnapshot = await getDocs(q);
-            
             const scores = [];
             let totals = { aroma: 0, acidity: 0, sweetness: 0, body: 0, aftertaste: 0 };
             
@@ -384,52 +442,86 @@
                 return;
             }
 
-            // Výpis jednotlivců
             indResultsDiv.innerHTML = scores.map(s => `
                 <div class="bg-brand-bg p-3 border border-brand-border">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-xs font-bold uppercase text-poppy-700">${s.sample}</span>
-                        <span class="text-[10px] text-brand-muted uppercase">${s.userEmail.split('@')[0]}</span>
-                    </div>
-                    <div class="text-[10px] font-bold text-brand-dark grid grid-cols-5 gap-1 text-center">
-                        <div>Ar: ${s.aroma}</div><div>Ac: ${s.acidity}</div><div>Sl: ${s.sweetness}</div><div>Tě: ${s.body}</div><div>Do: ${s.aftertaste}</div>
-                    </div>
+                    <div class="flex justify-between items-center mb-2"><span class="text-xs font-bold uppercase text-poppy-700">${s.sample}</span><span class="text-[10px] text-brand-muted uppercase">${s.userEmail.split('@')[0]}</span></div>
+                    <div class="text-[10px] font-bold text-brand-dark grid grid-cols-5 gap-1 text-center"><div>Ar: ${s.aroma}</div><div>Ac: ${s.acidity}</div><div>Sl: ${s.sweetness}</div><div>Tě: ${s.body}</div><div>Do: ${s.aftertaste}</div></div>
                     ${s.note ? `<div class="mt-2 text-[10px] italic border-t border-brand-border pt-1">"${s.note}"</div>` : ''}
                 </div>
             `).join('');
 
-            // Vykreslení grafu (Zprůměrované hodnoty všech vzorků dohromady pro představu celku)
-            const count = scores.length;
-            const avgData = [ totals.aroma/count, totals.acidity/count, totals.sweetness/count, totals.body/count, totals.aftertaste/count ];
-
+            const avgData = [ totals.aroma/scores.length, totals.acidity/scores.length, totals.sweetness/scores.length, totals.body/scores.length, totals.aftertaste/scores.length ];
             const ctx = document.getElementById('radarChart').getContext('2d');
-            if(myChartInstance) myChartInstance.destroy(); // Smaže starý graf před nakreslením nového
+            if(myChartInstance) myChartInstance.destroy(); 
             
             myChartInstance = new Chart(ctx, {
                 type: 'radar',
                 data: {
                     labels: ['Aroma', 'Acidita', 'Sladkost', 'Tělo', 'Dochůť'],
-                    datasets: [{
-                        label: 'Průměrné hodnocení Cuppingu',
-                        data: avgData,
-                        backgroundColor: 'rgba(185, 28, 28, 0.2)', // Poppy Red průhledná
-                        borderColor: '#b91c1c',
-                        pointBackgroundColor: '#09090b',
-                        borderWidth: 2
-                    }]
+                    datasets: [{ label: 'Průměrné skóre', data: avgData, backgroundColor: 'rgba(185, 28, 28, 0.2)', borderColor: '#b91c1c', pointBackgroundColor: '#09090b', borderWidth: 2 }]
                 },
-                options: {
-                    scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } },
-                    plugins: { legend: { display: false } }
-                }
+                options: { scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } }, plugins: { legend: { display: false } } }
             });
         };
 
-        // Zbytek formulářů (cupping, kávy, recepty) ponechán stejný...
+        // --- BARISTA ADVISOR LOGIC ---
+        window.diagnoseEspresso = () => {
+            const flow = document.getElementById('adv_flow').value;
+            const taste = document.getElementById('adv_taste').value;
+            const resBox = document.getElementById('advisorResult');
+            const diag = document.getElementById('adv_diagnosis');
+            const sol = document.getElementById('adv_solution');
+
+            let diagnosisText = ""; let solutionText = "";
+
+            if (flow === 'fast' && taste === 'sour') { diagnosisText = "Extrémní podextrakce."; solutionText = "<strong>ZJEMNI MLETÍ.</strong> Potřebujeme vodu zpomalit."; } 
+            else if (flow === 'slow' && taste === 'bitter') { diagnosisText = "Přeextrahováno."; solutionText = "<strong>ZHRUBNI MLETÍ.</strong> Potřebujeme, aby voda prošla pukem rychleji."; }
+            else if (flow === 'ideal' && taste === 'sour') { diagnosisText = "Strukturální podextrakce."; solutionText = "Neměň mletí! <strong>ZVÝŠ VÝSTUPNÍ VÁHU (YIELD).</strong>"; }
+            else if (flow === 'ideal' && taste === 'bitter') { diagnosisText = "Extrahujeme až moc."; solutionText = "Neměň mletí! <strong>SNIŽ VÝSTUPNÍ VÁHU (YIELD).</strong>"; }
+            else if (flow === 'fast' && taste === 'bitter') { diagnosisText = "🚨 Kanálkování (Channeling)."; solutionText = "Zkontroluj svou přípravu puku! Děláš správně <strong>WDT</strong>?"; }
+            else if (flow === 'slow' && taste === 'sour') { diagnosisText = "Zablokované sítko (Baking)."; solutionText = "Zkus <strong>SNÍŽIT DÁVKU</strong> in, abys nechal puku prostor k expanzi."; }
+            else if (taste === 'watery') { diagnosisText = "Nízká koncentrace chuti."; solutionText = "<strong>ZVYŠ DÁVKU KÁVY IN</strong>, abys zvýšil tělo."; }
+            else if (taste === 'good') { diagnosisText = "Perfektní shot! ☕"; solutionText = "<strong>NIC NEMĚŇ!</strong> Zapiš si přesný recept do deníku."; }
+            else { diagnosisText = "Zvláštní kombinace."; solutionText = "Zkus kávu udělat ještě jednou, ujisti se, že máš dokonale čistou páku a pečlivě utempováno."; }
+
+            diag.innerText = diagnosisText; sol.innerHTML = solutionText; resBox.classList.remove('hidden');
+        };
+
+        // --- FORM SUBMITS ---
         document.getElementById('cuppingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             await addDoc(collection(db, "cuppings"), { title: document.getElementById('cup_title').value, date: document.getElementById('cup_date').value, time: document.getElementById('cup_time').value, attendees: [], declined: [] });
             e.target.reset();
+        });
+
+        document.getElementById('roasteryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const set = {
+                roasteryName: document.getElementById('roasteryName').value, votesUp: 0, votesDown: 0, votedBy: [],
+                coffees: [
+                    { name: document.getElementById('c1_name').value, origin: document.getElementById('c1_origin').value, variety: document.getElementById('c1_variety').value, price: document.getElementById('c1_price').value, notes: document.getElementById('c1_notes').value },
+                    { name: document.getElementById('c2_name').value, origin: document.getElementById('c2_origin').value, variety: document.getElementById('c2_variety').value, price: document.getElementById('c2_price').value, notes: document.getElementById('c2_notes').value },
+                    { name: document.getElementById('c3_name').value, origin: document.getElementById('c3_origin').value, variety: document.getElementById('c3_variety').value, price: document.getElementById('c3_price').value, notes: document.getElementById('c3_notes').value }
+                ]
+            };
+            await addDoc(collection(db, "roasterySets"), set);
+            e.target.reset();
+        });
+
+        document.getElementById('recipeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await addDoc(collection(db, "recipes"), { bean: document.getElementById('rec_bean').value, method: document.getElementById('rec_method').value, ratio: document.getElementById('rec_ratio').value, steps: document.getElementById('rec_steps').value, author: currentUser.email });
+            e.target.reset();
+        });
+
+        document.getElementById('evalForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const scoreData = {
+                cuppingId: document.getElementById('eval_cuppingId').value, userEmail: currentUser.email, sample: document.getElementById('eval_sample').value,
+                aroma: parseFloat(document.getElementById('sl_aroma').value), acidity: parseFloat(document.getElementById('sl_acid').value), sweetness: parseFloat(document.getElementById('sl_sweet').value), body: parseFloat(document.getElementById('sl_body').value), aftertaste: parseFloat(document.getElementById('sl_after').value),
+                note: document.getElementById('eval_note').value, timestamp: new Date()
+            };
+            try { await addDoc(collection(db, "cuppingScores"), scoreData); alert('Hodnocení uloženo!'); closeModal('evalModal'); } catch (error) { console.error(error); }
         });
     </script>
 </body>
