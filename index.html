@@ -70,12 +70,25 @@
 
         <section id="tab-cupping" class="tab-content">
             <div id="admin-cupping-form" class="bg-white p-6 border border-brand-border mb-10 hidden">
-                <h2 class="font-bold uppercase mb-4 text-poppy-700">Vypsat nový cupping</h2>
-                <form id="cuppingForm" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <input type="text" id="cup_title" class="input-minimal" placeholder="Název cuppingu" required>
+                <h2 class="font-bold uppercase mb-6 text-poppy-700">Vypsat nový cupping</h2>
+                <form id="cuppingForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <input type="text" id="cup_title" class="input-minimal md:col-span-2 text-lg font-bold" placeholder="Název cuppingu (např. Původ: Afrika)" required>
                     <input type="date" id="cup_date" class="input-minimal" required>
                     <input type="time" id="cup_time" class="input-minimal" required>
-                    <button type="submit" class="bg-brand-dark text-white font-bold p-2 uppercase text-xs">Vytvořit událost</button>
+                    
+                    <div class="md:col-span-2 border border-brand-border p-5 bg-brand-bg relative">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-poppy-700"></div>
+                        <h3 class="text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-4">Seznam vzorků na stole</h3>
+                        <div id="dynamicSamples" class="space-y-3 mb-4">
+                            <input type="text" class="input-minimal sample-input text-sm" placeholder="Název kávy 1 (např. Dak - Peru Washed)" required>
+                            <input type="text" class="input-minimal sample-input text-sm" placeholder="Název kávy 2 (např. Kawa - Colombia Anaerobic)" required>
+                        </div>
+                        <button type="button" onclick="addSampleField()" class="text-xs font-bold uppercase tracking-widest text-brand-dark border border-brand-border px-4 py-2 hover:border-brand-dark transition">
+                            + Přidat další vzorek
+                        </button>
+                    </div>
+
+                    <button type="submit" class="bg-brand-dark text-white font-bold p-3 uppercase tracking-wider text-xs md:col-span-2 hover:bg-black transition shadow-sm">Vypsat událost a otevřít přihlašování</button>
                 </form>
             </div>
             <div id="cuppingList" class="grid grid-cols-1 gap-8"></div>
@@ -87,30 +100,9 @@
                 <form id="roasteryForm" class="space-y-6">
                     <input type="text" id="roasteryName" class="input-minimal font-bold text-lg" placeholder="Pražírna / Dodavatel" required>
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="p-4 border border-brand-border space-y-2">
-                            <h3 class="text-[10px] font-bold uppercase text-brand-muted">Vzorek 1</h3>
-                            <input type="text" id="c1_name" class="input-minimal text-xs" placeholder="Název" required>
-                            <input type="text" id="c1_origin" class="input-minimal text-xs" placeholder="Původ" required>
-                            <input type="text" id="c1_variety" class="input-minimal text-xs" placeholder="Odrůda" required>
-                            <input type="number" step="0.01" id="c1_price" class="input-minimal text-xs" placeholder="Kč/g" required>
-                            <textarea id="c1_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea>
-                        </div>
-                        <div class="p-4 border border-brand-border space-y-2">
-                            <h3 class="text-[10px] font-bold uppercase text-brand-muted">Vzorek 2</h3>
-                            <input type="text" id="c2_name" class="input-minimal text-xs" placeholder="Název" required>
-                            <input type="text" id="c2_origin" class="input-minimal text-xs" placeholder="Původ" required>
-                            <input type="text" id="c2_variety" class="input-minimal text-xs" placeholder="Odrůda" required>
-                            <input type="number" step="0.01" id="c2_price" class="input-minimal text-xs" placeholder="Kč/g" required>
-                            <textarea id="c2_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea>
-                        </div>
-                        <div class="p-4 border border-brand-border space-y-2">
-                            <h3 class="text-[10px] font-bold uppercase text-brand-muted">Vzorek 3</h3>
-                            <input type="text" id="c3_name" class="input-minimal text-xs" placeholder="Název" required>
-                            <input type="text" id="c3_origin" class="input-minimal text-xs" placeholder="Původ" required>
-                            <input type="text" id="c3_variety" class="input-minimal text-xs" placeholder="Odrůda" required>
-                            <input type="number" step="0.01" id="c3_price" class="input-minimal text-xs" placeholder="Kč/g" required>
-                            <textarea id="c3_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea>
-                        </div>
+                        <div class="p-4 border border-brand-border space-y-2"><h3 class="text-[10px] font-bold uppercase text-brand-muted">Vzorek 1</h3><input type="text" id="c1_name" class="input-minimal text-xs" placeholder="Název" required><input type="text" id="c1_origin" class="input-minimal text-xs" placeholder="Původ" required><input type="text" id="c1_variety" class="input-minimal text-xs" placeholder="Odrůda" required><input type="number" step="0.01" id="c1_price" class="input-minimal text-xs" placeholder="Kč/g" required><textarea id="c1_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea></div>
+                        <div class="p-4 border border-brand-border space-y-2"><h3 class="text-[10px] font-bold uppercase text-brand-muted">Vzorek 2</h3><input type="text" id="c2_name" class="input-minimal text-xs" placeholder="Název" required><input type="text" id="c2_origin" class="input-minimal text-xs" placeholder="Původ" required><input type="text" id="c2_variety" class="input-minimal text-xs" placeholder="Odrůda" required><input type="number" step="0.01" id="c2_price" class="input-minimal text-xs" placeholder="Kč/g" required><textarea id="c2_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea></div>
+                        <div class="p-4 border border-brand-border space-y-2"><h3 class="text-[10px] font-bold uppercase text-brand-muted">Vzorek 3</h3><input type="text" id="c3_name" class="input-minimal text-xs" placeholder="Název" required><input type="text" id="c3_origin" class="input-minimal text-xs" placeholder="Původ" required><input type="text" id="c3_variety" class="input-minimal text-xs" placeholder="Odrůda" required><input type="number" step="0.01" id="c3_price" class="input-minimal text-xs" placeholder="Kč/g" required><textarea id="c3_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea></div>
                     </div>
                     <button type="submit" class="bg-brand-dark text-white font-bold px-8 py-3 uppercase text-xs hover:bg-black transition">Uložit k hlasování</button>
                 </form>
@@ -123,14 +115,10 @@
                 <h2 class="font-bold uppercase mb-4 text-poppy-700">Sdílet nový recept</h2>
                 <form id="recipeForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <input type="text" id="rec_bean" class="input-minimal text-sm" placeholder="Káva / Zpracování" required>
-                    <select id="rec_method" class="input-minimal text-sm">
-                        <option>V60</option><option>Aeropress</option><option>Espresso</option><option>Chemex</option><option>Batch Brew</option>
-                    </select>
+                    <select id="rec_method" class="input-minimal text-sm"><option>V60</option><option>Aeropress</option><option>Espresso</option><option>Chemex</option><option>Batch Brew</option></select>
                     <input type="text" id="rec_ratio" class="input-minimal text-sm" placeholder="Ratio (např. 18g/300ml)" required>
                     <button type="submit" class="bg-brand-dark text-white font-bold p-2 uppercase text-xs hover:bg-black transition">Přidat recept</button>
-                    <div class="md:col-span-4">
-                        <textarea id="rec_steps" class="input-minimal h-24 text-sm" placeholder="Postup (mletí, teplota, časy...)"></textarea>
-                    </div>
+                    <div class="md:col-span-4"><textarea id="rec_steps" class="input-minimal h-24 text-sm" placeholder="Postup (mletí, teplota, časy...)"></textarea></div>
                 </form>
             </div>
             <div id="recipeList" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
@@ -142,31 +130,21 @@
                     <h2 class="text-2xl font-extrabold uppercase tracking-tight mb-2">Espresso Kompas</h2>
                     <p class="text-sm font-medium text-brand-muted">Nedaří se nastavit káva? Zadej parametry aktuální extrakce a získej radu.</p>
                 </div>
-
                 <div class="bg-brand-bg p-8 border border-brand-border grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-widest text-brand-dark mb-4 border-b border-brand-border pb-2">1. Jak to teče?</label>
                         <select id="adv_flow" class="input-minimal font-bold bg-white cursor-pointer">
-                            <option value="ideal">Trefil jsem čas (cca 25-30s)</option>
-                            <option value="fast">Příliš rychle (pod 20s)</option>
-                            <option value="slow">Příliš pomalu / Kape (nad 35s)</option>
+                            <option value="ideal">Trefil jsem čas (cca 25-30s)</option><option value="fast">Příliš rychle (pod 20s)</option><option value="slow">Příliš pomalu / Kape (nad 35s)</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-widest text-brand-dark mb-4 border-b border-brand-border pb-2">2. Jak to chutná?</label>
                         <select id="adv_taste" class="input-minimal font-bold bg-white cursor-pointer">
-                            <option value="sour">Je to nepříjemně kyselé (až svíravé)</option>
-                            <option value="bitter">Je to spálené, drsné a hořké</option>
-                            <option value="watery">Chybí tomu tělo, je to vodové a prázdné</option>
-                            <option value="good">Chutná to skvěle, sladce a vyváženě</option>
+                            <option value="sour">Je to nepříjemně kyselé (až svíravé)</option><option value="bitter">Je to spálené, drsné a hořké</option><option value="watery">Chybí tomu tělo, je to vodové a prázdné</option><option value="good">Chutná to skvěle, sladce a vyváženě</option>
                         </select>
                     </div>
                 </div>
-
-                <button onclick="diagnoseEspresso()" class="w-full bg-poppy-700 text-white font-extrabold p-4 uppercase tracking-widest text-sm hover:bg-poppy-800 transition shadow-sm mb-8">
-                    Získat radu 
-                </button>
-
+                <button onclick="diagnoseEspresso()" class="w-full bg-poppy-700 text-white font-extrabold p-4 uppercase tracking-widest text-sm hover:bg-poppy-800 transition shadow-sm mb-8">Získat radu šéfbaristy</button>
                 <div id="advisorResult" class="hidden bg-white p-8 border-l-4 border-poppy-700 shadow-sm relative">
                     <h3 class="text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-2">Diagnóza:</h3>
                     <div id="adv_diagnosis" class="text-lg font-bold mb-4 text-brand-dark"></div>
@@ -185,15 +163,12 @@
             <form id="evalForm" class="space-y-6">
                 <input type="hidden" id="eval_cuppingId">
                 <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-2">Který vzorek hodnotíš?</label>
-                    <select id="eval_sample" class="input-minimal text-sm font-bold">
-                        <option value="Vzorek 1">Vzorek 1</option>
-                        <option value="Vzorek 2">Vzorek 2</option>
-                        <option value="Vzorek 3">Vzorek 3</option>
-                    </select>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-2">Vyber kávu, kterou hodnotíš:</label>
+                    <select id="eval_sample" class="input-minimal text-sm font-bold bg-brand-bg border-brand-dark">
+                        </select>
                 </div>
 
-                <div class="space-y-4">
+                <div class="space-y-4 pt-4 border-t border-brand-border">
                     <div><div class="flex justify-between text-xs font-bold uppercase mb-1"><span>Aroma</span><span id="val_aroma" class="text-poppy-700">5</span></div><input type="range" id="sl_aroma" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_aroma').innerText=this.value"></div>
                     <div><div class="flex justify-between text-xs font-bold uppercase mb-1"><span>Acidita</span><span id="val_acid" class="text-poppy-700">5</span></div><input type="range" id="sl_acid" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_acid').innerText=this.value"></div>
                     <div><div class="flex justify-between text-xs font-bold uppercase mb-1"><span>Sladkost</span><span id="val_sweet" class="text-poppy-700">5</span></div><input type="range" id="sl_sweet" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_sweet').innerText=this.value"></div>
@@ -202,7 +177,7 @@
                 </div>
                 
                 <textarea id="eval_note" class="input-minimal text-sm h-16" placeholder="Osobní poznámka k chuti..."></textarea>
-                <button type="submit" class="w-full bg-brand-dark text-white font-bold p-3 uppercase text-xs hover:bg-black transition">Uložit moje hodnocení</button>
+                <button type="submit" class="w-full bg-poppy-700 text-white font-bold p-3 uppercase tracking-widest text-xs hover:bg-poppy-800 transition">Uložit moje hodnocení</button>
             </form>
         </div>
     </div>
@@ -210,15 +185,20 @@
     <div id="resultsModal" class="fixed inset-0 bg-brand-dark/90 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white max-w-4xl w-full max-h-[90vh] overflow-y-auto p-8 border border-brand-border relative">
             <button onclick="closeModal('resultsModal')" class="absolute top-4 right-4 text-brand-muted hover:text-poppy-700 font-bold uppercase text-xs">Zavřít ✕</button>
-            <h2 class="text-2xl font-extrabold uppercase mb-6 border-b border-brand-border pb-2">Analytika Cuppingu</h2>
+            <h2 class="text-2xl font-extrabold uppercase mb-2">Analytika Cuppingu</h2>
             
+            <div class="mb-6 border-b border-brand-border pb-6">
+                <label class="block text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-2">Vyber kávu k analýze:</label>
+                <select id="res_sample_select" onchange="renderChartAndList(this.value)" class="input-minimal text-sm font-bold w-full md:w-1/2 bg-brand-bg border-brand-dark"></select>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="bg-brand-bg p-6 border border-brand-border flex flex-col items-center justify-center">
-                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-4">Průměrný profil všech vzorků</h3>
+                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-4 text-center">Průměrný profil této kávy</h3>
                     <div class="w-full max-w-[300px]"><canvas id="radarChart"></canvas></div>
                 </div>
                 <div class="space-y-4">
-                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-brand-muted">Jednotlivá hodnocení kolegů</h3>
+                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-brand-muted">Jednotlivá hodnocení baristů</h3>
                     <div id="individualResults" class="space-y-3">
                         <div class="text-sm italic text-brand-muted">Načítám data...</div>
                     </div>
@@ -249,6 +229,10 @@
         let currentUser = null;
         let isAdmin = false;
         let myChartInstance = null;
+        
+        // Globální proměnné pro ukládání dat cuppingů a jejich hodnocení
+        window.globalCuppings = {}; 
+        window.currentResultsScores = [];
 
         // AUTHENTICATION LOGIC
         onAuthStateChanged(auth, (user) => {
@@ -297,6 +281,18 @@
             if(tabId === 'tab-advisor') activeBtn.classList.add('text-poppy-700');
         };
 
+        // UI FUNKCE: PŘIDÁNÍ VZORKU DO FORMULÁŘE
+        window.addSampleField = () => {
+            const container = document.getElementById('dynamicSamples');
+            const count = container.children.length + 1;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'input-minimal sample-input text-sm mt-3';
+            input.placeholder = `Název kávy ${count} (Farma, Zpracování...)`;
+            input.required = true;
+            container.appendChild(input);
+        };
+
         // REAL-TIME DATA FETCHING
         function loadData() {
             // 1. CUPPINGY
@@ -305,8 +301,12 @@
                 list.innerHTML = '';
                 sn.forEach(d => {
                     const data = d.data();
+                    window.globalCuppings[d.id] = data; // Uložení do globální paměti pro modální okna
+                    
                     const isAttending = data.attendees?.includes(currentUser.email);
                     const isDeclined = data.declined?.includes(currentUser.email);
+                    const sampleCount = data.samples ? data.samples.length : 0;
+
                     const card = document.createElement('div');
                     card.className = "bg-white border border-brand-border p-6";
                     
@@ -328,7 +328,10 @@
 
                     card.innerHTML = `
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                            <div><div class="text-xs font-bold text-poppy-700 uppercase mb-1 tracking-widest">${data.date} | ${data.time}</div><h3 class="text-2xl font-extrabold uppercase tracking-tight">${data.title}</h3></div>
+                            <div>
+                                <div class="text-xs font-bold text-poppy-700 uppercase mb-1 tracking-widest">${data.date} | ${data.time} | Vzorků: ${sampleCount}</div>
+                                <h3 class="text-2xl font-extrabold uppercase tracking-tight">${data.title}</h3>
+                            </div>
                             <div class="flex gap-2 w-full md:w-auto">
                                 <button onclick="updateAttendance('${d.id}', 'yes')" class="flex-1 md:flex-none px-6 py-2 text-xs font-bold uppercase border border-brand-dark transition ${isAttending ? 'bg-brand-dark text-white' : 'hover:bg-brand-dark hover:text-white'}">Příjdu</button>
                                 <button onclick="updateAttendance('${d.id}', 'no')" class="flex-1 md:flex-none px-6 py-2 text-xs font-bold uppercase border border-brand-border text-brand-muted transition ${isDeclined ? 'bg-poppy-700 text-white border-poppy-700' : 'hover:border-brand-dark hover:text-brand-dark'}">Nepříjdu</button>
@@ -411,46 +414,83 @@
         };
         window.deleteDocById = async (coll, id) => { if(confirm('Tuto položku opravdu smazat?')) await deleteDoc(doc(db, coll, id)); };
 
-        // --- MODALS & CHARTS ---
+        // --- MODALS (HODNOCENÍ) ---
         window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); };
+        
         window.openEvalModal = (cuppingId) => {
             document.getElementById('eval_cuppingId').value = cuppingId;
+            
+            // Dynamické načtení vzorků do roletky
+            const samples = window.globalCuppings[cuppingId].samples || [];
+            const select = document.getElementById('eval_sample');
+            select.innerHTML = samples.map(s => `<option value="${s}">${s}</option>`).join('');
+
             document.getElementById('evalForm').reset();
             ['aroma', 'acid', 'sweet', 'body', 'after'].forEach(i => document.getElementById(`val_${i}`).innerText = "5");
             document.getElementById('evalModal').classList.remove('hidden');
         };
         
+        // --- MODALS (VÝSLEDKY & GRAFY) ---
         window.openResultsModal = async (cuppingId) => {
             document.getElementById('resultsModal').classList.remove('hidden');
+            
+            // Načtení seznamu vzorků do filtrovací roletky
+            const samples = window.globalCuppings[cuppingId].samples || [];
+            const select = document.getElementById('res_sample_select');
+            select.innerHTML = samples.map(s => `<option value="${s}">${s}</option>`).join('');
+
+            // Stažení všech hodnocení z databáze pro tento cupping
             const indResultsDiv = document.getElementById('individualResults');
-            indResultsDiv.innerHTML = '<div class="text-sm italic text-brand-muted">Načítám data...</div>';
+            indResultsDiv.innerHTML = '<div class="text-sm italic text-brand-muted">Stahuji data ze serveru...</div>';
 
             const q = query(collection(db, "cuppingScores"), where("cuppingId", "==", cuppingId));
             const querySnapshot = await getDocs(q);
-            const scores = [];
-            let totals = { aroma: 0, acidity: 0, sweetness: 0, body: 0, aftertaste: 0 };
             
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                scores.push(data);
-                totals.aroma += data.aroma; totals.acidity += data.acidity; totals.sweetness += data.sweetness; totals.body += data.body; totals.aftertaste += data.aftertaste;
-            });
+            window.currentResultsScores = [];
+            querySnapshot.forEach((doc) => window.currentResultsScores.push(doc.data()));
 
-            if (scores.length === 0) {
-                indResultsDiv.innerHTML = '<div class="text-xs font-bold text-red-500 uppercase">Zatím nikdo nehodnotil.</div>';
+            // Vykreslení výsledků pro první vzorek v roletce
+            if(samples.length > 0) {
+                renderChartAndList(samples[0]);
+            } else {
+                indResultsDiv.innerHTML = '<div class="text-xs font-bold text-red-500 uppercase">Tento cupping nemá žádné vzorky.</div>';
+            }
+        };
+
+        window.renderChartAndList = (sampleName) => {
+            const indResultsDiv = document.getElementById('individualResults');
+            
+            // Filtrujeme jen hodnocení pro právě vybranou kávu
+            const filteredScores = window.currentResultsScores.filter(s => s.sample === sampleName);
+
+            if (filteredScores.length === 0) {
+                indResultsDiv.innerHTML = '<div class="text-[10px] font-bold text-red-500 uppercase tracking-widest border border-red-200 bg-red-50 p-4">Tuto kávu zatím nikdo nehodnotil.</div>';
                 if(myChartInstance) myChartInstance.destroy();
                 return;
             }
 
-            indResultsDiv.innerHTML = scores.map(s => `
-                <div class="bg-brand-bg p-3 border border-brand-border">
-                    <div class="flex justify-between items-center mb-2"><span class="text-xs font-bold uppercase text-poppy-700">${s.sample}</span><span class="text-[10px] text-brand-muted uppercase">${s.userEmail.split('@')[0]}</span></div>
-                    <div class="text-[10px] font-bold text-brand-dark grid grid-cols-5 gap-1 text-center"><div>Ar: ${s.aroma}</div><div>Ac: ${s.acidity}</div><div>Sl: ${s.sweetness}</div><div>Tě: ${s.body}</div><div>Do: ${s.aftertaste}</div></div>
-                    ${s.note ? `<div class="mt-2 text-[10px] italic border-t border-brand-border pt-1">"${s.note}"</div>` : ''}
-                </div>
-            `).join('');
+            let totals = { aroma: 0, acidity: 0, sweetness: 0, body: 0, aftertaste: 0 };
+            
+            indResultsDiv.innerHTML = filteredScores.map(s => {
+                totals.aroma += s.aroma; totals.acidity += s.acidity; totals.sweetness += s.sweetness; totals.body += s.body; totals.aftertaste += s.aftertaste;
+                return `
+                    <div class="bg-brand-bg p-4 border border-brand-border">
+                        <div class="flex justify-between items-center mb-3 border-b border-brand-border pb-2"><span class="text-xs font-bold text-poppy-700">Barista</span><span class="text-[10px] font-extrabold text-brand-dark uppercase tracking-widest">${s.userEmail.split('@')[0]}</span></div>
+                        <div class="text-[10px] font-bold text-brand-muted grid grid-cols-5 gap-1 text-center">
+                            <div>Aroma<br><span class="text-brand-dark text-sm">${s.aroma}</span></div>
+                            <div>Acidita<br><span class="text-brand-dark text-sm">${s.acidity}</span></div>
+                            <div>Sladkost<br><span class="text-brand-dark text-sm">${s.sweetness}</span></div>
+                            <div>Tělo<br><span class="text-brand-dark text-sm">${s.body}</span></div>
+                            <div>Dochůť<br><span class="text-brand-dark text-sm">${s.aftertaste}</span></div>
+                        </div>
+                        ${s.note ? `<div class="mt-3 text-xs italic bg-white p-2 border border-brand-border">"${s.note}"</div>` : ''}
+                    </div>
+                `;
+            }).join('');
 
-            const avgData = [ totals.aroma/scores.length, totals.acidity/scores.length, totals.sweetness/scores.length, totals.body/scores.length, totals.aftertaste/scores.length ];
+            const count = filteredScores.length;
+            const avgData = [ totals.aroma/count, totals.acidity/count, totals.sweetness/count, totals.body/count, totals.aftertaste/count ];
+            
             const ctx = document.getElementById('radarChart').getContext('2d');
             if(myChartInstance) myChartInstance.destroy(); 
             
@@ -458,69 +498,66 @@
                 type: 'radar',
                 data: {
                     labels: ['Aroma', 'Acidita', 'Sladkost', 'Tělo', 'Dochůť'],
-                    datasets: [{ label: 'Průměrné skóre', data: avgData, backgroundColor: 'rgba(185, 28, 28, 0.2)', borderColor: '#b91c1c', pointBackgroundColor: '#09090b', borderWidth: 2 }]
+                    datasets: [{ label: 'Průměr hodnocení', data: avgData, backgroundColor: 'rgba(185, 28, 28, 0.2)', borderColor: '#b91c1c', pointBackgroundColor: '#09090b', borderWidth: 2 }]
                 },
                 options: { scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } }, plugins: { legend: { display: false } } }
             });
         };
 
         // --- BARISTA ADVISOR LOGIC ---
-        window.diagnoseEspresso = () => {
-            const flow = document.getElementById('adv_flow').value;
-            const taste = document.getElementById('adv_taste').value;
-            const resBox = document.getElementById('advisorResult');
-            const diag = document.getElementById('adv_diagnosis');
-            const sol = document.getElementById('adv_solution');
-
-            let diagnosisText = ""; let solutionText = "";
-
-            if (flow === 'fast' && taste === 'sour') { diagnosisText = "Extrémní podextrakce."; solutionText = "<strong>ZJEMNI MLETÍ.</strong> Potřebujeme vodu zpomalit."; } 
-            else if (flow === 'slow' && taste === 'bitter') { diagnosisText = "Přeextrahováno."; solutionText = "<strong>ZHRUBNI MLETÍ.</strong> Potřebujeme, aby voda prošla pukem rychleji."; }
-            else if (flow === 'ideal' && taste === 'sour') { diagnosisText = "Strukturální podextrakce."; solutionText = "Neměň mletí! <strong>ZVÝŠ VÝSTUPNÍ VÁHU (YIELD).</strong>"; }
-            else if (flow === 'ideal' && taste === 'bitter') { diagnosisText = "Extrahujeme až moc."; solutionText = "Neměň mletí! <strong>SNIŽ VÝSTUPNÍ VÁHU (YIELD).</strong>"; }
-            else if (flow === 'fast' && taste === 'bitter') { diagnosisText = "🚨 Kanálkování (Channeling)."; solutionText = "Zkontroluj svou přípravu puku! Děláš správně <strong>WDT</strong>?"; }
-            else if (flow === 'slow' && taste === 'sour') { diagnosisText = "Zablokované sítko (Baking)."; solutionText = "Zkus <strong>SNÍŽIT DÁVKU</strong> in, abys nechal puku prostor k expanzi."; }
-            else if (taste === 'watery') { diagnosisText = "Nízká koncentrace chuti."; solutionText = "<strong>ZVYŠ DÁVKU KÁVY IN</strong>, abys zvýšil tělo."; }
-            else if (taste === 'good') { diagnosisText = "Perfektní shot! ☕"; solutionText = "<strong>NIC NEMĚŇ!</strong> Zapiš si přesný recept do deníku."; }
-            else { diagnosisText = "Zvláštní kombinace."; solutionText = "Zkus kávu udělat ještě jednou, ujisti se, že máš dokonale čistou páku a pečlivě utempováno."; }
-
-            diag.innerText = diagnosisText; sol.innerHTML = solutionText; resBox.classList.remove('hidden');
+        window.diagnoseEspresso = () => { /* Logika rádce ponechána z předchozí verze */ 
+            const flow = document.getElementById('adv_flow').value; const taste = document.getElementById('adv_taste').value; const resBox = document.getElementById('advisorResult'); const diag = document.getElementById('adv_diagnosis'); const sol = document.getElementById('adv_solution');
+            let dt = ""; let st = "";
+            if (flow === 'fast' && taste === 'sour') { dt = "Extrémní podextrakce."; st = "<strong>ZJEMNI MLETÍ.</strong> Potřebujeme vodu zpomalit."; } 
+            else if (flow === 'slow' && taste === 'bitter') { dt = "Přeextrahováno."; st = "<strong>ZHRUBNI MLETÍ.</strong> Potřebujeme, aby voda prošla pukem rychleji."; }
+            else if (flow === 'ideal' && taste === 'sour') { dt = "Strukturální podextrakce."; st = "Neměň mletí! <strong>ZVÝŠ VÝSTUPNÍ VÁHU (YIELD).</strong>"; }
+            else if (flow === 'ideal' && taste === 'bitter') { dt = "Extrahujeme až moc."; st = "Neměň mletí! <strong>SNIŽ VÝSTUPNÍ VÁHU (YIELD).</strong>"; }
+            else if (flow === 'fast' && taste === 'bitter') { dt = "🚨 Kanálkování (Channeling)."; st = "Zkontroluj svou přípravu puku! Děláš správně <strong>WDT</strong>?"; }
+            else if (flow === 'slow' && taste === 'sour') { dt = "Zablokované sítko (Baking)."; st = "Zkus <strong>SNÍŽIT DÁVKU</strong> in, abys nechal puku prostor k expanzi."; }
+            else if (taste === 'watery') { dt = "Nízká koncentrace chuti."; st = "<strong>ZVYŠ DÁVKU KÁVY IN</strong>, abys zvýšil tělo."; }
+            else if (taste === 'good') { dt = "Perfektní shot! ☕"; st = "<strong>NIC NEMĚŇ!</strong> Zapiš si přesný recept do deníku."; }
+            else { dt = "Zvláštní kombinace."; st = "Zkus kávu udělat ještě jednou, ujisti se, že máš dokonale čistou páku a pečlivě utempováno."; }
+            diag.innerText = dt; sol.innerHTML = st; resBox.classList.remove('hidden');
         };
 
         // --- FORM SUBMITS ---
         document.getElementById('cuppingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            await addDoc(collection(db, "cuppings"), { title: document.getElementById('cup_title').value, date: document.getElementById('cup_date').value, time: document.getElementById('cup_time').value, attendees: [], declined: [] });
+            
+            // Nasbírání všech zadaných vzorků do pole
+            const sampleInputs = document.querySelectorAll('.sample-input');
+            const samplesArray = Array.from(sampleInputs).map(input => input.value).filter(val => val.trim() !== '');
+
+            await addDoc(collection(db, "cuppings"), { 
+                title: document.getElementById('cup_title').value, 
+                date: document.getElementById('cup_date').value, 
+                time: document.getElementById('cup_time').value, 
+                samples: samplesArray, // Nové uložení pole vzorků
+                attendees: [], 
+                declined: [] 
+            });
+            
+            // Reset formuláře a odstranění přidaných políček navíc
             e.target.reset();
+            const dynamicContainer = document.getElementById('dynamicSamples');
+            while (dynamicContainer.children.length > 2) {
+                dynamicContainer.removeChild(dynamicContainer.lastChild);
+            }
         });
 
         document.getElementById('roasteryForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const set = {
-                roasteryName: document.getElementById('roasteryName').value, votesUp: 0, votesDown: 0, votedBy: [],
-                coffees: [
-                    { name: document.getElementById('c1_name').value, origin: document.getElementById('c1_origin').value, variety: document.getElementById('c1_variety').value, price: document.getElementById('c1_price').value, notes: document.getElementById('c1_notes').value },
-                    { name: document.getElementById('c2_name').value, origin: document.getElementById('c2_origin').value, variety: document.getElementById('c2_variety').value, price: document.getElementById('c2_price').value, notes: document.getElementById('c2_notes').value },
-                    { name: document.getElementById('c3_name').value, origin: document.getElementById('c3_origin').value, variety: document.getElementById('c3_variety').value, price: document.getElementById('c3_price').value, notes: document.getElementById('c3_notes').value }
-                ]
-            };
-            await addDoc(collection(db, "roasterySets"), set);
-            e.target.reset();
+            const set = { roasteryName: document.getElementById('roasteryName').value, votesUp: 0, votesDown: 0, votedBy: [], coffees: [ { name: document.getElementById('c1_name').value, origin: document.getElementById('c1_origin').value, variety: document.getElementById('c1_variety').value, price: document.getElementById('c1_price').value, notes: document.getElementById('c1_notes').value }, { name: document.getElementById('c2_name').value, origin: document.getElementById('c2_origin').value, variety: document.getElementById('c2_variety').value, price: document.getElementById('c2_price').value, notes: document.getElementById('c2_notes').value }, { name: document.getElementById('c3_name').value, origin: document.getElementById('c3_origin').value, variety: document.getElementById('c3_variety').value, price: document.getElementById('c3_price').value, notes: document.getElementById('c3_notes').value } ] };
+            await addDoc(collection(db, "roasterySets"), set); e.target.reset();
         });
 
         document.getElementById('recipeForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await addDoc(collection(db, "recipes"), { bean: document.getElementById('rec_bean').value, method: document.getElementById('rec_method').value, ratio: document.getElementById('rec_ratio').value, steps: document.getElementById('rec_steps').value, author: currentUser.email });
-            e.target.reset();
+            e.preventDefault(); await addDoc(collection(db, "recipes"), { bean: document.getElementById('rec_bean').value, method: document.getElementById('rec_method').value, ratio: document.getElementById('rec_ratio').value, steps: document.getElementById('rec_steps').value, author: currentUser.email }); e.target.reset();
         });
 
         document.getElementById('evalForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const scoreData = {
-                cuppingId: document.getElementById('eval_cuppingId').value, userEmail: currentUser.email, sample: document.getElementById('eval_sample').value,
-                aroma: parseFloat(document.getElementById('sl_aroma').value), acidity: parseFloat(document.getElementById('sl_acid').value), sweetness: parseFloat(document.getElementById('sl_sweet').value), body: parseFloat(document.getElementById('sl_body').value), aftertaste: parseFloat(document.getElementById('sl_after').value),
-                note: document.getElementById('eval_note').value, timestamp: new Date()
-            };
+            const scoreData = { cuppingId: document.getElementById('eval_cuppingId').value, userEmail: currentUser.email, sample: document.getElementById('eval_sample').value, aroma: parseFloat(document.getElementById('sl_aroma').value), acidity: parseFloat(document.getElementById('sl_acid').value), sweetness: parseFloat(document.getElementById('sl_sweet').value), body: parseFloat(document.getElementById('sl_body').value), aftertaste: parseFloat(document.getElementById('sl_after').value), note: document.getElementById('eval_note').value, timestamp: new Date() };
             try { await addDoc(collection(db, "cuppingScores"), scoreData); alert('Hodnocení uloženo!'); closeModal('evalModal'); } catch (error) { console.error(error); }
         });
     </script>
