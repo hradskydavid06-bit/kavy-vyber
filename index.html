@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Poppy Beans | Výběr Káv</title>
+    <title>Poppy Beans | Internal System</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,29 +11,13 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // Vlastní barevná paleta sladěná s Poppy Beans
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        poppy: {
-                            50: '#fef2f2',
-                            100: '#fee2e2',
-                            500: '#ef4444',
-                            600: '#dc2626',
-                            700: '#b91c1c', // Hlavní červená (Poppy)
-                            800: '#991b1b',
-                            900: '#7f1d1d',
-                        },
-                        brand: {
-                            dark: '#09090b', // Téměř černá
-                            muted: '#71717a', // Šedá pro doplňkové texty
-                            border: '#e4e4e7', // Jemné linky
-                            bg: '#fafafa' // Pozadí aplikace
-                        }
+                        poppy: { 700: '#b91c1c', 800: '#991b1b' },
+                        brand: { dark: '#09090b', muted: '#71717a', border: '#e4e4e7', bg: '#fafafa' }
                     }
                 }
             }
@@ -41,164 +25,119 @@
     </script>
     <style>
         body { background-color: #fafafa; }
-        /* Minimalistické inputy */
-        .input-minimal {
-            background-color: transparent;
-            border: 1px solid #e4e4e7;
-            border-radius: 4px;
-            padding: 0.75rem 1rem;
-            transition: all 0.2s;
-        }
-        .input-minimal:focus {
-            outline: none;
-            border-color: #18181b;
-            box-shadow: 0 0 0 1px #18181b;
-        }
-        .input-minimal-red:focus {
-            border-color: #b91c1c;
-            box-shadow: 0 0 0 1px #b91c1c;
-        }
-        /* Custom Scrollbar pro čistotu */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #a1a1aa; }
+        .input-minimal { background: transparent; border: 1px solid #e4e4e7; border-radius: 4px; padding: 0.75rem 1rem; transition: all 0.2s; width: 100%; }
+        .input-minimal:focus { outline: none; border-color: #09090b; box-shadow: 0 0 0 1px #09090b; }
+        .tab-active { border-bottom: 2px solid #b91c1c; color: #b91c1c; font-weight: 800; }
+        .tab-inactive { color: #71717a; border-bottom: 2px solid transparent; }
     </style>
 </head>
 <body class="text-brand-dark font-sans min-h-screen antialiased">
 
     <div id="loginScreen" class="flex flex-col items-center justify-center min-h-screen p-6 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-1 bg-poppy-700"></div>
-        
         <div class="bg-white p-10 border border-brand-border max-w-md w-full">
             <div class="text-center mb-10">
                 <h1 class="text-3xl font-extrabold tracking-tight mb-2 uppercase">Poppy Beans</h1>
-                <p class="text-sm font-medium tracking-widest text-brand-muted uppercase">Coffee Selection</p>
+                <p class="text-xs font-bold tracking-widest text-brand-muted uppercase">Internal System</p>
             </div>
-            
             <form id="loginForm" class="space-y-6">
-                <div>
-                    <label class="block text-xs font-bold text-brand-muted uppercase tracking-wider mb-2">E-mail</label>
-                    <input type="email" id="emailInput" class="input-minimal w-full" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-brand-muted uppercase tracking-wider mb-2">Heslo</label>
-                    <input type="password" id="passwordInput" class="input-minimal w-full" required>
-                </div>
-                <div id="loginError" class="text-poppy-700 text-sm hidden font-medium">Nesprávné přihlašovací údaje.</div>
-                <button type="submit" class="w-full bg-brand-dark text-white p-3 font-bold hover:bg-black transition tracking-wide">
-                    PŘIHLÁSIT SE
-                </button>
+                <input type="email" id="emailInput" class="input-minimal" placeholder="E-mail" required>
+                <input type="password" id="passwordInput" class="input-minimal" placeholder="Heslo" required>
+                <div id="loginError" class="text-poppy-700 text-sm hidden font-medium text-center">Přihlášení se nezdařilo.</div>
+                <button type="submit" class="w-full bg-brand-dark text-white p-3 font-bold hover:bg-black transition uppercase tracking-wider">Vstoupit</button>
             </form>
         </div>
     </div>
 
     <div id="mainApp" class="max-w-6xl mx-auto p-6 md:p-12 hidden">
-        
-        <header class="mb-12 border-b-2 border-brand-dark pb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-            <div>
-                <h1 class="text-4xl font-extrabold tracking-tight uppercase">Poppy Beans</h1>
-                <p class="text-sm font-medium tracking-widest text-brand-muted uppercase mt-2">Interní Cupping & Výběr</p>
-            </div>
-            <div class="flex items-center gap-4">
-                <span id="userGreeting" class="text-sm font-medium text-brand-muted"></span>
-                <button id="logoutBtn" class="text-sm font-bold text-brand-dark hover:text-poppy-700 transition uppercase tracking-wider border border-brand-border px-4 py-2 hover:border-poppy-700">
-                    Odhlásit
-                </button>
+        <header class="mb-8 flex flex-col md:flex-row justify-between items-center border-b border-brand-border pb-6 gap-6">
+            <h1 class="text-3xl font-extrabold uppercase tracking-tight">Poppy Beans</h1>
+            <nav class="flex gap-8 text-sm uppercase tracking-widest font-bold">
+                <button onclick="switchTab('tab-cupping')" id="btn-tab-cupping" class="tab-active py-2">Cuppingy</button>
+                <button onclick="switchTab('tab-kavy')" id="btn-tab-kavy" class="tab-inactive py-2">Výběr Kávy</button>
+                <button onclick="switchTab('tab-recepty')" id="btn-tab-recepty" class="tab-inactive py-2">Recepty</button>
+            </nav>
+            <div class="flex items-center gap-4 text-xs font-bold">
+                <span id="userGreeting" class="text-brand-muted uppercase"></span>
+                <button id="logoutBtn" class="text-poppy-700 hover:underline uppercase">Odhlásit</button>
             </div>
         </header>
 
-        <section id="adminSection" class="bg-white p-8 border border-brand-border mb-12 hidden relative">
-            <div class="absolute top-0 left-0 w-1 h-full bg-brand-dark"></div>
-            <h2 class="text-xl font-bold uppercase tracking-wider mb-8 border-b border-brand-border pb-4">Přidat nový degustační set</h2>
-            
-            <form id="roasteryForm" class="space-y-8">
-                <div>
-                    <label class="block text-sm font-bold uppercase tracking-wider mb-2">Název pražírny / Dodavatele</label>
-                    <input type="text" id="roasteryName" class="input-minimal w-full md:w-1/2 text-lg font-bold" placeholder="Např. Dak Coffee Roasters" required>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="space-y-4">
-                        <div class="flex items-center justify-between border-b border-brand-border pb-2">
-                            <h3 class="font-bold text-poppy-700 uppercase tracking-widest text-xs">Vzorek 01</h3>
-                        </div>
-                        <input type="text" id="c1_name" class="input-minimal w-full" placeholder="Název / Farma" required>
-                        <input type="text" id="c1_origin" class="input-minimal w-full" placeholder="Země a region" required>
-                        <input type="text" id="c1_variety" class="input-minimal w-full" placeholder="Odrůda" required>
-                        <select id="c1_process" class="input-minimal w-full bg-white">
-                            <option>Promyté (Washed)</option><option>Naturální (Natural)</option><option>Anaerobní / Experimentální</option><option>Honey</option>
-                        </select>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-brand-muted font-bold">Kč/g</span>
-                            <input type="number" step="0.01" id="c1_price" class="input-minimal w-full pl-12 font-medium" placeholder="Cena" required>
-                        </div>
-                        <textarea id="c1_notes" rows="2" class="input-minimal w-full resize-none" placeholder="Chuťový profil..."></textarea>
-                    </div>
-
-                    <div class="space-y-4">
-                        <div class="flex items-center justify-between border-b border-brand-border pb-2">
-                            <h3 class="font-bold text-poppy-700 uppercase tracking-widest text-xs">Vzorek 02</h3>
-                        </div>
-                        <input type="text" id="c2_name" class="input-minimal w-full" placeholder="Název / Farma" required>
-                        <input type="text" id="c2_origin" class="input-minimal w-full" placeholder="Země a region" required>
-                        <input type="text" id="c2_variety" class="input-minimal w-full" placeholder="Odrůda" required>
-                        <select id="c2_process" class="input-minimal w-full bg-white">
-                            <option>Promyté (Washed)</option><option>Naturální (Natural)</option><option>Anaerobní / Experimentální</option><option>Honey</option>
-                        </select>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-brand-muted font-bold">Kč/g</span>
-                            <input type="number" step="0.01" id="c2_price" class="input-minimal w-full pl-12 font-medium" placeholder="Cena" required>
-                        </div>
-                        <textarea id="c2_notes" rows="2" class="input-minimal w-full resize-none" placeholder="Chuťový profil..."></textarea>
-                    </div>
-
-                    <div class="space-y-4">
-                        <div class="flex items-center justify-between border-b border-brand-border pb-2">
-                            <h3 class="font-bold text-poppy-700 uppercase tracking-widest text-xs">Vzorek 03</h3>
-                        </div>
-                        <input type="text" id="c3_name" class="input-minimal w-full" placeholder="Název / Farma" required>
-                        <input type="text" id="c3_origin" class="input-minimal w-full" placeholder="Země a region" required>
-                        <input type="text" id="c3_variety" class="input-minimal w-full" placeholder="Odrůda" required>
-                        <select id="c3_process" class="input-minimal w-full bg-white">
-                            <option>Promyté (Washed)</option><option>Naturální (Natural)</option><option>Anaerobní / Experimentální</option><option>Honey</option>
-                        </select>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-brand-muted font-bold">Kč/g</span>
-                            <input type="number" step="0.01" id="c3_price" class="input-minimal w-full pl-12 font-medium" placeholder="Cena" required>
-                        </div>
-                        <textarea id="c3_notes" rows="2" class="input-minimal w-full resize-none" placeholder="Chuťový profil..."></textarea>
-                    </div>
-                </div>
-
-                <div class="pt-6 border-t border-brand-border">
-                    <button type="submit" class="w-full md:w-auto bg-poppy-700 text-white px-8 py-3 font-bold uppercase tracking-wider hover:bg-poppy-800 transition">
-                        Nahrát set do systému
-                    </button>
-                </div>
-            </form>
+        <section id="tab-cupping" class="tab-content">
+            <div id="admin-cupping-form" class="bg-white p-6 border border-brand-border mb-10 hidden">
+                <h2 class="font-bold uppercase mb-4 text-poppy-700">Vypsat nový cupping</h2>
+                <form id="cuppingForm" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="text" id="cup_title" class="input-minimal" placeholder="Název cuppingu" required>
+                    <input type="date" id="cup_date" class="input-minimal" required>
+                    <input type="time" id="cup_time" class="input-minimal" required>
+                    <button type="submit" class="bg-brand-dark text-white font-bold p-2 uppercase text-xs">Vytvořit událost</button>
+                </form>
+            </div>
+            <div id="cuppingList" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
         </section>
 
-        <section>
-            <div class="flex justify-between items-end mb-6 border-b border-brand-border pb-2">
-                <h2 class="text-xl font-bold uppercase tracking-wider">Aktuální hlasování</h2>
+        <section id="tab-kavy" class="tab-content hidden">
+            <div id="admin-coffee-form" class="bg-white p-6 border border-brand-border mb-10 hidden">
+                <h2 class="font-bold uppercase mb-6 text-poppy-700">Nový výběrový set (3 vzorky)</h2>
+                <form id="roasteryForm" class="space-y-6">
+                    <input type="text" id="roasteryName" class="input-minimal font-bold text-lg" placeholder="Pražírna / Dodavatel" required>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="p-4 border border-brand-border space-y-2">
+                            <h3 class="text-xs font-bold uppercase text-brand-muted">Vzorek 1</h3>
+                            <input type="text" id="c1_name" class="input-minimal text-xs" placeholder="Název" required>
+                            <input type="text" id="c1_origin" class="input-minimal text-xs" placeholder="Původ" required>
+                            <input type="text" id="c1_variety" class="input-minimal text-xs" placeholder="Odrůda" required>
+                            <input type="number" step="0.01" id="c1_price" class="input-minimal text-xs" placeholder="Kč/g" required>
+                            <textarea id="c1_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea>
+                        </div>
+                        <div class="p-4 border border-brand-border space-y-2">
+                            <h3 class="text-xs font-bold uppercase text-brand-muted">Vzorek 2</h3>
+                            <input type="text" id="c2_name" class="input-minimal text-xs" placeholder="Název" required>
+                            <input type="text" id="c2_origin" class="input-minimal text-xs" placeholder="Původ" required>
+                            <input type="text" id="c2_variety" class="input-minimal text-xs" placeholder="Odrůda" required>
+                            <input type="number" step="0.01" id="c2_price" class="input-minimal text-xs" placeholder="Kč/g" required>
+                            <textarea id="c2_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea>
+                        </div>
+                        <div class="p-4 border border-brand-border space-y-2">
+                            <h3 class="text-xs font-bold uppercase text-brand-muted">Vzorek 3</h3>
+                            <input type="text" id="c3_name" class="input-minimal text-xs" placeholder="Název" required>
+                            <input type="text" id="c3_origin" class="input-minimal text-xs" placeholder="Původ" required>
+                            <input type="text" id="c3_variety" class="input-minimal text-xs" placeholder="Odrůda" required>
+                            <input type="number" step="0.01" id="c3_price" class="input-minimal text-xs" placeholder="Kč/g" required>
+                            <textarea id="c3_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="bg-brand-dark text-white font-bold px-8 py-3 uppercase text-xs">Uložit k hlasování</button>
+                </form>
             </div>
-            <div class="space-y-10" id="roasteryList">
-                <div class="text-center text-brand-muted py-20 uppercase tracking-widest text-sm font-medium">Načítám data z databáze...</div>
-            </div>
+            <div id="roasteryList" class="space-y-10"></div>
         </section>
 
+        <section id="tab-recepty" class="tab-content hidden">
+            <div class="bg-white p-6 border border-brand-border mb-10">
+                <h2 class="font-bold uppercase mb-4 text-poppy-700">Sdílet nový recept</h2>
+                <form id="recipeForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="text" id="rec_bean" class="input-minimal" placeholder="Káva / Zpracování" required>
+                    <select id="rec_method" class="input-minimal">
+                        <option>V60</option><option>Aeropress</option><option>Espresso</option><option>Chemex</option><option>Batch Brew</option>
+                    </select>
+                    <input type="text" id="rec_ratio" class="input-minimal" placeholder="Ratio (např. 18g/300ml)" required>
+                    <button type="submit" class="bg-brand-dark text-white font-bold p-2 uppercase text-xs">Přidat recept</button>
+                    <div class="md:col-span-4">
+                        <textarea id="rec_steps" class="input-minimal h-24" placeholder="Postup (mletí, teplota, časy...)"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div id="recipeList" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        </section>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-        // TADY MÁŠ SVŮJ E-MAIL
         const ADMIN_EMAIL = "hradskydavid06@gmail.com"; 
-
-        // TVOJE FIREBASE KLÍČE
         const firebaseConfig = {
             apiKey: "AIzaSyD4EELQxfjdbmAnbFCegwbc_km-xrzTTuw",
             authDomain: "poppyaplikace.firebaseapp.com",
@@ -215,188 +154,185 @@
         let currentUser = null;
         let isAdmin = false;
 
-        const loginScreen = document.getElementById('loginScreen');
-        const mainApp = document.getElementById('mainApp');
-        const loginForm = document.getElementById('loginForm');
-        const adminSection = document.getElementById('adminSection');
-        const roasteryList = document.getElementById('roasteryList');
-
+        // AUTH LOGIC
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
                 isAdmin = (user.email === ADMIN_EMAIL);
-                
-                document.getElementById('userGreeting').innerHTML = `${user.email} <span class="text-poppy-700 ml-1">${isAdmin ? '[ADMIN]' : ''}</span>`;
-                
-                if(isAdmin) adminSection.classList.remove('hidden');
-                else adminSection.classList.add('hidden');
-
-                loginScreen.classList.add('hidden');
-                mainApp.classList.remove('hidden');
-
-                loadDataFromCloud();
+                document.getElementById('userGreeting').innerText = user.email;
+                if(isAdmin) {
+                    document.getElementById('admin-cupping-form').classList.remove('hidden');
+                    document.getElementById('admin-coffee-form').classList.remove('hidden');
+                }
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                loadData();
             } else {
-                currentUser = null;
-                isAdmin = false;
-                loginScreen.classList.remove('hidden');
-                mainApp.classList.add('hidden');
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('mainApp').classList.add('hidden');
             }
         });
 
-        loginForm.addEventListener('submit', (e) => {
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const email = document.getElementById('emailInput').value;
-            const pass = document.getElementById('passwordInput').value;
-            
-            signInWithEmailAndPassword(auth, email, pass).catch((error) => {
-                document.getElementById('loginError').classList.remove('hidden');
+            signInWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passwordInput').value)
+                .catch(() => document.getElementById('loginError').classList.remove('hidden'));
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+
+        // TAB SWITCHING
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.classList.replace('tab-active', 'tab-inactive');
             });
-        });
+            document.getElementById('btn-' + tabId).classList.replace('tab-inactive', 'tab-active');
+        };
 
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            signOut(auth);
-            document.getElementById('loginError').classList.add('hidden');
-        });
-
-        function loadDataFromCloud() {
-            const setsRef = collection(db, "roasterySets");
-            onSnapshot(setsRef, (snapshot) => {
-                const blocks = [];
-                snapshot.forEach((doc) => {
-                    blocks.push({ id: doc.id, ...doc.data() });
+        // REAL-TIME DATA LOADING
+        function loadData() {
+            // Cuppings
+            onSnapshot(collection(db, "cuppings"), (sn) => {
+                const list = document.getElementById('cuppingList');
+                list.innerHTML = '';
+                sn.forEach(d => {
+                    const data = d.data();
+                    const isAttending = data.attendees?.includes(currentUser.email);
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-6 border border-brand-border flex justify-between items-center";
+                    card.innerHTML = `
+                        <div>
+                            <div class="text-xs font-bold text-poppy-700 uppercase mb-1">${data.date} @ ${data.time}</div>
+                            <h3 class="text-xl font-extrabold uppercase">${data.title}</h3>
+                            <div class="mt-2 text-xs text-brand-muted uppercase">Účast: ${data.attendees?.length || 0} lidí (${data.attendees?.join(', ') || 'nikdo'})</div>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <button onclick="toggleAttendance('${d.id}', ${isAttending})" class="px-4 py-2 text-xs font-bold uppercase border border-brand-dark ${isAttending ? 'bg-brand-dark text-white' : 'hover:bg-brand-dark hover:text-white'}">
+                                ${isAttending ? 'Odhlásit se' : 'Zúčastním se'}
+                            </button>
+                            ${isAdmin ? `<button onclick="deleteDocById('cuppings', '${d.id}')" class="text-[10px] text-red-500 uppercase font-bold">Smazat</button>` : ''}
+                        </div>
+                    `;
+                    list.appendChild(card);
                 });
-                blocks.sort((a, b) => b.votesUp - a.votesUp);
-                renderRoasteries(blocks);
+            });
+
+            // Coffees (from previous step)
+            onSnapshot(collection(db, "roasterySets"), (sn) => {
+                const list = document.getElementById('roasteryList');
+                list.innerHTML = '';
+                sn.forEach(d => {
+                    const block = d.data();
+                    const card = document.createElement('div');
+                    card.className = "bg-white border border-brand-border p-8";
+                    const hasVoted = block.votedBy?.includes(currentUser.uid);
+                    card.innerHTML = `
+                        <div class="flex justify-between items-center mb-6 border-b border-brand-border pb-4">
+                            <h3 class="text-2xl font-extrabold uppercase">${block.roasteryName}</h3>
+                            ${isAdmin ? `<button onclick="deleteDocById('roasterySets', '${d.id}')" class="text-xs uppercase underline">Smazat</button>` : ''}
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                            ${block.coffees.map((c, i) => `
+                                <div class="border border-brand-border p-4 bg-brand-bg relative text-sm">
+                                    <div class="text-[10px] font-bold text-poppy-700 mb-2">VZOREK 0${i+1} | ${c.price} Kč/g</div>
+                                    <div class="font-bold mb-1">${c.name}</div>
+                                    <div class="text-xs text-brand-muted uppercase">${c.origin} | ${c.variety}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="flex gap-4 items-center bg-brand-bg p-3">
+                            <span class="text-xs font-bold uppercase mr-auto">${hasVoted ? 'Odhlasováno' : 'Hlasování:'}</span>
+                            <button ${hasVoted ? 'disabled' : `onclick="vote('${d.id}', 'up')"`} class="px-4 py-2 border border-brand-dark font-bold text-xs">👍 ${block.votesUp || 0}</button>
+                            <button ${hasVoted ? 'disabled' : `onclick="vote('${d.id}', 'down')"`} class="px-4 py-2 border border-brand-border text-brand-muted font-bold text-xs">👎 ${block.votesDown || 0}</button>
+                        </div>
+                    `;
+                    list.appendChild(card);
+                });
+            });
+
+            // Recipes
+            onSnapshot(collection(db, "recipes"), (sn) => {
+                const list = document.getElementById('recipeList');
+                list.innerHTML = '';
+                sn.forEach(d => {
+                    const data = d.data();
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-6 border border-brand-border";
+                    card.innerHTML = `
+                        <div class="flex justify-between mb-2">
+                            <span class="text-[10px] font-bold bg-poppy-700 text-white px-2 py-1 uppercase">${data.method}</span>
+                            <span class="text-[10px] text-brand-muted uppercase">Autor: ${data.author}</span>
+                        </div>
+                        <h3 class="text-lg font-extrabold uppercase mb-2">${data.bean}</h3>
+                        <div class="text-sm font-bold mb-4">Ratio: ${data.ratio}</div>
+                        <div class="text-xs text-brand-dark bg-brand-bg p-3 italic">"${data.steps}"</div>
+                        ${isAdmin ? `<button onclick="deleteDocById('recipes', '${d.id}')" class="mt-4 text-[10px] uppercase underline text-red-500">Smazat</button>` : ''}
+                    `;
+                    list.appendChild(card);
+                });
             });
         }
 
-        function generateCoffeeHTML(coffee, index) {
-            return `
-                <div class="border border-brand-border p-5 flex flex-col justify-between bg-white hover:border-brand-muted transition">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="text-xs font-bold text-poppy-700 uppercase tracking-widest">Vzorek ${index}</div>
-                        <div class="font-bold text-sm bg-brand-bg px-2 py-1 border border-brand-border">${coffee.price} Kč/g</div>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-lg mb-3 leading-tight">${coffee.name}</h4>
-                        <div class="space-y-2 text-sm text-brand-dark font-medium">
-                            <div class="flex items-center gap-2"><span class="text-brand-muted text-xs uppercase tracking-wider w-16">Původ</span> <span>${coffee.origin}</span></div>
-                            <div class="flex items-center gap-2"><span class="text-brand-muted text-xs uppercase tracking-wider w-16">Odrůda</span> <span>${coffee.variety}</span></div>
-                            <div class="flex items-center gap-2"><span class="text-brand-muted text-xs uppercase tracking-wider w-16">Proces</span> <span>${coffee.process}</span></div>
-                        </div>
-                    </div>
-                    ${coffee.notes ? `<div class="mt-5 text-sm text-brand-muted italic border-t border-brand-border pt-4">"${coffee.notes}"</div>` : ''}
-                </div>
-            `;
-        }
-
-        function renderRoasteries(blocks) {
-            roasteryList.innerHTML = ''; 
-            
-            if(blocks.length === 0) {
-                roasteryList.innerHTML = '<div class="text-center text-brand-muted py-20 border border-brand-border uppercase tracking-widest text-sm font-medium">Zatím nebyly přidány žádné sety.</div>';
-                return;
-            }
-
-            blocks.forEach(block => {
-                const card = document.createElement('div');
-                card.className = "bg-brand-bg border border-brand-border p-1"; // Jemný rámeček okolo celku
-                
-                const votedUsers = block.votedBy || [];
-                const hasVoted = votedUsers.includes(currentUser.uid);
-                
-                const btnBase = "flex-1 flex justify-center items-center gap-2 py-4 font-bold uppercase tracking-wider transition border";
-                
-                const upBtnClass = hasVoted 
-                    ? `${btnBase} bg-white border-brand-border text-brand-muted cursor-not-allowed opacity-50` 
-                    : `${btnBase} bg-white border-brand-dark text-brand-dark hover:bg-brand-dark hover:text-white`;
-                
-                const downBtnClass = hasVoted 
-                    ? `${btnBase} bg-white border-brand-border text-brand-muted cursor-not-allowed opacity-50` 
-                    : `${btnBase} bg-white border-brand-border text-brand-muted hover:border-poppy-700 hover:text-poppy-700`;
-
-                const deleteButtonHTML = isAdmin 
-                    ? `<button onclick="window.deleteBlock('${block.id}')" class="text-xs uppercase tracking-wider text-brand-muted hover:text-poppy-700 underline underline-offset-4">Smazat Set</button>` 
-                    : '';
-
-                card.innerHTML = `
-                    <div class="bg-white p-6 md:p-8">
-                        <div class="flex justify-between items-center mb-8 border-b border-brand-border pb-4">
-                            <h3 class="text-3xl font-extrabold tracking-tight uppercase">${block.roasteryName}</h3>
-                            ${deleteButtonHTML}
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                            ${generateCoffeeHTML(block.coffees[0], 1)}
-                            ${generateCoffeeHTML(block.coffees[1], 2)}
-                            ${generateCoffeeHTML(block.coffees[2], 3)}
-                        </div>
-                        
-                        <div class="bg-brand-bg p-4 border border-brand-border flex flex-col sm:flex-row items-center gap-4">
-                            <div class="text-sm font-bold uppercase tracking-wider text-brand-muted w-full sm:w-auto text-center sm:text-left">
-                                ${hasVoted ? '<span class="text-poppy-700">✓ Odhlasováno</span>' : 'Tvůj hlas pro tento set:'}
-                            </div>
-                            <div class="flex w-full sm:w-auto flex-1 gap-4">
-                                <button ${hasVoted ? 'disabled' : `onclick="window.vote('${block.id}', 'up')"`} class="${upBtnClass}">
-                                    <span>Chceme to</span> <span class="text-lg bg-brand-border px-2 py-0.5 rounded-sm ml-2">${block.votesUp || 0}</span>
-                                </button>
-                                
-                                <button ${hasVoted ? 'disabled' : `onclick="window.vote('${block.id}', 'down')"`} class="${downBtnClass}">
-                                    <span>Nechceme to</span> <span class="text-lg bg-brand-border px-2 py-0.5 rounded-sm ml-2 text-brand-dark">${block.votesDown || 0}</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                roasteryList.appendChild(card);
+        // ACTIONS
+        window.toggleAttendance = async (id, isAttending) => {
+            const ref = doc(db, "cuppings", id);
+            await updateDoc(ref, {
+                attendees: isAttending ? arrayRemove(currentUser.email) : arrayUnion(currentUser.email)
             });
-        }
+        };
+
+        window.vote = async (id, type) => {
+            const ref = doc(db, "roasterySets", id);
+            await updateDoc(ref, {
+                [type === 'up' ? 'votesUp' : 'votesDown']: increment(1),
+                votedBy: arrayUnion(currentUser.uid)
+            });
+        };
+
+        window.deleteDocById = async (coll, id) => {
+            if(confirm('Opravdu smazat?')) await deleteDoc(doc(db, coll, id));
+        };
+
+        // FORM SUBMITS
+        document.getElementById('cuppingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await addDoc(collection(db, "cuppings"), {
+                title: document.getElementById('cup_title').value,
+                date: document.getElementById('cup_date').value,
+                time: document.getElementById('cup_time').value,
+                attendees: []
+            });
+            e.target.reset();
+        });
 
         document.getElementById('roasteryForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if(!isAdmin) return;
-
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerText;
-            submitBtn.innerText = "Nahrávám...";
-            submitBtn.disabled = true;
-
-            const newBlock = {
+            const set = {
                 roasteryName: document.getElementById('roasteryName').value,
                 votesUp: 0, votesDown: 0, votedBy: [],
                 coffees: [
-                    { name: document.getElementById('c1_name').value, origin: document.getElementById('c1_origin').value, variety: document.getElementById('c1_variety').value, process: document.getElementById('c1_process').value, price: document.getElementById('c1_price').value, notes: document.getElementById('c1_notes').value },
-                    { name: document.getElementById('c2_name').value, origin: document.getElementById('c2_origin').value, variety: document.getElementById('c2_variety').value, process: document.getElementById('c2_process').value, price: document.getElementById('c2_price').value, notes: document.getElementById('c2_notes').value },
-                    { name: document.getElementById('c3_name').value, origin: document.getElementById('c3_origin').value, variety: document.getElementById('c3_variety').value, process: document.getElementById('c3_process').value, price: document.getElementById('c3_price').value, notes: document.getElementById('c3_notes').value }
+                    { name: document.getElementById('c1_name').value, origin: document.getElementById('c1_origin').value, variety: document.getElementById('c1_variety').value, price: document.getElementById('c1_price').value, notes: document.getElementById('c1_notes').value },
+                    { name: document.getElementById('c2_name').value, origin: document.getElementById('c2_origin').value, variety: document.getElementById('c2_variety').value, price: document.getElementById('c2_price').value, notes: document.getElementById('c2_notes').value },
+                    { name: document.getElementById('c3_name').value, origin: document.getElementById('c3_origin').value, variety: document.getElementById('c3_variety').value, price: document.getElementById('c3_price').value, notes: document.getElementById('c3_notes').value }
                 ]
             };
-
-            try {
-                await addDoc(collection(db, "roasterySets"), newBlock);
-                document.getElementById('roasteryForm').reset(); 
-            } catch (error) {
-                console.error("Chyba:", error);
-            } finally {
-                submitBtn.innerText = originalText;
-                submitBtn.disabled = false;
-            }
+            await addDoc(collection(db, "roasterySets"), set);
+            e.target.reset();
         });
 
-        window.vote = async function(id, type) {
-            if (!currentUser) return;
-            const docRef = doc(db, "roasterySets", id);
-            try {
-                if (type === 'up') await updateDoc(docRef, { votesUp: increment(1), votedBy: arrayUnion(currentUser.uid) });
-                else if (type === 'down') await updateDoc(docRef, { votesDown: increment(1), votedBy: arrayUnion(currentUser.uid) });
-            } catch (error) { console.error("Chyba:", error); }
-        };
-
-        window.deleteBlock = async function(id) {
-            if(!isAdmin) return;
-            if(confirm('Opravdu smazat tento set?')) {
-                await deleteDoc(doc(db, "roasterySets", id));
-            }
-        };
+        document.getElementById('recipeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await addDoc(collection(db, "recipes"), {
+                bean: document.getElementById('rec_bean').value,
+                method: document.getElementById('rec_method').value,
+                ratio: document.getElementById('rec_ratio').value,
+                steps: document.getElementById('rec_steps').value,
+                author: currentUser.email
+            });
+            e.target.reset();
+        });
     </script>
 </body>
 </html>
