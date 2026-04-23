@@ -114,8 +114,8 @@
         </section>
 
         <section id="tab-recepty" class="tab-content hidden">
-            <div class="bg-white p-6 border border-brand-border mb-10">
-                <h2 class="font-bold uppercase mb-4 text-poppy-700">Sdílet nový recept</h2>
+            <div id="admin-recipe-form" class="bg-white p-6 border border-brand-border mb-10 hidden">
+    <h2 class="font-bold uppercase mb-4 text-poppy-700">Sdílet nový recept</h2>
                 <form id="recipeForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <input type="text" id="rec_bean" class="input-minimal" placeholder="Káva / Zpracování" required>
                     <select id="rec_method" class="input-minimal">
@@ -161,9 +161,10 @@
                 isAdmin = (user.email === ADMIN_EMAIL);
                 document.getElementById('userGreeting').innerText = user.email;
                 if(isAdmin) {
-                    document.getElementById('admin-cupping-form').classList.remove('hidden');
-                    document.getElementById('admin-coffee-form').classList.remove('hidden');
-                }
+    document.getElementById('admin-cupping-form').classList.remove('hidden');
+    document.getElementById('admin-coffee-form').classList.remove('hidden');
+    document.getElementById('admin-recipe-form').classList.remove('hidden'); // TENTO ŘÁDEK PŘIDEJ
+}
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
                 loadData();
