@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Poppy Beans | Internal System</title>
+    <title>Poppy Beans | OS</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -73,17 +73,17 @@
                     <button type="submit" class="bg-brand-dark text-white font-bold p-2 uppercase text-xs">Vytvořit událost</button>
                 </form>
             </div>
-            <div id="cuppingList" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+            <div id="cuppingList" class="grid grid-cols-1 gap-8"></div>
         </section>
 
         <section id="tab-kavy" class="tab-content hidden">
             <div id="admin-coffee-form" class="bg-white p-6 border border-brand-border mb-10 hidden">
-                <h2 class="font-bold uppercase mb-6 text-poppy-700">Nový výběrový set (3 vzorky)</h2>
+                <h2 class="font-bold uppercase mb-6 text-poppy-700 text-sm">Nový výběrový set (3 vzorky)</h2>
                 <form id="roasteryForm" class="space-y-6">
                     <input type="text" id="roasteryName" class="input-minimal font-bold text-lg" placeholder="Pražírna / Dodavatel" required>
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="p-4 border border-brand-border space-y-2">
-                            <h3 class="text-xs font-bold uppercase text-brand-muted">Vzorek 1</h3>
+                            <h3 class="text-[10px] font-bold uppercase text-brand-muted">Vzorek 1</h3>
                             <input type="text" id="c1_name" class="input-minimal text-xs" placeholder="Název" required>
                             <input type="text" id="c1_origin" class="input-minimal text-xs" placeholder="Původ" required>
                             <input type="text" id="c1_variety" class="input-minimal text-xs" placeholder="Odrůda" required>
@@ -91,7 +91,7 @@
                             <textarea id="c1_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea>
                         </div>
                         <div class="p-4 border border-brand-border space-y-2">
-                            <h3 class="text-xs font-bold uppercase text-brand-muted">Vzorek 2</h3>
+                            <h3 class="text-[10px] font-bold uppercase text-brand-muted">Vzorek 2</h3>
                             <input type="text" id="c2_name" class="input-minimal text-xs" placeholder="Název" required>
                             <input type="text" id="c2_origin" class="input-minimal text-xs" placeholder="Původ" required>
                             <input type="text" id="c2_variety" class="input-minimal text-xs" placeholder="Odrůda" required>
@@ -99,7 +99,7 @@
                             <textarea id="c2_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea>
                         </div>
                         <div class="p-4 border border-brand-border space-y-2">
-                            <h3 class="text-xs font-bold uppercase text-brand-muted">Vzorek 3</h3>
+                            <h3 class="text-[10px] font-bold uppercase text-brand-muted">Vzorek 3</h3>
                             <input type="text" id="c3_name" class="input-minimal text-xs" placeholder="Název" required>
                             <input type="text" id="c3_origin" class="input-minimal text-xs" placeholder="Původ" required>
                             <input type="text" id="c3_variety" class="input-minimal text-xs" placeholder="Odrůda" required>
@@ -107,7 +107,7 @@
                             <textarea id="c3_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea>
                         </div>
                     </div>
-                    <button type="submit" class="bg-brand-dark text-white font-bold px-8 py-3 uppercase text-xs">Uložit k hlasování</button>
+                    <button type="submit" class="bg-brand-dark text-white font-bold px-8 py-3 uppercase text-xs hover:bg-black transition">Uložit k hlasování</button>
                 </form>
             </div>
             <div id="roasteryList" class="space-y-10"></div>
@@ -115,16 +115,16 @@
 
         <section id="tab-recepty" class="tab-content hidden">
             <div id="admin-recipe-form" class="bg-white p-6 border border-brand-border mb-10 hidden">
-    <h2 class="font-bold uppercase mb-4 text-poppy-700">Sdílet nový recept</h2>
+                <h2 class="font-bold uppercase mb-4 text-poppy-700">Sdílet nový recept</h2>
                 <form id="recipeForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <input type="text" id="rec_bean" class="input-minimal" placeholder="Káva / Zpracování" required>
-                    <select id="rec_method" class="input-minimal">
+                    <input type="text" id="rec_bean" class="input-minimal text-sm" placeholder="Káva / Zpracování" required>
+                    <select id="rec_method" class="input-minimal text-sm">
                         <option>V60</option><option>Aeropress</option><option>Espresso</option><option>Chemex</option><option>Batch Brew</option>
                     </select>
-                    <input type="text" id="rec_ratio" class="input-minimal" placeholder="Ratio (např. 18g/300ml)" required>
-                    <button type="submit" class="bg-brand-dark text-white font-bold p-2 uppercase text-xs">Přidat recept</button>
+                    <input type="text" id="rec_ratio" class="input-minimal text-sm" placeholder="Ratio (např. 18g/300ml)" required>
+                    <button type="submit" class="bg-brand-dark text-white font-bold p-2 uppercase text-xs hover:bg-black transition">Přidat recept</button>
                     <div class="md:col-span-4">
-                        <textarea id="rec_steps" class="input-minimal h-24" placeholder="Postup (mletí, teplota, časy...)"></textarea>
+                        <textarea id="rec_steps" class="input-minimal h-24 text-sm" placeholder="Postup (mletí, teplota, časy...)"></textarea>
                     </div>
                 </form>
             </div>
@@ -154,17 +154,18 @@
         let currentUser = null;
         let isAdmin = false;
 
-        // AUTH LOGIC
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
                 isAdmin = (user.email === ADMIN_EMAIL);
                 document.getElementById('userGreeting').innerText = user.email;
+                
                 if(isAdmin) {
-    document.getElementById('admin-cupping-form').classList.remove('hidden');
-    document.getElementById('admin-coffee-form').classList.remove('hidden');
-    document.getElementById('admin-recipe-form').classList.remove('hidden'); // TENTO ŘÁDEK PŘIDEJ
-}
+                    document.getElementById('admin-cupping-form').classList.remove('hidden');
+                    document.getElementById('admin-coffee-form').classList.remove('hidden');
+                    document.getElementById('admin-recipe-form').classList.remove('hidden');
+                }
+
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
                 loadData();
@@ -182,7 +183,6 @@
 
         document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
-        // TAB SWITCHING
         window.switchTab = (tabId) => {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(tabId).classList.remove('hidden');
@@ -192,96 +192,127 @@
             document.getElementById('btn-' + tabId).classList.replace('tab-inactive', 'tab-active');
         };
 
-        // REAL-TIME DATA LOADING
+        // --- NAČÍTÁNÍ DAT ---
         function loadData() {
-            // Cuppings
+            // CUPPINGY S DOCHÁZKOU
             onSnapshot(collection(db, "cuppings"), (sn) => {
                 const list = document.getElementById('cuppingList');
                 list.innerHTML = '';
                 sn.forEach(d => {
                     const data = d.data();
                     const isAttending = data.attendees?.includes(currentUser.email);
+                    const isDeclined = data.declined?.includes(currentUser.email);
+
                     const card = document.createElement('div');
-                    card.className = "bg-white p-6 border border-brand-border flex justify-between items-center";
+                    card.className = "bg-white border border-brand-border p-6";
+                    
+                    // Admin přehled docházky
+                    const adminReport = isAdmin ? `
+                        <div class="mt-6 pt-6 border-t border-brand-border grid grid-cols-2 gap-4">
+                            <div>
+                                <div class="text-[10px] font-bold uppercase text-green-700 mb-2">✅ Potvrzeno (${data.attendees?.length || 0})</div>
+                                <div class="text-xs space-y-1">${data.attendees?.join('<br>') || 'nikdo'}</div>
+                            </div>
+                            <div>
+                                <div class="text-[10px] font-bold uppercase text-red-700 mb-2">❌ Omluveno (${data.declined?.length || 0})</div>
+                                <div class="text-xs space-y-1">${data.declined?.join('<br>') || 'nikdo'}</div>
+                            </div>
+                        </div>
+                    ` : '';
+
                     card.innerHTML = `
-                        <div>
-                            <div class="text-xs font-bold text-poppy-700 uppercase mb-1">${data.date} @ ${data.time}</div>
-                            <h3 class="text-xl font-extrabold uppercase">${data.title}</h3>
-                            <div class="mt-2 text-xs text-brand-muted uppercase">Účast: ${data.attendees?.length || 0} lidí (${data.attendees?.join(', ') || 'nikdo'})</div>
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                            <div>
+                                <div class="text-xs font-bold text-poppy-700 uppercase mb-1 tracking-widest">${data.date} | ${data.time}</div>
+                                <h3 class="text-2xl font-extrabold uppercase tracking-tight">${data.title}</h3>
+                            </div>
+                            <div class="flex gap-2 w-full md:w-auto">
+                                <button onclick="updateAttendance('${d.id}', 'yes')" class="flex-1 md:flex-none px-6 py-2 text-xs font-bold uppercase border border-brand-dark transition ${isAttending ? 'bg-brand-dark text-white' : 'hover:bg-brand-dark hover:text-white'}">
+                                    Příjdu
+                                </button>
+                                <button onclick="updateAttendance('${d.id}', 'no')" class="flex-1 md:flex-none px-6 py-2 text-xs font-bold uppercase border border-brand-border text-brand-muted transition ${isDeclined ? 'bg-poppy-700 text-white border-poppy-700' : 'hover:border-brand-dark hover:text-brand-dark'}">
+                                    Nepříjdu
+                                </button>
+                                ${isAdmin ? `<button onclick="deleteDocById('cuppings', '${d.id}')" class="p-2 text-red-500 hover:bg-red-50 transition">🗑️</button>` : ''}
+                            </div>
                         </div>
-                        <div class="flex flex-col gap-2">
-                            <button onclick="toggleAttendance('${d.id}', ${isAttending})" class="px-4 py-2 text-xs font-bold uppercase border border-brand-dark ${isAttending ? 'bg-brand-dark text-white' : 'hover:bg-brand-dark hover:text-white'}">
-                                ${isAttending ? 'Odhlásit se' : 'Zúčastním se'}
-                            </button>
-                            ${isAdmin ? `<button onclick="deleteDocById('cuppings', '${d.id}')" class="text-[10px] text-red-500 uppercase font-bold">Smazat</button>` : ''}
-                        </div>
+                        ${adminReport}
                     `;
                     list.appendChild(card);
                 });
             });
 
-            // Coffees (from previous step)
+            // KÁVY
             onSnapshot(collection(db, "roasterySets"), (sn) => {
                 const list = document.getElementById('roasteryList');
                 list.innerHTML = '';
                 sn.forEach(d => {
                     const block = d.data();
+                    const hasVoted = block.votedBy?.includes(currentUser.uid);
                     const card = document.createElement('div');
                     card.className = "bg-white border border-brand-border p-8";
-                    const hasVoted = block.votedBy?.includes(currentUser.uid);
                     card.innerHTML = `
-                        <div class="flex justify-between items-center mb-6 border-b border-brand-border pb-4">
-                            <h3 class="text-2xl font-extrabold uppercase">${block.roasteryName}</h3>
-                            ${isAdmin ? `<button onclick="deleteDocById('roasterySets', '${d.id}')" class="text-xs uppercase underline">Smazat</button>` : ''}
+                        <div class="flex justify-between items-center mb-8 border-b border-brand-border pb-4">
+                            <h3 class="text-2xl font-extrabold uppercase tracking-tight">${block.roasteryName}</h3>
+                            ${isAdmin ? `<button onclick="deleteDocById('roasterySets', '${d.id}')" class="text-xs uppercase underline hover:text-poppy-700">Smazat</button>` : ''}
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                             ${block.coffees.map((c, i) => `
-                                <div class="border border-brand-border p-4 bg-brand-bg relative text-sm">
-                                    <div class="text-[10px] font-bold text-poppy-700 mb-2">VZOREK 0${i+1} | ${c.price} Kč/g</div>
-                                    <div class="font-bold mb-1">${c.name}</div>
-                                    <div class="text-xs text-brand-muted uppercase">${c.origin} | ${c.variety}</div>
+                                <div class="border border-brand-border p-5 bg-brand-bg relative text-sm group hover:border-brand-dark transition">
+                                    <div class="text-[10px] font-bold text-poppy-700 mb-3 uppercase tracking-widest">Vzorek 0${i+1} | ${c.price} Kč/g</div>
+                                    <div class="font-extrabold text-base mb-1 uppercase">${c.name}</div>
+                                    <div class="text-[10px] text-brand-muted uppercase font-bold tracking-wider">${c.origin} • ${c.variety}</div>
+                                    <div class="mt-4 text-[11px] italic text-brand-dark leading-relaxed">"${c.notes}"</div>
                                 </div>
                             `).join('')}
                         </div>
-                        <div class="flex gap-4 items-center bg-brand-bg p-3">
-                            <span class="text-xs font-bold uppercase mr-auto">${hasVoted ? 'Odhlasováno' : 'Hlasování:'}</span>
-                            <button ${hasVoted ? 'disabled' : `onclick="vote('${d.id}', 'up')"`} class="px-4 py-2 border border-brand-dark font-bold text-xs">👍 ${block.votesUp || 0}</button>
-                            <button ${hasVoted ? 'disabled' : `onclick="vote('${d.id}', 'down')"`} class="px-4 py-2 border border-brand-border text-brand-muted font-bold text-xs">👎 ${block.votesDown || 0}</button>
+                        <div class="flex gap-4 items-center bg-brand-bg p-4 border border-brand-border">
+                            <span class="text-[10px] font-bold uppercase tracking-widest mr-auto">${hasVoted ? 'Zahlasováno' : 'Vaše volba:'}</span>
+                            <button ${hasVoted ? 'disabled' : `onclick="vote('${d.id}', 'up')"`} class="px-6 py-2 border border-brand-dark font-bold text-xs hover:bg-brand-dark hover:text-white transition">👍 ${block.votesUp || 0}</button>
+                            <button ${hasVoted ? 'disabled' : `onclick="vote('${d.id}', 'down')"`} class="px-6 py-2 border border-brand-border text-brand-muted font-bold text-xs hover:border-brand-dark hover:text-brand-dark transition">👎 ${block.votesDown || 0}</button>
                         </div>
                     `;
                     list.appendChild(card);
                 });
             });
 
-            // Recipes
+            // RECEPTY
             onSnapshot(collection(db, "recipes"), (sn) => {
                 const list = document.getElementById('recipeList');
                 list.innerHTML = '';
                 sn.forEach(d => {
                     const data = d.data();
                     const card = document.createElement('div');
-                    card.className = "bg-white p-6 border border-brand-border";
+                    card.className = "bg-white p-6 border border-brand-border hover:shadow-sm transition";
                     card.innerHTML = `
-                        <div class="flex justify-between mb-2">
-                            <span class="text-[10px] font-bold bg-poppy-700 text-white px-2 py-1 uppercase">${data.method}</span>
-                            <span class="text-[10px] text-brand-muted uppercase">Autor: ${data.author}</span>
+                        <div class="flex justify-between mb-4">
+                            <span class="text-[10px] font-bold bg-brand-dark text-white px-2 py-1 uppercase tracking-widest">${data.method}</span>
+                            <span class="text-[10px] text-brand-muted uppercase font-bold tracking-widest">${data.author.split('@')[0]}</span>
                         </div>
-                        <h3 class="text-lg font-extrabold uppercase mb-2">${data.bean}</h3>
-                        <div class="text-sm font-bold mb-4">Ratio: ${data.ratio}</div>
-                        <div class="text-xs text-brand-dark bg-brand-bg p-3 italic">"${data.steps}"</div>
-                        ${isAdmin ? `<button onclick="deleteDocById('recipes', '${d.id}')" class="mt-4 text-[10px] uppercase underline text-red-500">Smazat</button>` : ''}
+                        <h3 class="text-xl font-extrabold uppercase mb-2 tracking-tight">${data.bean}</h3>
+                        <div class="text-sm font-bold mb-4 border-b border-brand-border pb-2 inline-block text-poppy-700 uppercase tracking-wider">${data.ratio}</div>
+                        <div class="text-xs text-brand-dark bg-brand-bg p-4 font-medium leading-relaxed">"${data.steps}"</div>
+                        ${isAdmin ? `<button onclick="deleteDocById('recipes', '${d.id}')" class="mt-4 text-[10px] uppercase font-bold text-red-500 hover:underline">Smazat</button>` : ''}
                     `;
                     list.appendChild(card);
                 });
             });
         }
 
-        // ACTIONS
-        window.toggleAttendance = async (id, isAttending) => {
+        // --- AKCE ---
+        window.updateAttendance = async (id, status) => {
             const ref = doc(db, "cuppings", id);
-            await updateDoc(ref, {
-                attendees: isAttending ? arrayRemove(currentUser.email) : arrayUnion(currentUser.email)
-            });
+            if(status === 'yes') {
+                await updateDoc(ref, {
+                    attendees: arrayUnion(currentUser.email),
+                    declined: arrayRemove(currentUser.email)
+                });
+            } else {
+                await updateDoc(ref, {
+                    declined: arrayUnion(currentUser.email),
+                    attendees: arrayRemove(currentUser.email)
+                });
+            }
         };
 
         window.vote = async (id, type) => {
@@ -293,17 +324,18 @@
         };
 
         window.deleteDocById = async (coll, id) => {
-            if(confirm('Opravdu smazat?')) await deleteDoc(doc(db, coll, id));
+            if(confirm('Tuto položku opravdu smazat?')) await deleteDoc(doc(db, coll, id));
         };
 
-        // FORM SUBMITS
+        // --- FORMULÁŘE ---
         document.getElementById('cuppingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             await addDoc(collection(db, "cuppings"), {
                 title: document.getElementById('cup_title').value,
                 date: document.getElementById('cup_date').value,
                 time: document.getElementById('cup_time').value,
-                attendees: []
+                attendees: [],
+                declined: []
             });
             e.target.reset();
         });
