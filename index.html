@@ -161,9 +161,15 @@
                 document.getElementById('userGreeting').innerText = user.email;
                 
                 if(isAdmin) {
+                    // Odkryje formuláře pro Admina
                     document.getElementById('admin-cupping-form').classList.remove('hidden');
                     document.getElementById('admin-coffee-form').classList.remove('hidden');
                     document.getElementById('admin-recipe-form').classList.remove('hidden');
+                } else {
+                    // OPRAVA: Znovu schová formuláře pro běžného uživatele
+                    document.getElementById('admin-cupping-form').classList.add('hidden');
+                    document.getElementById('admin-coffee-form').classList.add('hidden');
+                    document.getElementById('admin-recipe-form').classList.add('hidden');
                 }
 
                 document.getElementById('loginScreen').classList.add('hidden');
