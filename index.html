@@ -303,12 +303,16 @@
                 isAdmin = (user.email === ADMIN_EMAIL);
                 document.getElementById('userGreeting').innerText = user.email;
                 
-                if(isAdmin) {
-    document.getElementById('admin-cupping-form').classList.remove('hidden');
-    document.getElementById('admin-coffee-form').classList.remove('hidden');
-    document.getElementById('admin-recipe-form').classList.remove('hidden');
-    document.getElementById('admin-maintenance-form').classList.remove('hidden');
-                } else {
+              if(isAdmin) {
+                    document.getElementById('admin-cupping-form').classList.remove('hidden');
+                    document.getElementById('admin-coffee-form').classList.remove('hidden');
+                    document.getElementById('admin-recipe-form').classList.remove('hidden');
+                    document.getElementById('admin-maintenance-form').classList.remove('hidden');
+                    
+                    // TADY JSOU TY DVA NOVÉ ŘÁDKY:
+                    document.getElementById('admin-checklists-log').classList.remove('hidden');
+                    loadChecklists();
+                }  else {
                     document.getElementById('admin-cupping-form').classList.add('hidden');
                     document.getElementById('admin-coffee-form').classList.add('hidden');
                     document.getElementById('admin-recipe-form').classList.add('hidden');
@@ -663,8 +667,7 @@ window.switchTab = (tabId) => {
                 });
                 e.target.reset();
                 alert(`${type} byla úspěšně zapsána do systému!`);
-                if (isAdmin) loadChecklists();{document.getElementById('admin-checklists-log').classList.remove('hidden');
-loadChecklists();}
+                if (isAdmin) loadChecklists();
             } catch (error) {
                 console.error(error);
                 alert("Chyba při zápisu do databáze.");
