@@ -34,6 +34,12 @@
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #b91c1c; cursor: pointer; margin-top: -6px; }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #e4e4e7; border-radius: 2px; }
     </style>
+    <link rel="manifest" href="manifest.json">
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
 </head>
 <body class="text-brand-dark font-sans min-h-screen antialiased">
 
@@ -93,6 +99,18 @@
             </div>
             <div id="cuppingList" class="grid grid-cols-1 gap-8"></div>
         </section>
+        <section id="maintenance-section" class="bg-brand-dark p-6 rounded-xl border border-white/10 mt-8">
+    <h2 class="text-2xl font-bold mb-4">🛠 Deník údržby techniky</h2>
+    
+    <form id="maintenanceForm" class="space-y-4 mb-8">
+        <input type="text" id="maint_task" placeholder="Co jsi udělal? (např. Výměna kamenů mlýnku)" class="w-full p-3 bg-black/40 border border-white/20 rounded-lg text-white" required>
+        <button type="submit" class="w-full bg-white text-black font-bold py-3 rounded-lg hover:bg-gray-200 transition">Zapsat údržbu</button>
+    </form>
+
+    <div id="maintenanceList" class="space-y-3">
+        <p class="text-gray-400">Načítám záznamy...</p>
+    </div>
+</section>
 
         <section id="tab-kavy" class="tab-content hidden">
             <div id="admin-coffee-form" class="bg-white p-6 border border-brand-border mb-10 hidden">
@@ -344,6 +362,45 @@
                     list.appendChild(card);
                 });
             });
+            // 1. Ukládání údržby
+document.getElementById('maintenanceForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+        await addDoc(collection(db, "maintenance"), {
+            task: document.getElementById('maint_task').value,
+            date: new Date().toLocaleDateString('cs-CZ'),
+            performedBy: currentUser.email,
+            createdAt: serverTimestamp() // Nezapomeň přidat serverTimestamp do importu z firestore
+        });
+        e.target.reset();
+        alert("Záznam o údržbě uložen!");
+        loadMaintenance();
+    } catch (error) {
+        alert("Chyba: Zápis údržby smí provádět pouze šéfbarista.");
+    }
+});
+
+// 2. Načítání údržby
+async function loadMaintenance() {
+    const q = query(collection(db, "maintenance"), orderBy("createdAt", "desc"), limit(10));
+    const querySnapshot = await getDocs(q);
+    const container = document.getElementById('maintenanceList');
+    container.innerHTML = "";
+
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        container.innerHTML += `
+            <div class="p-3 bg-white/5 border-l-4 border-yellow-500 rounded text-sm">
+                <div class="font-bold text-yellow-500">${data.date}</div>
+                <div class="text-white">${data.task}</div>
+                <div class="text-xs text-gray-500">Zapsal: ${data.performedBy}</div>
+            </div>
+        `;
+    });
+}
+
+// Spustit načítání při startu
+loadMaintenance();
 
             // 2. KÁVY (SELECTION)
             onSnapshot(collection(db, "roasterySets"), (sn) => {
