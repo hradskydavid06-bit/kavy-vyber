@@ -1,0 +1,10 @@
+// TAB SWITCH LOGIC
+window.switchTab = (tabId) => {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    document.getElementById(tabId).classList.remove('hidden');
+    document.querySelectorAll('nav button').forEach(btn => {
+        btn.classList.replace('tab-active', 'tab-inactive');
+    });
+    const activeBtn = document.getElementById('btn-' + tabId);
+    activeBtn.classList.replace('tab-inactive', 'tab-active');
+};
