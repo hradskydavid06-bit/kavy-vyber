@@ -35,11 +35,11 @@
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #e4e4e7; border-radius: 2px; }
     </style>
     <link rel="manifest" href="manifest.json">
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
-  }
-</script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+      }
+    </script>
 </head>
 <body class="text-brand-dark font-sans min-h-screen antialiased">
 
@@ -67,9 +67,7 @@
                 <button onclick="switchTab('tab-kavy')" id="btn-tab-kavy" class="tab-inactive py-2 whitespace-nowrap">Výběr Kávy</button>
                 <button onclick="switchTab('tab-recepty')" id="btn-tab-recepty" class="tab-inactive py-2 whitespace-nowrap">Knihovna Receptů</button>
                 <button onclick="switchTab('tab-advisor')" id="btn-tab-advisor" class="tab-inactive py-2 whitespace-nowrap text-poppy-700">Baristický Rádce</button>
-                <button onclick="switchTab('tab-recepty')" id="btn-tab-recepty" class="tab-inactive py-2 whitespace-nowrap">Knihovna Receptů</button>
-<button onclick="switchTab('tab-advisor')" id="btn-tab-advisor" class="tab-inactive py-2 whitespace-nowrap text-poppy-700">Baristický Rádce</button>
-<button onclick="switchTab('tab-maintenance')" id="btn-tab-maintenance" class="tab-inactive py-2 whitespace-nowrap">Deník Údržby</button>
+                <button onclick="switchTab('tab-maintenance')" id="btn-tab-maintenance" class="tab-inactive py-2 whitespace-nowrap">Deník Údržby</button>
             </nav>
             <div class="flex items-center gap-4 text-xs font-bold whitespace-nowrap">
                 <span id="userGreeting" class="text-brand-muted uppercase"></span>
@@ -102,18 +100,19 @@
             </div>
             <div id="cuppingList" class="grid grid-cols-1 gap-8"></div>
         </section>
-        <section id="tab-maintenance" class="tab-content hidden bg-brand-dark p-6 rounded-xl border border-white/10 mt-8">
-    <h2 class="text-2xl font-bold mb-4">🛠 Deník údržby techniky</h2>
-    
-    <form id="maintenanceForm" class="space-y-4 mb-8">
-        <input type="text" id="maint_task" placeholder="Co jsi udělal? (např. Výměna kamenů mlýnku)" class="w-full p-3 bg-black/40 border border-white/20 rounded-lg text-white" required>
-        <button type="submit" class="w-full bg-white text-black font-bold py-3 rounded-lg hover:bg-gray-200 transition">Zapsat údržbu</button>
-    </form>
 
-    <div id="maintenanceList" class="space-y-3">
-        <p class="text-gray-400">Načítám záznamy...</p>
-    </div>
-</section>
+        <section id="tab-maintenance" class="tab-content hidden bg-brand-dark p-6 rounded-xl border border-white/10 mt-8">
+            <h2 class="text-2xl font-bold mb-4 text-white">🛠 Deník údržby techniky</h2>
+            
+            <form id="maintenanceForm" class="space-y-4 mb-8">
+                <input type="text" id="maint_task" placeholder="Co jsi udělal? (např. Výměna kamenů mlýnku)" class="w-full p-3 bg-black/40 border border-white/20 rounded-lg text-white" required>
+                <button type="submit" class="w-full bg-white text-black font-bold py-3 rounded-lg hover:bg-gray-200 transition">Zapsat údržbu</button>
+            </form>
+
+            <div id="maintenanceList" class="space-y-3">
+                <p class="text-gray-400">Načítám záznamy...</p>
+            </div>
+        </section>
 
         <section id="tab-kavy" class="tab-content hidden">
             <div id="admin-coffee-form" class="bg-white p-6 border border-brand-border mb-10 hidden">
@@ -229,9 +228,11 @@
     </div>
 
     <script type="module">
+        // Importy (ZDE BYLY PŘIDÁNY CHYBĚJÍCÍ FUNKCE PRO ÚDRŽBU)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, arrayUnion, arrayRemove, increment, query, where, getDocs, serverTimestamp, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
         const ADMIN_EMAIL = "hradskydavid06@gmail.com"; 
         const firebaseConfig = {
             apiKey: "AIzaSyD4EELQxfjdbmAnbFCegwbc_km-xrzTTuw",
@@ -250,11 +251,10 @@
         let isAdmin = false;
         let myChartInstance = null;
         
-        // Globální proměnné pro ukládání dat cuppingů a jejich hodnocení
         window.globalCuppings = {}; 
         window.currentResultsScores = [];
 
-        // AUTHENTICATION LOGIC
+        // AUTHENTICATION
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
@@ -273,7 +273,9 @@
 
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
+                
                 loadData(); 
+                loadMaintenance(); // Spustí načtení údržby při přihlášení
             } else {
                 document.getElementById('loginScreen').classList.remove('hidden');
                 document.getElementById('mainApp').classList.add('hidden');
@@ -288,7 +290,7 @@
 
         document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
-        // TAB SWITCH LOGIC
+        // TAB SWITCH
         window.switchTab = (tabId) => {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(tabId).classList.remove('hidden');
@@ -301,7 +303,7 @@
             if(tabId === 'tab-advisor') activeBtn.classList.add('text-poppy-700');
         };
 
-        // UI FUNKCE: PŘIDÁNÍ VZORKU DO FORMULÁŘE
+        // UI: ADD SAMPLES
         window.addSampleField = () => {
             const container = document.getElementById('dynamicSamples');
             const count = container.children.length + 1;
@@ -315,13 +317,13 @@
 
         // REAL-TIME DATA FETCHING
         function loadData() {
-            // 1. CUPPINGY
+            // CUPPINGY
             onSnapshot(collection(db, "cuppings"), (sn) => {
                 const list = document.getElementById('cuppingList');
                 list.innerHTML = '';
                 sn.forEach(d => {
                     const data = d.data();
-                    window.globalCuppings[d.id] = data; // Uložení do globální paměti pro modální okna
+                    window.globalCuppings[d.id] = data; 
                     
                     const isAttending = data.attendees?.includes(currentUser.email);
                     const isDeclined = data.declined?.includes(currentUser.email);
@@ -364,47 +366,8 @@
                     list.appendChild(card);
                 });
             });
-            // 1. Ukládání údržby
-document.getElementById('maintenanceForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    try {
-        await addDoc(collection(db, "maintenance"), {
-            task: document.getElementById('maint_task').value,
-            date: new Date().toLocaleDateString('cs-CZ'),
-            performedBy: currentUser.email,
-            createdAt: serverTimestamp() // Nezapomeň přidat serverTimestamp do importu z firestore
-        });
-        e.target.reset();
-        alert("Záznam o údržbě uložen!");
-        loadMaintenance();
-    } catch (error) {
-        alert("Chyba: Zápis údržby smí provádět pouze šéfbarista.");
-    }
-});
 
-// 2. Načítání údržby
-async function loadMaintenance() {
-    const q = query(collection(db, "maintenance"), orderBy("createdAt", "desc"), limit(10));
-    const querySnapshot = await getDocs(q);
-    const container = document.getElementById('maintenanceList');
-    container.innerHTML = "";
-
-    querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        container.innerHTML += `
-            <div class="p-3 bg-white/5 border-l-4 border-yellow-500 rounded text-sm">
-                <div class="font-bold text-yellow-500">${data.date}</div>
-                <div class="text-white">${data.task}</div>
-                <div class="text-xs text-gray-500">Zapsal: ${data.performedBy}</div>
-            </div>
-        `;
-    });
-}
-
-// Spustit načítání při startu
-loadMaintenance();
-
-            // 2. KÁVY (SELECTION)
+            // ROASTERY SETS
             onSnapshot(collection(db, "roasterySets"), (sn) => {
                 const list = document.getElementById('roasteryList');
                 list.innerHTML = '';
@@ -438,7 +401,7 @@ loadMaintenance();
                 });
             });
 
-            // 3. RECEPTY
+            // RECIPES
             onSnapshot(collection(db, "recipes"), (sn) => {
                 const list = document.getElementById('recipeList');
                 list.innerHTML = '';
@@ -461,6 +424,25 @@ loadMaintenance();
             });
         }
 
+        // NAČÍTÁNÍ ÚDRŽBY
+        async function loadMaintenance() {
+            const q = query(collection(db, "maintenance"), orderBy("createdAt", "desc"), limit(10));
+            const querySnapshot = await getDocs(q);
+            const container = document.getElementById('maintenanceList');
+            container.innerHTML = "";
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                container.innerHTML += `
+                    <div class="p-3 bg-white/5 border-l-4 border-yellow-500 rounded text-sm">
+                        <div class="font-bold text-yellow-500">${data.date}</div>
+                        <div class="text-white">${data.task}</div>
+                        <div class="text-xs text-gray-500">Zapsal: ${data.performedBy}</div>
+                    </div>
+                `;
+            });
+        }
+
         // --- ACTIONS ---
         window.updateAttendance = async (id, status) => {
             const ref = doc(db, "cuppings", id);
@@ -473,13 +455,11 @@ loadMaintenance();
         };
         window.deleteDocById = async (coll, id) => { if(confirm('Tuto položku opravdu smazat?')) await deleteDoc(doc(db, coll, id)); };
 
-        // --- MODALS (HODNOCENÍ) ---
+        // --- MODALS ---
         window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); };
         
         window.openEvalModal = (cuppingId) => {
             document.getElementById('eval_cuppingId').value = cuppingId;
-            
-            // Dynamické načtení vzorků do roletky
             const samples = window.globalCuppings[cuppingId].samples || [];
             const select = document.getElementById('eval_sample');
             select.innerHTML = samples.map(s => `<option value="${s}">${s}</option>`).join('');
@@ -489,16 +469,12 @@ loadMaintenance();
             document.getElementById('evalModal').classList.remove('hidden');
         };
         
-        // --- MODALS (VÝSLEDKY & GRAFY) ---
         window.openResultsModal = async (cuppingId) => {
             document.getElementById('resultsModal').classList.remove('hidden');
-            
-            // Načtení seznamu vzorků do filtrovací roletky
             const samples = window.globalCuppings[cuppingId].samples || [];
             const select = document.getElementById('res_sample_select');
             select.innerHTML = samples.map(s => `<option value="${s}">${s}</option>`).join('');
 
-            // Stažení všech hodnocení z databáze pro tento cupping
             const indResultsDiv = document.getElementById('individualResults');
             indResultsDiv.innerHTML = '<div class="text-sm italic text-brand-muted">Stahuji data ze serveru...</div>';
 
@@ -508,7 +484,6 @@ loadMaintenance();
             window.currentResultsScores = [];
             querySnapshot.forEach((doc) => window.currentResultsScores.push(doc.data()));
 
-            // Vykreslení výsledků pro první vzorek v roletce
             if(samples.length > 0) {
                 renderChartAndList(samples[0]);
             } else {
@@ -518,8 +493,6 @@ loadMaintenance();
 
         window.renderChartAndList = (sampleName) => {
             const indResultsDiv = document.getElementById('individualResults');
-            
-            // Filtrujeme jen hodnocení pro právě vybranou kávu
             const filteredScores = window.currentResultsScores.filter(s => s.sample === sampleName);
 
             if (filteredScores.length === 0) {
@@ -563,8 +536,8 @@ loadMaintenance();
             });
         };
 
-        // --- BARISTA ADVISOR LOGIC ---
-        window.diagnoseEspresso = () => { /* Logika rádce ponechána z předchozí verze */ 
+        // --- BARISTA ADVISOR ---
+        window.diagnoseEspresso = () => { 
             const flow = document.getElementById('adv_flow').value; const taste = document.getElementById('adv_taste').value; const resBox = document.getElementById('advisorResult'); const diag = document.getElementById('adv_diagnosis'); const sol = document.getElementById('adv_solution');
             let dt = ""; let st = "";
             if (flow === 'fast' && taste === 'sour') { dt = "Extrémní podextrakce."; st = "<strong>ZJEMNI MLETÍ.</strong> Potřebujeme vodu zpomalit."; } 
@@ -582,8 +555,6 @@ loadMaintenance();
         // --- FORM SUBMITS ---
         document.getElementById('cuppingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            // Nasbírání všech zadaných vzorků do pole
             const sampleInputs = document.querySelectorAll('.sample-input');
             const samplesArray = Array.from(sampleInputs).map(input => input.value).filter(val => val.trim() !== '');
 
@@ -591,16 +562,33 @@ loadMaintenance();
                 title: document.getElementById('cup_title').value, 
                 date: document.getElementById('cup_date').value, 
                 time: document.getElementById('cup_time').value, 
-                samples: samplesArray, // Nové uložení pole vzorků
+                samples: samplesArray, 
                 attendees: [], 
                 declined: [] 
             });
             
-            // Reset formuláře a odstranění přidaných políček navíc
             e.target.reset();
             const dynamicContainer = document.getElementById('dynamicSamples');
             while (dynamicContainer.children.length > 2) {
                 dynamicContainer.removeChild(dynamicContainer.lastChild);
+            }
+        });
+
+        // FORMULÁŘ ÚDRŽBY (Přesunutý ven z načítací smyčky)
+        document.getElementById('maintenanceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await addDoc(collection(db, "maintenance"), {
+                    task: document.getElementById('maint_task').value,
+                    date: new Date().toLocaleDateString('cs-CZ'),
+                    performedBy: currentUser.email,
+                    createdAt: serverTimestamp() 
+                });
+                e.target.reset();
+                alert("Záznam o údržbě uložen!");
+                loadMaintenance();
+            } catch (error) {
+                alert("Chyba: Zápis údržby smí provádět pouze šéfbarista.");
             }
         });
 
