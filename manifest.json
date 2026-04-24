@@ -1,9 +1,15 @@
-window.switchTab = (tabId) => {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-    document.getElementById(tabId).classList.remove('hidden');
-    document.querySelectorAll('nav button').forEach(btn => {
-        btn.classList.replace('tab-active', 'tab-inactive');
-    });
-    const activeBtn = document.getElementById('btn-' + tabId);
-    activeBtn.classList.replace('tab-inactive', 'tab-active');
-};
+{
+  "short_name": "PoppyOS",
+  "name": "Poppy Beans Barista Guide",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/924/924514.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#000000"
+}
