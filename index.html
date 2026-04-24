@@ -67,6 +67,9 @@
                 <button onclick="switchTab('tab-kavy')" id="btn-tab-kavy" class="tab-inactive py-2 whitespace-nowrap">Výběr Kávy</button>
                 <button onclick="switchTab('tab-recepty')" id="btn-tab-recepty" class="tab-inactive py-2 whitespace-nowrap">Knihovna Receptů</button>
                 <button onclick="switchTab('tab-advisor')" id="btn-tab-advisor" class="tab-inactive py-2 whitespace-nowrap text-poppy-700">Baristický Rádce</button>
+                <button onclick="switchTab('tab-recepty')" id="btn-tab-recepty" class="tab-inactive py-2 whitespace-nowrap">Knihovna Receptů</button>
+<button onclick="switchTab('tab-advisor')" id="btn-tab-advisor" class="tab-inactive py-2 whitespace-nowrap text-poppy-700">Baristický Rádce</button>
+<button onclick="switchTab('tab-maintenance')" id="btn-tab-maintenance" class="tab-inactive py-2 whitespace-nowrap">Deník Údržby</button>
             </nav>
             <div class="flex items-center gap-4 text-xs font-bold whitespace-nowrap">
                 <span id="userGreeting" class="text-brand-muted uppercase"></span>
@@ -99,7 +102,7 @@
             </div>
             <div id="cuppingList" class="grid grid-cols-1 gap-8"></div>
         </section>
-        <section id="maintenance-section" class="bg-brand-dark p-6 rounded-xl border border-white/10 mt-8">
+        <section id="tab-maintenance" class="tab-content hidden bg-brand-dark p-6 rounded-xl border border-white/10 mt-8">
     <h2 class="text-2xl font-bold mb-4">🛠 Deník údržby techniky</h2>
     
     <form id="maintenanceForm" class="space-y-4 mb-8">
@@ -228,8 +231,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, arrayUnion, arrayRemove, increment, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-
+        import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, arrayUnion, arrayRemove, increment, query, where, getDocs, serverTimestamp, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
         const ADMIN_EMAIL = "hradskydavid06@gmail.com"; 
         const firebaseConfig = {
             apiKey: "AIzaSyD4EELQxfjdbmAnbFCegwbc_km-xrzTTuw",
