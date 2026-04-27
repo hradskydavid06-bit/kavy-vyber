@@ -28,14 +28,16 @@
         body { background-color: #fafafa; }
         .input-minimal { background: transparent; border: 1px solid #e4e4e7; border-radius: 4px; padding: 0.75rem 1rem; transition: all 0.2s; width: 100%; }
         .input-minimal:focus { outline: none; border-color: #09090b; box-shadow: 0 0 0 1px #09090b; }
+        
         /* Moderní vzhled "Appkových" tlačítek */
-.tab-active { background-color: #09090b; color: #ffffff; border-radius: 9999px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transition: all 0.2s; }
-.tab-inactive { color: #71717a; border-radius: 9999px; transition: all 0.2s; }
-.tab-inactive:hover { color: #09090b; background-color: #e4e4e7; }
+        .tab-active { background-color: #09090b; color: #ffffff; border-radius: 9999px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transition: all 0.2s; }
+        .tab-inactive { color: #71717a; border-radius: 9999px; transition: all 0.2s; }
+        .tab-inactive:hover { color: #09090b; background-color: #e4e4e7; }
 
-/* Skrytí posuvníku na mobilu pro elegantní swipe */
-.hide-scroll::-webkit-scrollbar { display: none; }
-.hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Skrytí posuvníku na mobilu pro elegantní swipe */
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #b91c1c; cursor: pointer; margin-top: -6px; }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #e4e4e7; border-radius: 2px; }
@@ -69,13 +71,13 @@
         <header class="mb-8 flex flex-col md:flex-row justify-between items-center border-b border-brand-border pb-6 gap-6">
             <h1 class="text-3xl font-extrabold uppercase tracking-tight">Poppy Beans</h1>
             <nav class="flex gap-1 text-[11px] md:text-xs uppercase tracking-widest font-bold overflow-x-auto w-full md:w-auto hide-scroll bg-brand-border/40 p-1 rounded-full items-center">
-    <button onclick="switchTab('tab-cupping')" id="btn-tab-cupping" class="tab-active px-5 py-2 whitespace-nowrap">Cuppingy</button>
-    <button onclick="switchTab('tab-kavy')" id="btn-tab-kavy" class="tab-inactive px-5 py-2 whitespace-nowrap">Výběr Kávy</button>
-    <button onclick="switchTab('tab-recepty')" id="btn-tab-recepty" class="tab-inactive px-5 py-2 whitespace-nowrap">Recepty</button>
-    <button onclick="switchTab('tab-advisor')" id="btn-tab-advisor" class="tab-inactive px-5 py-2 whitespace-nowrap">Rádce</button>
-    <button onclick="switchTab('tab-maintenance')" id="btn-tab-maintenance" class="tab-inactive px-5 py-2 whitespace-nowrap">Údržba</button>
-    <button onclick="switchTab('tab-checklists')" id="btn-tab-checklists" class="tab-inactive px-5 py-2 whitespace-nowrap">Směny</button>
-</nav>
+                <button onclick="switchTab('tab-cupping')" id="btn-tab-cupping" class="tab-active px-5 py-2 whitespace-nowrap">Cuppingy</button>
+                <button onclick="switchTab('tab-kavy')" id="btn-tab-kavy" class="tab-inactive px-5 py-2 whitespace-nowrap">Výběr Kávy</button>
+                <button onclick="switchTab('tab-recepty')" id="btn-tab-recepty" class="tab-inactive px-5 py-2 whitespace-nowrap">Recepty</button>
+                <button onclick="switchTab('tab-advisor')" id="btn-tab-advisor" class="tab-inactive px-5 py-2 whitespace-nowrap">Rádce</button>
+                <button onclick="switchTab('tab-maintenance')" id="btn-tab-maintenance" class="tab-inactive px-5 py-2 whitespace-nowrap">Údržba</button>
+                <button onclick="switchTab('tab-checklists')" id="btn-tab-checklists" class="tab-inactive px-5 py-2 whitespace-nowrap">Směny</button>
+            </nav>
             <div class="flex items-center gap-4 text-xs font-bold whitespace-nowrap">
                 <span id="userGreeting" class="text-brand-muted uppercase"></span>
                 <button id="logoutBtn" class="text-poppy-700 hover:underline uppercase">Odhlásit</button>
@@ -107,54 +109,6 @@
             </div>
             <div id="cuppingList" class="grid grid-cols-1 gap-8"></div>
         </section>
-
-        <section id="tab-maintenance" class="tab-content hidden bg-brand-dark p-6 rounded-xl border border-white/10 mt-8">
-    <h2 class="text-2xl font-bold mb-4 text-white">🛠 Deník údržby techniky</h2>
-    
-    <div id="admin-maintenance-form" class="hidden">
-        <form id="maintenanceForm" class="space-y-4 mb-8">
-            <input type="text" id="maint_task" placeholder="Co jsi udělal? (např. Výměna kamenů mlýnku)" class="w-full p-3 bg-black/40 border border-white/20 rounded-lg text-white" required>
-            <button type="submit" class="w-full bg-white text-black font-bold py-3 rounded-lg hover:bg-gray-200 transition">Zapsat údržbu</button>
-        </form>
-    </div>
-
-    <div id="maintenanceList" class="space-y-3">
-        <p class="text-gray-400">Načítám záznamy...</p>
-    </div>
-</section>
-        <section id="tab-checklists" class="tab-content hidden bg-brand-dark p-6 rounded-xl border border-white/10 mt-8">
-    <h2 class="text-2xl font-bold mb-6 text-white">📋 Otevírací a Zavírací Check-listy</h2>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-        <div class="bg-white/5 p-6 rounded-xl border border-white/10">
-            <h3 class="font-bold text-poppy-700 uppercase tracking-widest mb-4">☀️ Otevírací směna</h3>
-            <form id="openShiftForm" class="space-y-3">
-                <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-poppy-700" required><span>Nahřát kávovar a zapnout mlýnky</span></label>
-                <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-poppy-700" required><span>Nastavit ranní espresso (zapsat recept)</span></label>
-                <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-poppy-700" required><span>Zkontrolovat stav vitríny a čistotu stolů</span></label>
-                <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-poppy-700" required><span>Doplnit papírové kelímky a zásobu mléka</span></label>
-                <button type="submit" class="w-full mt-6 bg-white text-black font-bold py-3 rounded hover:bg-gray-200 transition">Potvrdit otevíračku</button>
-            </form>
-        </div>
-        <div class="bg-white/5 p-6 rounded-xl border border-white/10">
-            <h3 class="font-bold text-brand-muted uppercase tracking-widest mb-4">🌙 Zavírací směna</h3>
-            <form id="closeShiftForm" class="space-y-3">
-                <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-gray-500" required><span>Backflush kávovaru a vyčištění pák</span></label>
-                <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-gray-500" required><span>Vyčistit hlavy mlýnků a zvážit zbytky káv</span></label>
-                <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-gray-500" required><span>Umýt odkapávač a vyleštit nerezové plochy</span></label>
-                <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-gray-500" required><span>Uklidit bar, zapsat stavy zásob a zamknout</span></label>
-                <button type="submit" class="w-full mt-6 bg-brand-muted text-white font-bold py-3 rounded hover:bg-gray-400 transition">Potvrdit zavíračku</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="admin-checklists-log" class="hidden border-t border-white/10 pt-6">
-        <h3 class="font-bold text-white uppercase tracking-widest mb-4 text-sm">Log potvrzených směn (Vidí jen Admin)</h3>
-        <div id="checklistHistory" class="space-y-2 max-h-60 overflow-y-auto hide-scroll">
-            <p class="text-gray-400 text-xs">Načítám historii...</p>
-        </div>
-    </div>
-</section>
 
         <section id="tab-kavy" class="tab-content hidden">
             <div id="admin-coffee-form" class="bg-white p-6 border border-brand-border mb-10 hidden">
@@ -206,12 +160,61 @@
                         </select>
                     </div>
                 </div>
-                <button onclick="diagnoseEspresso()" class="w-full bg-poppy-700 text-white font-extrabold p-4 uppercase tracking-widest text-sm hover:bg-poppy-800 transition shadow-sm mb-8">Získat radu baristy</button>
+                <button onclick="diagnoseEspresso()" class="w-full bg-poppy-700 text-white font-extrabold p-4 uppercase tracking-widest text-sm hover:bg-poppy-800 transition shadow-sm mb-8">Zeptat se baristy</button>
                 <div id="advisorResult" class="hidden bg-white p-8 border-l-4 border-poppy-700 shadow-sm relative">
                     <h3 class="text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-2">Diagnóza:</h3>
                     <div id="adv_diagnosis" class="text-lg font-bold mb-4 text-brand-dark"></div>
                     <h3 class="text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-2">Akční krok:</h3>
                     <div id="adv_solution" class="text-sm font-medium leading-relaxed bg-brand-bg p-4 border border-brand-border"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-maintenance" class="tab-content hidden bg-brand-dark p-6 rounded-xl border border-white/10 mt-8">
+            <h2 class="text-2xl font-bold mb-4 text-white">🛠 Deník údržby techniky</h2>
+            
+            <div id="admin-maintenance-form" class="hidden">
+                <form id="maintenanceForm" class="space-y-4 mb-8">
+                    <input type="text" id="maint_task" placeholder="Co jsi udělal? (např. Výměna kamenů mlýnku)" class="w-full p-3 bg-black/40 border border-white/20 rounded-lg text-white" required>
+                    <button type="submit" class="w-full bg-white text-black font-bold py-3 rounded-lg hover:bg-gray-200 transition">Zapsat údržbu</button>
+                </form>
+            </div>
+
+            <div id="maintenanceList" class="space-y-3">
+                <p class="text-gray-400">Načítám záznamy...</p>
+            </div>
+        </section>
+
+        <section id="tab-checklists" class="tab-content hidden bg-brand-dark p-6 rounded-xl border border-white/10 mt-8">
+            <h2 class="text-2xl font-bold mb-6 text-white">📋 Otevírací a Zavírací Check-listy</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div class="bg-white/5 p-6 rounded-xl border border-white/10">
+                    <h3 class="font-bold text-poppy-700 uppercase tracking-widest mb-4">☀️ Otevírací směna</h3>
+                    <form id="openShiftForm" class="space-y-3">
+                        <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-poppy-700" required><span>Nahřát kávovar a zapnout mlýnky</span></label>
+                        <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-poppy-700" required><span>Nastavit ranní espresso (zapsat recept)</span></label>
+                        <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-poppy-700" required><span>Zkontrolovat stav vitríny a čistotu stolů</span></label>
+                        <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-poppy-700" required><span>Doplnit papírové kelímky a zásobu mléka</span></label>
+                        <button type="submit" class="w-full mt-6 bg-white text-black font-bold py-3 rounded hover:bg-gray-200 transition">Potvrdit otevíračku</button>
+                    </form>
+                </div>
+                <div class="bg-white/5 p-6 rounded-xl border border-white/10">
+                    <h3 class="font-bold text-brand-muted uppercase tracking-widest mb-4">🌙 Zavírací směna</h3>
+                    <form id="closeShiftForm" class="space-y-3">
+                        <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-gray-500" required><span>Backflush kávovaru a vyčištění pák</span></label>
+                        <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-gray-500" required><span>Vyčistit hlavy mlýnků a zvážit zbytky káv</span></label>
+                        <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-gray-500" required><span>Umýt odkapávač a vyleštit nerezové plochy</span></label>
+                        <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-gray-500" required><span>Uklidit bar, zapsat stavy zásob a zamknout</span></label>
+                        <button type="submit" class="w-full mt-6 bg-brand-muted text-white font-bold py-3 rounded hover:bg-gray-400 transition">Potvrdit zavíračku</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="admin-checklists-log" class="border-t border-white/10 pt-6">
+                <h3 class="font-bold text-white uppercase tracking-widest mb-4 text-sm">Záznamy potvrzených směn</h3>
+                <div id="checklistHistory" class="space-y-2 max-h-60 overflow-y-auto hide-scroll">
+                    <p class="text-gray-400 text-xs">Načítám historii...</p>
                 </div>
             </div>
         </section>
@@ -270,7 +273,6 @@
     </div>
 
     <script type="module">
-        // Importy (ZDE BYLY PŘIDÁNY CHYBĚJÍCÍ FUNKCE PRO ÚDRŽBU)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, arrayUnion, arrayRemove, increment, query, where, getDocs, serverTimestamp, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -303,26 +305,24 @@
                 isAdmin = (user.email === ADMIN_EMAIL);
                 document.getElementById('userGreeting').innerText = user.email;
                 
-              if(isAdmin) {
+                if(isAdmin) {
                     document.getElementById('admin-cupping-form').classList.remove('hidden');
                     document.getElementById('admin-coffee-form').classList.remove('hidden');
                     document.getElementById('admin-recipe-form').classList.remove('hidden');
                     document.getElementById('admin-maintenance-form').classList.remove('hidden');
-                    
-                    // TADY JSOU TY DVA NOVÉ ŘÁDKY:
-                    document.getElementById('admin-checklists-log').classList.remove('hidden');
-                    loadChecklists();
-                }  else {
+                } else {
                     document.getElementById('admin-cupping-form').classList.add('hidden');
                     document.getElementById('admin-coffee-form').classList.add('hidden');
                     document.getElementById('admin-recipe-form').classList.add('hidden');
+                    document.getElementById('admin-maintenance-form').classList.add('hidden');
                 }
 
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
                 
                 loadData(); 
-                loadMaintenance(); // Spustí načtení údržby při přihlášení
+                loadMaintenance(); 
+                loadChecklists(); // Nově viditelné pro všechny
             } else {
                 document.getElementById('loginScreen').classList.remove('hidden');
                 document.getElementById('mainApp').classList.add('hidden');
@@ -337,30 +337,28 @@
 
         document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
-        // TAB SWITCH
+        // UI: ADD SAMPLES
+        window.addSampleField = () => {
+            const container = document.getElementById('dynamicSamples');
+            const count = container.children.length + 1;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'input-minimal sample-input text-sm mt-3';
+            input.placeholder = `Název kávy ${count} (Farma, Zpracování...)`;
+            input.required = true;
+            container.appendChild(input);
+        };
+
+        // TAB SWITCH LOGIC
         window.switchTab = (tabId) => {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(tabId).classList.remove('hidden');
             document.querySelectorAll('nav button').forEach(btn => {
                 btn.classList.replace('tab-active', 'tab-inactive');
-                btn.classList.remove('text-poppy-700'); 
             });
             const activeBtn = document.getElementById('btn-' + tabId);
             activeBtn.classList.replace('tab-inactive', 'tab-active');
-            if(tabId === 'tab-advisor') activeBtn.classList.add('text-poppy-700');
         };
-
-        // UI: ADD SAMPLES
-        // TAB SWITCH LOGIC
-window.switchTab = (tabId) => {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-    document.getElementById(tabId).classList.remove('hidden');
-    document.querySelectorAll('nav button').forEach(btn => {
-        btn.classList.replace('tab-active', 'tab-inactive');
-    });
-    const activeBtn = document.getElementById('btn-' + tabId);
-    activeBtn.classList.replace('tab-inactive', 'tab-active');
-};
 
         // REAL-TIME DATA FETCHING
         function loadData() {
@@ -379,21 +377,27 @@ window.switchTab = (tabId) => {
                     const card = document.createElement('div');
                     card.className = "bg-white border border-brand-border p-6";
                     
+                    // Admin report (vidí jen Admin)
                     const adminReport = isAdmin ? `
                         <div class="mt-6 pt-6 border-t border-brand-border grid grid-cols-2 gap-4">
                             <div><div class="text-[10px] font-bold uppercase text-green-700 mb-2">✅ Potvrzeno (${data.attendees?.length || 0})</div><div class="text-xs space-y-1">${data.attendees?.join('<br>') || 'nikdo'}</div></div>
                             <div><div class="text-[10px] font-bold uppercase text-red-700 mb-2">❌ Omluveno (${data.declined?.length || 0})</div><div class="text-xs space-y-1">${data.declined?.join('<br>') || 'nikdo'}</div></div>
                         </div>
-                        <div class="mt-4 pt-4 border-t border-brand-border">
-                            <button onclick="openResultsModal('${d.id}')" class="w-full bg-poppy-700 text-white font-bold text-xs uppercase tracking-widest py-3 hover:bg-poppy-800 transition">📊 Zobrazit výsledky hodnocení</button>
-                        </div>
                     ` : '';
 
+                    // Evaluate Button (jen účastník)
                     const evaluateButton = isAttending ? `
                         <div class="mt-4 pt-4 border-t border-brand-border">
                             <button onclick="openEvalModal('${d.id}')" class="w-full bg-brand-dark text-white font-bold text-xs uppercase tracking-widest py-3 hover:bg-black transition">📝 Ohodnotit vzorky</button>
                         </div>
                     ` : '';
+
+                    // Výsledky pro všechny (Pouze pro čtení)
+                    const resultsButton = `
+                        <div class="mt-4 pt-4 border-t border-brand-border">
+                            <button onclick="openResultsModal('${d.id}')" class="w-full bg-brand-bg text-brand-dark border border-brand-border font-bold text-xs uppercase tracking-widest py-3 hover:bg-gray-200 transition">📊 Zobrazit výsledky a záznamy</button>
+                        </div>
+                    `;
 
                     card.innerHTML = `
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -408,6 +412,7 @@ window.switchTab = (tabId) => {
                             </div>
                         </div>
                         ${evaluateButton}
+                        ${resultsButton}
                         ${adminReport}
                     `;
                     list.appendChild(card);
@@ -621,7 +626,6 @@ window.switchTab = (tabId) => {
             }
         });
 
-        // FORMULÁŘ ÚDRŽBY (Přesunutý ven z načítací smyčky)
         document.getElementById('maintenanceForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
@@ -654,6 +658,7 @@ window.switchTab = (tabId) => {
             const scoreData = { cuppingId: document.getElementById('eval_cuppingId').value, userEmail: currentUser.email, sample: document.getElementById('eval_sample').value, aroma: parseFloat(document.getElementById('sl_aroma').value), acidity: parseFloat(document.getElementById('sl_acid').value), sweetness: parseFloat(document.getElementById('sl_sweet').value), body: parseFloat(document.getElementById('sl_body').value), aftertaste: parseFloat(document.getElementById('sl_after').value), note: document.getElementById('eval_note').value, timestamp: new Date() };
             try { await addDoc(collection(db, "cuppingScores"), scoreData); alert('Hodnocení uloženo!'); closeModal('evalModal'); } catch (error) { console.error(error); }
         });
+
         // --- CHECK-LISTY (SMĚNY) ---
         const handleChecklist = async (e, type) => {
             e.preventDefault();
@@ -667,7 +672,7 @@ window.switchTab = (tabId) => {
                 });
                 e.target.reset();
                 alert(`${type} byla úspěšně zapsána do systému!`);
-                if (isAdmin) loadChecklists();
+                loadChecklists();
             } catch (error) {
                 console.error(error);
                 alert("Chyba při zápisu do databáze.");
@@ -678,7 +683,6 @@ window.switchTab = (tabId) => {
         document.getElementById('closeShiftForm').addEventListener('submit', (e) => handleChecklist(e, '🌙 Zavíračka'));
 
         async function loadChecklists() {
-            if(!isAdmin) return;
             const q = query(collection(db, "checklists"), orderBy("createdAt", "desc"), limit(20));
             const querySnapshot = await getDocs(q);
             const container = document.getElementById('checklistHistory');
