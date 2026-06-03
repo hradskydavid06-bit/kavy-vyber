@@ -300,16 +300,24 @@
         let isAdmin = false;
         let myChartInstance = null;
         
+        let currentBranch = "Osobní účet"; // Globální proměnná pro aktuální pobočku
+        
         window.globalCuppings = {}; 
         window.currentResultsScores = [];
 
         // Detekce pobočky podle e-mailu
         const getBranch = (email) => {
-            if(email === ADMIN_EMAIL) return document.getElementById('adminBranchSelect').value;
             if(email === "krok@poppybeans.cz") return "Krok";
             if(email === "poppy@poppybeans.cz") return "Poppy Beans";
             return "Osobní účet";
         };
+
+        // Přepínání pobočky pro admina
+        document.getElementById('adminBranchSelect').addEventListener('change', (e) => {
+            currentBranch = e.target.value;
+            loadMaintenance();
+            loadChecklists();
+        });
 
         // AUTHENTICATION
         onAuthStateChanged(auth, (user) => {
@@ -318,22 +326,20 @@
                 isAdmin = (user.email === ADMIN_EMAIL);
                 
                 if(isAdmin) {
-                    // Admin vidí roletku pro výběr pobočky, klasický text s emailem se skryje
+                    currentBranch = document.getElementById('adminBranchSelect').value;
                     document.getElementById('adminBranchSelect').classList.remove('hidden');
                     document.getElementById('userGreeting').classList.add('hidden');
                     
-                    // Admin vidí všechny formuláře
                     document.getElementById('admin-cupping-form').classList.remove('hidden');
                     document.getElementById('admin-coffee-form').classList.remove('hidden');
                     document.getElementById('admin-recipe-form').classList.remove('hidden');
                     document.getElementById('admin-maintenance-form').classList.remove('hidden');
                 } else {
-                    // Barista vidí pouze své jméno nebo název pobočky tabletu
+                    currentBranch = getBranch(user.email);
                     document.getElementById('adminBranchSelect').classList.add('hidden');
                     document.getElementById('userGreeting').classList.remove('hidden');
                     
-                    const branchName = getBranch(user.email);
-                    document.getElementById('userGreeting').innerText = branchName !== "Osobní účet" ? `📍 Pobočka ${branchName}` : user.email;
+                    document.getElementById('userGreeting').innerText = currentBranch !== "Osobní účet" ? `📍 Pobočka ${currentBranch}` : user.email;
                     
                     document.getElementById('admin-cupping-form').classList.add('hidden');
                     document.getElementById('admin-coffee-form').classList.add('hidden');
@@ -635,7 +641,7 @@
                 await addDoc(collection(db, "maintenance"), {
                     task: document.getElementById('maint_task').value,
                     signature: document.getElementById('maint_signature').value,
-                    branch: getBranch(currentUser.email),
+                    branch: currentBranch,
                     date: new Date().toLocaleDateString('cs-CZ'),
                     performedBy: currentUser.email,
                     createdAt: serverTimestamp() 
@@ -648,19 +654,23 @@
             }
         });
 
-        // NAČÍTÁNÍ ÚDRŽBY
+        // NAČÍTÁNÍ ÚDRŽBY (Skrývá cizí pobočky)
         async function loadMaintenance() {
-            const q = query(collection(db, "maintenance"), orderBy("createdAt", "desc"), limit(10));
+            const q = query(collection(db, "maintenance"), orderBy("createdAt", "desc"), limit(50));
             const querySnapshot = await getDocs(q);
             const container = document.getElementById('maintenanceList');
             container.innerHTML = "";
 
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
+                
+                // Klapky na očí: Vykreslí jen pokud sedí pobočka (nebo u osobních účtů ignoruje)
+                if (data.branch !== currentBranch && currentBranch !== "Osobní účet") return;
+
                 container.innerHTML += `
                     <div class="p-3 bg-white/5 border-l-4 border-yellow-500 rounded text-sm mb-2">
                         <div class="flex justify-between items-center border-b border-white/10 pb-1 mb-1">
-                            <div class="font-bold text-yellow-500">${data.date} <span class="text-white/50 text-xs font-normal ml-2">[${data.branch}]</span></div>
+                            <div class="font-bold text-yellow-500">${data.date}</div>
                             <div class="text-[10px] font-bold text-white uppercase tracking-widest">${data.signature}</div>
                         </div>
                         <div class="text-white mt-1">${data.task}</div>
@@ -692,7 +702,7 @@
                 await addDoc(collection(db, "checklists"), {
                     type: type,
                     signature: document.getElementById(signatureId).value,
-                    branch: getBranch(currentUser.email),
+                    branch: currentBranch,
                     date: new Date().toLocaleDateString('cs-CZ'),
                     time: new Date().toLocaleTimeString('cs-CZ'),
                     user: currentUser.email,
@@ -710,24 +720,27 @@
         document.getElementById('openShiftForm').addEventListener('submit', (e) => handleChecklist(e, '☀️ Otevíračka', 'open_signature'));
         document.getElementById('closeShiftForm').addEventListener('submit', (e) => handleChecklist(e, '🌙 Zavíračka', 'close_signature'));
 
-        // NAČÍTÁNÍ CHECK-LISTŮ
+        // NAČÍTÁNÍ CHECK-LISTŮ (Skrývá cizí pobočky)
         async function loadChecklists() {
-            const q = query(collection(db, "checklists"), orderBy("createdAt", "desc"), limit(20));
+            const q = query(collection(db, "checklists"), orderBy("createdAt", "desc"), limit(50));
             const querySnapshot = await getDocs(q);
             const container = document.getElementById('checklistHistory');
             container.innerHTML = "";
 
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
+                
+                // Klapky na očí: Vykreslí jen pokud sedí pobočka (nebo u osobních účtů ignoruje)
+                if (data.branch !== currentBranch && currentBranch !== "Osobní účet") return;
+
                 container.innerHTML += `
                     <div class="flex justify-between items-center p-3 bg-black/40 border border-white/10 rounded text-xs">
                         <div>
-                            <div class="text-white font-bold">${data.type} <span class="text-poppy-700 ml-2">[${data.branch}]</span></div>
+                            <div class="text-white font-bold">${data.type}</div>
                             <div class="text-gray-500 font-normal mt-1">${data.date} | ${data.time}</div>
                         </div>
                         <div class="text-right">
                             <div class="text-white font-bold tracking-widest uppercase">${data.signature}</div>
-                            <div class="text-[9px] text-gray-500 mt-1">${data.user.split('@')[0]}</div>
                         </div>
                     </div>
                 `;
