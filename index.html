@@ -29,12 +29,10 @@
         .input-minimal { background: transparent; border: 1px solid #e4e4e7; border-radius: 4px; padding: 0.75rem 1rem; transition: all 0.2s; width: 100%; }
         .input-minimal:focus { outline: none; border-color: #09090b; box-shadow: 0 0 0 1px #09090b; }
         
-        /* Moderní vzhled "Appkových" tlačítek */
         .tab-active { background-color: #09090b; color: #ffffff; border-radius: 9999px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transition: all 0.2s; }
         .tab-inactive { color: #71717a; border-radius: 9999px; transition: all 0.2s; }
         .tab-inactive:hover { color: #09090b; background-color: #e4e4e7; }
 
-        /* Skrytí posuvníku na mobilu pro elegantní swipe */
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         
@@ -176,6 +174,7 @@
             <div id="admin-maintenance-form" class="hidden">
                 <form id="maintenanceForm" class="space-y-4 mb-8">
                     <input type="text" id="maint_task" placeholder="Co jsi udělal? (např. Výměna kamenů mlýnku)" class="w-full p-3 bg-black/40 border border-white/20 rounded-lg text-white" required>
+                    <input type="text" id="maint_signature" placeholder="Tvůj podpis (např. David)" class="w-full p-3 bg-black/40 border border-white/20 rounded-lg text-white" required>
                     <button type="submit" class="w-full bg-white text-black font-bold py-3 rounded-lg hover:bg-gray-200 transition">Zapsat údržbu</button>
                 </form>
             </div>
@@ -196,7 +195,8 @@
                         <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-poppy-700" required><span>Nastavit ranní espresso (zapsat recept)</span></label>
                         <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-poppy-700" required><span>Zkontrolovat stav vitríny a čistotu stolů</span></label>
                         <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-poppy-700" required><span>Doplnit papírové kelímky a zásobu mléka</span></label>
-                        <button type="submit" class="w-full mt-6 bg-white text-black font-bold py-3 rounded hover:bg-gray-200 transition">Potvrdit otevíračku</button>
+                        <input type="text" id="open_signature" placeholder="Tvůj podpis (např. David)" class="w-full mt-4 p-3 bg-black/40 border border-white/20 rounded-lg text-white" required>
+                        <button type="submit" class="w-full mt-4 bg-white text-black font-bold py-3 rounded hover:bg-gray-200 transition">Potvrdit otevíračku</button>
                     </form>
                 </div>
                 <div class="bg-white/5 p-6 rounded-xl border border-white/10">
@@ -206,13 +206,14 @@
                         <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-gray-500" required><span>Vyčistit hlavy mlýnků a zvážit zbytky káv</span></label>
                         <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-gray-500" required><span>Umýt odkapávač a vyleštit nerezové plochy</span></label>
                         <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-gray-500" required><span>Uklidit bar, zapsat stavy zásob a zamknout</span></label>
-                        <button type="submit" class="w-full mt-6 bg-brand-muted text-white font-bold py-3 rounded hover:bg-gray-400 transition">Potvrdit zavíračku</button>
+                        <input type="text" id="close_signature" placeholder="Tvůj podpis (např. David)" class="w-full mt-4 p-3 bg-black/40 border border-white/20 rounded-lg text-white" required>
+                        <button type="submit" class="w-full mt-4 bg-brand-muted text-white font-bold py-3 rounded hover:bg-gray-400 transition">Potvrdit zavíračku</button>
                     </form>
                 </div>
             </div>
 
             <div id="admin-checklists-log" class="border-t border-white/10 pt-6">
-                <h3 class="font-bold text-white uppercase tracking-widest mb-4 text-sm">Záznamy potvrzených směn</h3>
+                <h3 class="font-bold text-white uppercase tracking-widest mb-4 text-sm">Záznamy potvrzených směn a údržby</h3>
                 <div id="checklistHistory" class="space-y-2 max-h-60 overflow-y-auto hide-scroll">
                     <p class="text-gray-400 text-xs">Načítám historii...</p>
                 </div>
@@ -298,12 +299,20 @@
         window.globalCuppings = {}; 
         window.currentResultsScores = [];
 
+        // Detekce pobočky podle e-mailu
+        const getBranch = (email) => {
+            if(email === "krok@poppybeans.cz") return "Krok";
+            if(email === "poppy@poppybeans.cz") return "Poppy Beans";
+            return "Osobní účet";
+        };
+
         // AUTHENTICATION
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
                 isAdmin = (user.email === ADMIN_EMAIL);
-                document.getElementById('userGreeting').innerText = user.email;
+                const branchName = getBranch(user.email);
+                document.getElementById('userGreeting').innerText = branchName !== "Osobní účet" ? `📍 Pobočka ${branchName}` : user.email;
                 
                 if(isAdmin) {
                     document.getElementById('admin-cupping-form').classList.remove('hidden');
@@ -314,7 +323,9 @@
                     document.getElementById('admin-cupping-form').classList.add('hidden');
                     document.getElementById('admin-coffee-form').classList.add('hidden');
                     document.getElementById('admin-recipe-form').classList.add('hidden');
-                    document.getElementById('admin-maintenance-form').classList.add('hidden');
+                    
+                    // Maintenance form je teď povolený pro všechny (aby mohli z tabletu psát údržbu)
+                    document.getElementById('admin-maintenance-form').classList.remove('hidden'); 
                 }
 
                 document.getElementById('loginScreen').classList.add('hidden');
@@ -322,7 +333,7 @@
                 
                 loadData(); 
                 loadMaintenance(); 
-                loadChecklists(); // Nově viditelné pro všechny
+                loadChecklists(); 
             } else {
                 document.getElementById('loginScreen').classList.remove('hidden');
                 document.getElementById('mainApp').classList.add('hidden');
@@ -377,7 +388,6 @@
                     const card = document.createElement('div');
                     card.className = "bg-white border border-brand-border p-6";
                     
-                    // Admin report (vidí jen Admin)
                     const adminReport = isAdmin ? `
                         <div class="mt-6 pt-6 border-t border-brand-border grid grid-cols-2 gap-4">
                             <div><div class="text-[10px] font-bold uppercase text-green-700 mb-2">✅ Potvrzeno (${data.attendees?.length || 0})</div><div class="text-xs space-y-1">${data.attendees?.join('<br>') || 'nikdo'}</div></div>
@@ -385,14 +395,12 @@
                         </div>
                     ` : '';
 
-                    // Evaluate Button (jen účastník)
                     const evaluateButton = isAttending ? `
                         <div class="mt-4 pt-4 border-t border-brand-border">
                             <button onclick="openEvalModal('${d.id}')" class="w-full bg-brand-dark text-white font-bold text-xs uppercase tracking-widest py-3 hover:bg-black transition">📝 Ohodnotit vzorky</button>
                         </div>
                     ` : '';
 
-                    // Výsledky pro všechny (Pouze pro čtení)
                     const resultsButton = `
                         <div class="mt-4 pt-4 border-t border-brand-border">
                             <button onclick="openResultsModal('${d.id}')" class="w-full bg-brand-bg text-brand-dark border border-brand-border font-bold text-xs uppercase tracking-widest py-3 hover:bg-gray-200 transition">📊 Zobrazit výsledky a záznamy</button>
@@ -473,25 +481,6 @@
                     `;
                     list.appendChild(card);
                 });
-            });
-        }
-
-        // NAČÍTÁNÍ ÚDRŽBY
-        async function loadMaintenance() {
-            const q = query(collection(db, "maintenance"), orderBy("createdAt", "desc"), limit(10));
-            const querySnapshot = await getDocs(q);
-            const container = document.getElementById('maintenanceList');
-            container.innerHTML = "";
-
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                container.innerHTML += `
-                    <div class="p-3 bg-white/5 border-l-4 border-yellow-500 rounded text-sm">
-                        <div class="font-bold text-yellow-500">${data.date}</div>
-                        <div class="text-white">${data.task}</div>
-                        <div class="text-xs text-gray-500">Zapsal: ${data.performedBy}</div>
-                    </div>
-                `;
             });
         }
 
@@ -626,11 +615,14 @@
             }
         });
 
+        // FORMULÁŘ ÚDRŽBY
         document.getElementById('maintenanceForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
                 await addDoc(collection(db, "maintenance"), {
                     task: document.getElementById('maint_task').value,
+                    signature: document.getElementById('maint_signature').value,
+                    branch: getBranch(currentUser.email),
                     date: new Date().toLocaleDateString('cs-CZ'),
                     performedBy: currentUser.email,
                     createdAt: serverTimestamp() 
@@ -639,9 +631,30 @@
                 alert("Záznam o údržbě uložen!");
                 loadMaintenance();
             } catch (error) {
-                alert("Chyba: Zápis údržby smí provádět pouze šéfbarista.");
+                alert("Chyba při zápisu údržby.");
             }
         });
+
+        // NAČÍTÁNÍ ÚDRŽBY
+        async function loadMaintenance() {
+            const q = query(collection(db, "maintenance"), orderBy("createdAt", "desc"), limit(10));
+            const querySnapshot = await getDocs(q);
+            const container = document.getElementById('maintenanceList');
+            container.innerHTML = "";
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                container.innerHTML += `
+                    <div class="p-3 bg-white/5 border-l-4 border-yellow-500 rounded text-sm mb-2">
+                        <div class="flex justify-between items-center border-b border-white/10 pb-1 mb-1">
+                            <div class="font-bold text-yellow-500">${data.date} <span class="text-white/50 text-xs font-normal ml-2">[${data.branch}]</span></div>
+                            <div class="text-[10px] font-bold text-white uppercase tracking-widest">${data.signature}</div>
+                        </div>
+                        <div class="text-white mt-1">${data.task}</div>
+                    </div>
+                `;
+            });
+        }
 
         document.getElementById('roasteryForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -660,11 +673,13 @@
         });
 
         // --- CHECK-LISTY (SMĚNY) ---
-        const handleChecklist = async (e, type) => {
+        const handleChecklist = async (e, type, signatureId) => {
             e.preventDefault();
             try {
                 await addDoc(collection(db, "checklists"), {
                     type: type,
+                    signature: document.getElementById(signatureId).value,
+                    branch: getBranch(currentUser.email),
                     date: new Date().toLocaleDateString('cs-CZ'),
                     time: new Date().toLocaleTimeString('cs-CZ'),
                     user: currentUser.email,
@@ -679,9 +694,10 @@
             }
         };
 
-        document.getElementById('openShiftForm').addEventListener('submit', (e) => handleChecklist(e, '☀️ Otevíračka'));
-        document.getElementById('closeShiftForm').addEventListener('submit', (e) => handleChecklist(e, '🌙 Zavíračka'));
+        document.getElementById('openShiftForm').addEventListener('submit', (e) => handleChecklist(e, '☀️ Otevíračka', 'open_signature'));
+        document.getElementById('closeShiftForm').addEventListener('submit', (e) => handleChecklist(e, '🌙 Zavíračka', 'close_signature'));
 
+        // NAČÍTÁNÍ CHECK-LISTŮ
         async function loadChecklists() {
             const q = query(collection(db, "checklists"), orderBy("createdAt", "desc"), limit(20));
             const querySnapshot = await getDocs(q);
@@ -692,8 +708,14 @@
                 const data = doc.data();
                 container.innerHTML += `
                     <div class="flex justify-between items-center p-3 bg-black/40 border border-white/10 rounded text-xs">
-                        <div class="text-white font-bold">${data.type} <span class="text-gray-500 font-normal ml-3">${data.date} | ${data.time}</span></div>
-                        <div class="text-poppy-700 tracking-widest uppercase">${data.user.split('@')[0]}</div>
+                        <div>
+                            <div class="text-white font-bold">${data.type} <span class="text-poppy-700 ml-2">[${data.branch}]</span></div>
+                            <div class="text-gray-500 font-normal mt-1">${data.date} | ${data.time}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-white font-bold tracking-widest uppercase">${data.signature}</div>
+                            <div class="text-[9px] text-gray-500 mt-1">${data.user.split('@')[0]}</div>
+                        </div>
                     </div>
                 `;
             });
