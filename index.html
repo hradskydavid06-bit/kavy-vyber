@@ -77,6 +77,10 @@
                 <button onclick="switchTab('tab-checklists')" id="btn-tab-checklists" class="tab-inactive px-5 py-2 whitespace-nowrap">Směny</button>
             </nav>
             <div class="flex items-center gap-4 text-xs font-bold whitespace-nowrap">
+                <select id="adminBranchSelect" class="hidden bg-brand-bg border border-brand-border text-poppy-700 py-1 px-2 rounded cursor-pointer uppercase tracking-widest outline-none">
+                    <option value="Poppy Beans">📍 Poppy Beans</option>
+                    <option value="Krok">📍 Krok</option>
+                </select>
                 <span id="userGreeting" class="text-brand-muted uppercase"></span>
                 <button id="logoutBtn" class="text-poppy-700 hover:underline uppercase">Odhlásit</button>
             </div>
@@ -301,6 +305,7 @@
 
         // Detekce pobočky podle e-mailu
         const getBranch = (email) => {
+            if(email === ADMIN_EMAIL) return document.getElementById('adminBranchSelect').value;
             if(email === "krok@poppybeans.cz") return "Krok";
             if(email === "poppy@poppybeans.cz") return "Poppy Beans";
             return "Osobní účet";
@@ -311,20 +316,28 @@
             if (user) {
                 currentUser = user;
                 isAdmin = (user.email === ADMIN_EMAIL);
-                const branchName = getBranch(user.email);
-                document.getElementById('userGreeting').innerText = branchName !== "Osobní účet" ? `📍 Pobočka ${branchName}` : user.email;
                 
                 if(isAdmin) {
+                    // Admin vidí roletku pro výběr pobočky, klasický text s emailem se skryje
+                    document.getElementById('adminBranchSelect').classList.remove('hidden');
+                    document.getElementById('userGreeting').classList.add('hidden');
+                    
+                    // Admin vidí všechny formuláře
                     document.getElementById('admin-cupping-form').classList.remove('hidden');
                     document.getElementById('admin-coffee-form').classList.remove('hidden');
                     document.getElementById('admin-recipe-form').classList.remove('hidden');
                     document.getElementById('admin-maintenance-form').classList.remove('hidden');
                 } else {
+                    // Barista vidí pouze své jméno nebo název pobočky tabletu
+                    document.getElementById('adminBranchSelect').classList.add('hidden');
+                    document.getElementById('userGreeting').classList.remove('hidden');
+                    
+                    const branchName = getBranch(user.email);
+                    document.getElementById('userGreeting').innerText = branchName !== "Osobní účet" ? `📍 Pobočka ${branchName}` : user.email;
+                    
                     document.getElementById('admin-cupping-form').classList.add('hidden');
                     document.getElementById('admin-coffee-form').classList.add('hidden');
                     document.getElementById('admin-recipe-form').classList.add('hidden');
-                    
-                    // Maintenance form je teď povolený pro všechny (aby mohli z tabletu psát údržbu)
                     document.getElementById('admin-maintenance-form').classList.remove('hidden'); 
                 }
 
