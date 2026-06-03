@@ -17,28 +17,64 @@
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        poppy: { 700: '#b91c1c', 800: '#991b1b' },
-                        brand: { dark: '#09090b', muted: '#71717a', border: '#e4e4e7', bg: '#fafafa' }
+                        theme: {
+                            accent: 'var(--t-accent)',
+                            'accent-hover': 'var(--t-accent-hover)',
+                            base: 'var(--t-base)',
+                            'base-hover': 'var(--t-base-hover)',
+                            bg: 'var(--t-bg)',
+                            surface: 'var(--t-surface)',
+                            border: 'var(--t-border)',
+                            text: 'var(--t-text)',
+                            muted: 'var(--t-muted)'
+                        }
                     }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #fafafa; }
-        .input-minimal { background: transparent; border: 1px solid #e4e4e7; border-radius: 4px; padding: 0.75rem 1rem; transition: all 0.2s; width: 100%; }
-        .input-minimal:focus { outline: none; border-color: #09090b; box-shadow: 0 0 0 1px #09090b; }
+        /* TÉMA: POPPY BEANS (Barevné, Hřejivé, Červené akcenty) */
+        :root {
+            --t-accent: #b91c1c; /* Červená */
+            --t-accent-hover: #991b1b;
+            --t-base: #7f1d1d; /* Tmavě rubínová pro hlavní prvky */
+            --t-base-hover: #450a0a;
+            --t-bg: #fef2f2; /* Velmi jemný teplý nádech pozadí */
+            --t-surface: #ffffff;
+            --t-border: #fecaca; /* Zabarvené ohraničení */
+            --t-text: #450a0a; /* Velmi tmavá hnědo-červená */
+            --t-muted: #991b1b;
+        }
+
+        /* TÉMA: KROK (Minimalistické, Čisté, Monochromatické) */
+        body.theme-krok {
+            --t-accent: #000000; /* Černá jako hlavní akcent */
+            --t-accent-hover: #27272a;
+            --t-base: #18181b; /* Téměř černá pro hlavní prvky */
+            --t-base-hover: #000000;
+            --t-bg: #f4f4f5; /* Čistá světle šedá */
+            --t-surface: #ffffff;
+            --t-border: #e4e4e7; /* Ostré šedé hrany */
+            --t-text: #09090b; /* Černý text */
+            --t-muted: #71717a; /* Ztlumená šedá */
+        }
+
+        body { background-color: var(--t-bg); color: var(--t-text); transition: background-color 0.3s ease; }
         
-        .tab-active { background-color: #09090b; color: #ffffff; border-radius: 9999px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transition: all 0.2s; }
-        .tab-inactive { color: #71717a; border-radius: 9999px; transition: all 0.2s; }
-        .tab-inactive:hover { color: #09090b; background-color: #e4e4e7; }
+        .input-minimal { background: var(--t-surface); border: 1px solid var(--t-border); border-radius: 4px; padding: 0.75rem 1rem; transition: all 0.2s; width: 100%; color: var(--t-text); }
+        .input-minimal:focus { outline: none; border-color: var(--t-accent); box-shadow: 0 0 0 1px var(--t-accent); }
+        
+        .tab-active { background-color: var(--t-base); color: #ffffff; border-radius: 9999px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transition: all 0.2s; }
+        .tab-inactive { color: var(--t-muted); border-radius: 9999px; transition: all 0.2s; }
+        .tab-inactive:hover { color: var(--t-text); background-color: var(--t-border); }
 
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #b91c1c; cursor: pointer; margin-top: -6px; }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #e4e4e7; border-radius: 2px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: var(--t-accent); cursor: pointer; margin-top: -6px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: var(--t-border); border-radius: 2px; }
     </style>
     <link rel="manifest" href="manifest.json">
     <script>
@@ -47,28 +83,30 @@
       }
     </script>
 </head>
-<body class="text-brand-dark font-sans min-h-screen antialiased">
+<body class="font-sans min-h-screen antialiased bg-theme-bg text-theme-text transition-colors duration-300">
 
+    <!-- LOGIN SCREEN -->
     <div id="loginScreen" class="flex flex-col items-center justify-center min-h-screen p-6 relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-1 bg-poppy-700"></div>
-        <div class="bg-white p-10 border border-brand-border max-w-md w-full shadow-sm">
+        <div class="absolute top-0 left-0 w-full h-1 bg-theme-accent"></div>
+        <div class="bg-theme-surface p-10 border border-theme-border max-w-md w-full shadow-sm">
             <div class="text-center mb-10">
-                <h1 class="text-3xl font-extrabold tracking-tight mb-2 uppercase">Poppy Beans</h1>
-                <p class="text-xs font-bold tracking-widest text-brand-muted uppercase">Internal System</p>
+                <h1 class="text-3xl font-extrabold tracking-tight mb-2 uppercase text-theme-text">Poppy Beans</h1>
+                <p class="text-xs font-bold tracking-widest text-theme-muted uppercase">Internal System</p>
             </div>
             <form id="loginForm" class="space-y-6">
                 <input type="email" id="emailInput" class="input-minimal" placeholder="E-mail" required>
                 <input type="password" id="passwordInput" class="input-minimal" placeholder="Heslo" required>
-                <div id="loginError" class="text-poppy-700 text-sm hidden font-medium text-center">Přihlášení se nezdařilo.</div>
-                <button type="submit" class="w-full bg-brand-dark text-white p-3 font-bold hover:bg-black transition uppercase tracking-wider">Vstoupit</button>
+                <div id="loginError" class="text-theme-accent text-sm hidden font-medium text-center">Přihlášení se nezdařilo.</div>
+                <button type="submit" class="w-full bg-theme-base text-white p-3 font-bold hover:bg-theme-base-hover transition uppercase tracking-wider">Vstoupit</button>
             </form>
         </div>
     </div>
 
+    <!-- MAIN APP -->
     <div id="mainApp" class="max-w-6xl mx-auto p-6 md:p-12 hidden">
-        <header class="mb-8 flex flex-col md:flex-row justify-between items-center border-b border-brand-border pb-6 gap-6">
+        <header class="mb-8 flex flex-col md:flex-row justify-between items-center border-b border-theme-border pb-6 gap-6">
             <h1 class="text-3xl font-extrabold uppercase tracking-tight">Poppy Beans</h1>
-            <nav class="flex gap-1 text-[11px] md:text-xs uppercase tracking-widest font-bold overflow-x-auto w-full md:w-auto hide-scroll bg-brand-border/40 p-1 rounded-full items-center">
+            <nav class="flex gap-1 text-[11px] md:text-xs uppercase tracking-widest font-bold overflow-x-auto w-full md:w-auto hide-scroll bg-theme-border/40 p-1 rounded-full items-center">
                 <button onclick="switchTab('tab-cupping')" id="btn-tab-cupping" class="tab-active px-5 py-2 whitespace-nowrap">Cuppingy</button>
                 <button onclick="switchTab('tab-kavy')" id="btn-tab-kavy" class="tab-inactive px-5 py-2 whitespace-nowrap">Výběr Kávy</button>
                 <button onclick="switchTab('tab-recepty')" id="btn-tab-recepty" class="tab-inactive px-5 py-2 whitespace-nowrap">Recepty</button>
@@ -77,108 +115,113 @@
                 <button onclick="switchTab('tab-checklists')" id="btn-tab-checklists" class="tab-inactive px-5 py-2 whitespace-nowrap">Směny</button>
             </nav>
             <div class="flex items-center gap-4 text-xs font-bold whitespace-nowrap">
-                <select id="adminBranchSelect" class="hidden bg-brand-bg border border-brand-border text-poppy-700 py-1 px-2 rounded cursor-pointer uppercase tracking-widest outline-none">
+                <select id="adminBranchSelect" class="hidden bg-theme-surface border border-theme-border text-theme-accent py-1 px-2 rounded cursor-pointer uppercase tracking-widest outline-none">
                     <option value="Poppy Beans">📍 Poppy Beans</option>
                     <option value="Krok">📍 Krok</option>
                 </select>
-                <span id="userGreeting" class="text-brand-muted uppercase"></span>
-                <button id="logoutBtn" class="text-poppy-700 hover:underline uppercase">Odhlásit</button>
+                <span id="userGreeting" class="text-theme-muted uppercase"></span>
+                <button id="logoutBtn" class="text-theme-accent hover:underline uppercase">Odhlásit</button>
             </div>
         </header>
 
+        <!-- ZÁLOŽKA: CUPPINGY -->
         <section id="tab-cupping" class="tab-content">
-            <div id="admin-cupping-form" class="bg-white p-6 border border-brand-border mb-10 hidden">
-                <h2 class="font-bold uppercase mb-6 text-poppy-700">Vypsat nový cupping</h2>
+            <div id="admin-cupping-form" class="bg-theme-surface p-6 border border-theme-border mb-10 hidden">
+                <h2 class="font-bold uppercase mb-6 text-theme-accent">Vypsat nový cupping</h2>
                 <form id="cuppingForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <input type="text" id="cup_title" class="input-minimal md:col-span-2 text-lg font-bold" placeholder="Název cuppingu (např. Původ: Afrika)" required>
                     <input type="date" id="cup_date" class="input-minimal" required>
                     <input type="time" id="cup_time" class="input-minimal" required>
                     
-                    <div class="md:col-span-2 border border-brand-border p-5 bg-brand-bg relative">
-                        <div class="absolute top-0 left-0 w-1 h-full bg-poppy-700"></div>
-                        <h3 class="text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-4">Seznam vzorků na stole</h3>
+                    <div class="md:col-span-2 border border-theme-border p-5 bg-theme-bg relative">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-theme-accent"></div>
+                        <h3 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-4">Seznam vzorků na stole</h3>
                         <div id="dynamicSamples" class="space-y-3 mb-4">
                             <input type="text" class="input-minimal sample-input text-sm" placeholder="Název kávy 1 (např. Dak - Peru Washed)" required>
                             <input type="text" class="input-minimal sample-input text-sm" placeholder="Název kávy 2 (např. Kawa - Colombia Anaerobic)" required>
                         </div>
-                        <button type="button" onclick="addSampleField()" class="text-xs font-bold uppercase tracking-widest text-brand-dark border border-brand-border px-4 py-2 hover:border-brand-dark transition">
+                        <button type="button" onclick="addSampleField()" class="text-xs font-bold uppercase tracking-widest text-theme-text border border-theme-border px-4 py-2 hover:border-theme-base transition">
                             + Přidat další vzorek
                         </button>
                     </div>
 
-                    <button type="submit" class="bg-brand-dark text-white font-bold p-3 uppercase tracking-wider text-xs md:col-span-2 hover:bg-black transition shadow-sm">Vypsat událost a otevřít přihlašování</button>
+                    <button type="submit" class="bg-theme-base text-white font-bold p-3 uppercase tracking-wider text-xs md:col-span-2 hover:bg-theme-base-hover transition shadow-sm">Vypsat událost a otevřít přihlašování</button>
                 </form>
             </div>
             <div id="cuppingList" class="grid grid-cols-1 gap-8"></div>
         </section>
 
+        <!-- ZÁLOŽKA: VÝBĚR KÁVY -->
         <section id="tab-kavy" class="tab-content hidden">
-            <div id="admin-coffee-form" class="bg-white p-6 border border-brand-border mb-10 hidden">
-                <h2 class="font-bold uppercase mb-6 text-poppy-700 text-sm">Nový výběrový set (3 vzorky)</h2>
+            <div id="admin-coffee-form" class="bg-theme-surface p-6 border border-theme-border mb-10 hidden">
+                <h2 class="font-bold uppercase mb-6 text-theme-accent text-sm">Nový výběrový set (3 vzorky)</h2>
                 <form id="roasteryForm" class="space-y-6">
                     <input type="text" id="roasteryName" class="input-minimal font-bold text-lg" placeholder="Pražírna / Dodavatel" required>
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="p-4 border border-brand-border space-y-2"><h3 class="text-[10px] font-bold uppercase text-brand-muted">Vzorek 1</h3><input type="text" id="c1_name" class="input-minimal text-xs" placeholder="Název" required><input type="text" id="c1_origin" class="input-minimal text-xs" placeholder="Původ" required><input type="text" id="c1_variety" class="input-minimal text-xs" placeholder="Odrůda" required><input type="number" step="0.01" id="c1_price" class="input-minimal text-xs" placeholder="Kč/g" required><textarea id="c1_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea></div>
-                        <div class="p-4 border border-brand-border space-y-2"><h3 class="text-[10px] font-bold uppercase text-brand-muted">Vzorek 2</h3><input type="text" id="c2_name" class="input-minimal text-xs" placeholder="Název" required><input type="text" id="c2_origin" class="input-minimal text-xs" placeholder="Původ" required><input type="text" id="c2_variety" class="input-minimal text-xs" placeholder="Odrůda" required><input type="number" step="0.01" id="c2_price" class="input-minimal text-xs" placeholder="Kč/g" required><textarea id="c2_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea></div>
-                        <div class="p-4 border border-brand-border space-y-2"><h3 class="text-[10px] font-bold uppercase text-brand-muted">Vzorek 3</h3><input type="text" id="c3_name" class="input-minimal text-xs" placeholder="Název" required><input type="text" id="c3_origin" class="input-minimal text-xs" placeholder="Původ" required><input type="text" id="c3_variety" class="input-minimal text-xs" placeholder="Odrůda" required><input type="number" step="0.01" id="c3_price" class="input-minimal text-xs" placeholder="Kč/g" required><textarea id="c3_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea></div>
+                        <div class="p-4 border border-theme-border space-y-2"><h3 class="text-[10px] font-bold uppercase text-theme-muted">Vzorek 1</h3><input type="text" id="c1_name" class="input-minimal text-xs" placeholder="Název" required><input type="text" id="c1_origin" class="input-minimal text-xs" placeholder="Původ" required><input type="text" id="c1_variety" class="input-minimal text-xs" placeholder="Odrůda" required><input type="number" step="0.01" id="c1_price" class="input-minimal text-xs" placeholder="Kč/g" required><textarea id="c1_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea></div>
+                        <div class="p-4 border border-theme-border space-y-2"><h3 class="text-[10px] font-bold uppercase text-theme-muted">Vzorek 2</h3><input type="text" id="c2_name" class="input-minimal text-xs" placeholder="Název" required><input type="text" id="c2_origin" class="input-minimal text-xs" placeholder="Původ" required><input type="text" id="c2_variety" class="input-minimal text-xs" placeholder="Odrůda" required><input type="number" step="0.01" id="c2_price" class="input-minimal text-xs" placeholder="Kč/g" required><textarea id="c2_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea></div>
+                        <div class="p-4 border border-theme-border space-y-2"><h3 class="text-[10px] font-bold uppercase text-theme-muted">Vzorek 3</h3><input type="text" id="c3_name" class="input-minimal text-xs" placeholder="Název" required><input type="text" id="c3_origin" class="input-minimal text-xs" placeholder="Původ" required><input type="text" id="c3_variety" class="input-minimal text-xs" placeholder="Odrůda" required><input type="number" step="0.01" id="c3_price" class="input-minimal text-xs" placeholder="Kč/g" required><textarea id="c3_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea></div>
                     </div>
-                    <button type="submit" class="bg-brand-dark text-white font-bold px-8 py-3 uppercase text-xs hover:bg-black transition">Uložit k hlasování</button>
+                    <button type="submit" class="bg-theme-base text-white font-bold px-8 py-3 uppercase text-xs hover:bg-theme-base-hover transition">Uložit k hlasování</button>
                 </form>
             </div>
             <div id="roasteryList" class="space-y-10"></div>
         </section>
 
+        <!-- ZÁLOŽKA: RECEPTY -->
         <section id="tab-recepty" class="tab-content hidden">
-            <div id="admin-recipe-form" class="bg-white p-6 border border-brand-border mb-10 hidden">
-                <h2 class="font-bold uppercase mb-4 text-poppy-700">Sdílet nový recept</h2>
+            <div id="admin-recipe-form" class="bg-theme-surface p-6 border border-theme-border mb-10 hidden">
+                <h2 class="font-bold uppercase mb-4 text-theme-accent">Sdílet nový recept</h2>
                 <form id="recipeForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <input type="text" id="rec_bean" class="input-minimal text-sm" placeholder="Káva / Zpracování" required>
                     <select id="rec_method" class="input-minimal text-sm"><option>V60</option><option>Aeropress</option><option>Espresso</option><option>Chemex</option><option>Batch Brew</option></select>
                     <input type="text" id="rec_ratio" class="input-minimal text-sm" placeholder="Ratio (např. 18g/300ml)" required>
-                    <button type="submit" class="bg-brand-dark text-white font-bold p-2 uppercase text-xs hover:bg-black transition">Přidat recept</button>
+                    <button type="submit" class="bg-theme-base text-white font-bold p-2 uppercase text-xs hover:bg-theme-base-hover transition">Přidat recept</button>
                     <div class="md:col-span-4"><textarea id="rec_steps" class="input-minimal h-24 text-sm" placeholder="Postup (mletí, teplota, časy...)"></textarea></div>
                 </form>
             </div>
             <div id="recipeList" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
         </section>
 
+        <!-- ZÁLOŽKA: RÁDCE -->
         <section id="tab-advisor" class="tab-content hidden">
             <div class="max-w-3xl mx-auto">
-                <div class="bg-white p-8 border border-brand-border mb-8 text-center">
-                    <h2 class="text-2xl font-extrabold uppercase tracking-tight mb-2">Espresso Kompas</h2>
-                    <p class="text-sm font-medium text-brand-muted">Nedaří se nastavit káva? Zadej parametry aktuální extrakce a získej radu.</p>
+                <div class="bg-theme-surface p-8 border border-theme-border mb-8 text-center">
+                    <h2 class="text-2xl font-extrabold uppercase tracking-tight mb-2 text-theme-text">Espresso Kompas</h2>
+                    <p class="text-sm font-medium text-theme-muted">Nedaří se nastavit káva? Zadej parametry aktuální extrakce a získej radu.</p>
                 </div>
-                <div class="bg-brand-bg p-8 border border-brand-border grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div class="bg-theme-bg p-8 border border-theme-border grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-widest text-brand-dark mb-4 border-b border-brand-border pb-2">1. Jak to teče?</label>
-                        <select id="adv_flow" class="input-minimal font-bold bg-white cursor-pointer">
+                        <label class="block text-xs font-bold uppercase tracking-widest text-theme-text mb-4 border-b border-theme-border pb-2">1. Jak to teče?</label>
+                        <select id="adv_flow" class="input-minimal font-bold cursor-pointer">
                             <option value="ideal">Trefil jsem čas (cca 25-30s)</option><option value="fast">Příliš rychle (pod 20s)</option><option value="slow">Příliš pomalu / Kape (nad 35s)</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-widest text-brand-dark mb-4 border-b border-brand-border pb-2">2. Jak to chutná?</label>
-                        <select id="adv_taste" class="input-minimal font-bold bg-white cursor-pointer">
+                        <label class="block text-xs font-bold uppercase tracking-widest text-theme-text mb-4 border-b border-theme-border pb-2">2. Jak to chutná?</label>
+                        <select id="adv_taste" class="input-minimal font-bold cursor-pointer">
                             <option value="sour">Je to nepříjemně kyselé (až svíravé)</option><option value="bitter">Je to spálené, drsné a hořké</option><option value="watery">Chybí tomu tělo, je to vodové a prázdné</option><option value="good">Chutná to skvěle, sladce a vyváženě</option>
                         </select>
                     </div>
                 </div>
-                <button onclick="diagnoseEspresso()" class="w-full bg-poppy-700 text-white font-extrabold p-4 uppercase tracking-widest text-sm hover:bg-poppy-800 transition shadow-sm mb-8">Zeptat se baristy</button>
-                <div id="advisorResult" class="hidden bg-white p-8 border-l-4 border-poppy-700 shadow-sm relative">
-                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-2">Diagnóza:</h3>
-                    <div id="adv_diagnosis" class="text-lg font-bold mb-4 text-brand-dark"></div>
-                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-2">Akční krok:</h3>
-                    <div id="adv_solution" class="text-sm font-medium leading-relaxed bg-brand-bg p-4 border border-brand-border"></div>
+                <button onclick="diagnoseEspresso()" class="w-full bg-theme-accent text-white font-extrabold p-4 uppercase tracking-widest text-sm hover:bg-theme-accent-hover transition shadow-sm mb-8">Zeptat se baristy</button>
+                <div id="advisorResult" class="hidden bg-theme-surface p-8 border-l-4 border-theme-accent shadow-sm relative">
+                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-2">Diagnóza:</h3>
+                    <div id="adv_diagnosis" class="text-lg font-bold mb-4 text-theme-text"></div>
+                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-2">Akční krok:</h3>
+                    <div id="adv_solution" class="text-sm font-medium leading-relaxed bg-theme-bg p-4 border border-theme-border"></div>
                 </div>
             </div>
         </section>
 
-        <section id="tab-maintenance" class="tab-content hidden bg-brand-dark p-6 rounded-xl border border-white/10 mt-8">
+        <!-- ZÁLOŽKA: ÚDRŽBA -->
+        <section id="tab-maintenance" class="tab-content hidden bg-theme-base p-6 rounded-xl border border-white/10 mt-8 shadow-md">
             <h2 class="text-2xl font-bold mb-4 text-white">🛠 Deník údržby techniky</h2>
             
             <div id="admin-maintenance-form" class="hidden">
                 <form id="maintenanceForm" class="space-y-4 mb-8">
-                    <input type="text" id="maint_task" placeholder="Co jsi udělal? (např. Výměna kamenů mlýnku)" class="w-full p-3 bg-black/40 border border-white/20 rounded-lg text-white" required>
-                    <input type="text" id="maint_signature" placeholder="Tvůj podpis (např. David)" class="w-full p-3 bg-black/40 border border-white/20 rounded-lg text-white" required>
+                    <input type="text" id="maint_task" placeholder="Co jsi udělal? (např. Výměna kamenů mlýnku)" class="w-full p-3 bg-black/40 border border-white/20 rounded-lg text-white placeholder:text-gray-400" required>
+                    <input type="text" id="maint_signature" placeholder="Tvůj podpis (např. David)" class="w-full p-3 bg-black/40 border border-white/20 rounded-lg text-white placeholder:text-gray-400" required>
                     <button type="submit" class="w-full bg-white text-black font-bold py-3 rounded-lg hover:bg-gray-200 transition">Zapsat údržbu</button>
                 </form>
             </div>
@@ -188,30 +231,31 @@
             </div>
         </section>
 
-        <section id="tab-checklists" class="tab-content hidden bg-brand-dark p-6 rounded-xl border border-white/10 mt-8">
+        <!-- ZÁLOŽKA: SMĚNY (CHECK-LISTY) -->
+        <section id="tab-checklists" class="tab-content hidden bg-theme-base p-6 rounded-xl border border-white/10 mt-8 shadow-md">
             <h2 class="text-2xl font-bold mb-6 text-white">📋 Otevírací a Zavírací Check-listy</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                 <div class="bg-white/5 p-6 rounded-xl border border-white/10">
-                    <h3 class="font-bold text-poppy-700 uppercase tracking-widest mb-4">☀️ Otevírací směna</h3>
+                    <h3 class="font-bold text-white uppercase tracking-widest mb-4">☀️ Otevírací směna</h3>
                     <form id="openShiftForm" class="space-y-3">
-                        <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-poppy-700" required><span>Nahřát kávovar a zapnout mlýnky</span></label>
-                        <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-poppy-700" required><span>Nastavit ranní espresso (zapsat recept)</span></label>
-                        <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-poppy-700" required><span>Zkontrolovat stav vitríny a čistotu stolů</span></label>
-                        <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-poppy-700" required><span>Doplnit papírové kelímky a zásobu mléka</span></label>
-                        <input type="text" id="open_signature" placeholder="Tvůj podpis (např. David)" class="w-full mt-4 p-3 bg-black/40 border border-white/20 rounded-lg text-white" required>
+                        <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-theme-accent" required><span>Nahřát kávovar a zapnout mlýnky</span></label>
+                        <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-theme-accent" required><span>Nastavit ranní espresso (zapsat recept)</span></label>
+                        <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-theme-accent" required><span>Zkontrolovat stav vitríny a čistotu stolů</span></label>
+                        <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-theme-accent" required><span>Doplnit papírové kelímky a zásobu mléka</span></label>
+                        <input type="text" id="open_signature" placeholder="Tvůj podpis (např. David)" class="w-full mt-4 p-3 bg-black/40 border border-white/20 rounded-lg text-white placeholder:text-gray-400" required>
                         <button type="submit" class="w-full mt-4 bg-white text-black font-bold py-3 rounded hover:bg-gray-200 transition">Potvrdit otevíračku</button>
                     </form>
                 </div>
                 <div class="bg-white/5 p-6 rounded-xl border border-white/10">
-                    <h3 class="font-bold text-brand-muted uppercase tracking-widest mb-4">🌙 Zavírací směna</h3>
+                    <h3 class="font-bold text-gray-300 uppercase tracking-widest mb-4">🌙 Zavírací směna</h3>
                     <form id="closeShiftForm" class="space-y-3">
                         <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-gray-500" required><span>Backflush kávovaru a vyčištění pák</span></label>
                         <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-gray-500" required><span>Vyčistit hlavy mlýnků a zvážit zbytky káv</span></label>
                         <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-gray-500" required><span>Umýt odkapávač a vyleštit nerezové plochy</span></label>
                         <label class="flex items-center space-x-3 text-white text-sm"><input type="checkbox" class="h-4 w-4 accent-gray-500" required><span>Uklidit bar, zapsat stavy zásob a zamknout</span></label>
-                        <input type="text" id="close_signature" placeholder="Tvůj podpis (např. David)" class="w-full mt-4 p-3 bg-black/40 border border-white/20 rounded-lg text-white" required>
-                        <button type="submit" class="w-full mt-4 bg-brand-muted text-white font-bold py-3 rounded hover:bg-gray-400 transition">Potvrdit zavíračku</button>
+                        <input type="text" id="close_signature" placeholder="Tvůj podpis (např. David)" class="w-full mt-4 p-3 bg-black/40 border border-white/20 rounded-lg text-white placeholder:text-gray-400" required>
+                        <button type="submit" class="w-full mt-4 bg-gray-600 text-white font-bold py-3 rounded hover:bg-gray-500 transition">Potvrdit zavíračku</button>
                     </form>
                 </div>
             </div>
@@ -225,52 +269,54 @@
         </section>
     </div>
 
-    <div id="evalModal" class="fixed inset-0 bg-brand-dark/90 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white max-w-md w-full p-8 border border-brand-border relative">
-            <button onclick="closeModal('evalModal')" class="absolute top-4 right-4 text-brand-muted hover:text-poppy-700 font-bold uppercase text-xs">Zavřít ✕</button>
-            <h2 class="text-xl font-extrabold uppercase mb-6 border-b border-brand-border pb-2">Hodnocení Vzorku</h2>
+    <!-- MODAL HODNOCENÍ -->
+    <div id="evalModal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-theme-surface max-w-md w-full p-8 border border-theme-border relative">
+            <button onclick="closeModal('evalModal')" class="absolute top-4 right-4 text-theme-muted hover:text-theme-accent font-bold uppercase text-xs">Zavřít ✕</button>
+            <h2 class="text-xl font-extrabold uppercase mb-6 border-b border-theme-border pb-2 text-theme-text">Hodnocení Vzorku</h2>
             
             <form id="evalForm" class="space-y-6">
                 <input type="hidden" id="eval_cuppingId">
                 <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-2">Vyber kávu, kterou hodnotíš:</label>
-                    <select id="eval_sample" class="input-minimal text-sm font-bold bg-brand-bg border-brand-dark">
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-2">Vyber kávu, kterou hodnotíš:</label>
+                    <select id="eval_sample" class="input-minimal text-sm font-bold bg-theme-bg border-theme-base">
                         </select>
                 </div>
 
-                <div class="space-y-4 pt-4 border-t border-brand-border">
-                    <div><div class="flex justify-between text-xs font-bold uppercase mb-1"><span>Aroma</span><span id="val_aroma" class="text-poppy-700">5</span></div><input type="range" id="sl_aroma" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_aroma').innerText=this.value"></div>
-                    <div><div class="flex justify-between text-xs font-bold uppercase mb-1"><span>Acidita</span><span id="val_acid" class="text-poppy-700">5</span></div><input type="range" id="sl_acid" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_acid').innerText=this.value"></div>
-                    <div><div class="flex justify-between text-xs font-bold uppercase mb-1"><span>Sladkost</span><span id="val_sweet" class="text-poppy-700">5</span></div><input type="range" id="sl_sweet" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_sweet').innerText=this.value"></div>
-                    <div><div class="flex justify-between text-xs font-bold uppercase mb-1"><span>Tělo</span><span id="val_body" class="text-poppy-700">5</span></div><input type="range" id="sl_body" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_body').innerText=this.value"></div>
-                    <div><div class="flex justify-between text-xs font-bold uppercase mb-1"><span>Dochůť</span><span id="val_after" class="text-poppy-700">5</span></div><input type="range" id="sl_after" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_after').innerText=this.value"></div>
+                <div class="space-y-4 pt-4 border-t border-theme-border">
+                    <div><div class="flex justify-between text-xs font-bold uppercase mb-1 text-theme-text"><span>Aroma</span><span id="val_aroma" class="text-theme-accent">5</span></div><input type="range" id="sl_aroma" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_aroma').innerText=this.value"></div>
+                    <div><div class="flex justify-between text-xs font-bold uppercase mb-1 text-theme-text"><span>Acidita</span><span id="val_acid" class="text-theme-accent">5</span></div><input type="range" id="sl_acid" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_acid').innerText=this.value"></div>
+                    <div><div class="flex justify-between text-xs font-bold uppercase mb-1 text-theme-text"><span>Sladkost</span><span id="val_sweet" class="text-theme-accent">5</span></div><input type="range" id="sl_sweet" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_sweet').innerText=this.value"></div>
+                    <div><div class="flex justify-between text-xs font-bold uppercase mb-1 text-theme-text"><span>Tělo</span><span id="val_body" class="text-theme-accent">5</span></div><input type="range" id="sl_body" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_body').innerText=this.value"></div>
+                    <div><div class="flex justify-between text-xs font-bold uppercase mb-1 text-theme-text"><span>Dochůť</span><span id="val_after" class="text-theme-accent">5</span></div><input type="range" id="sl_after" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_after').innerText=this.value"></div>
                 </div>
                 
                 <textarea id="eval_note" class="input-minimal text-sm h-16" placeholder="Osobní poznámka k chuti..."></textarea>
-                <button type="submit" class="w-full bg-poppy-700 text-white font-bold p-3 uppercase tracking-widest text-xs hover:bg-poppy-800 transition">Uložit moje hodnocení</button>
+                <button type="submit" class="w-full bg-theme-accent text-white font-bold p-3 uppercase tracking-widest text-xs hover:bg-theme-accent-hover transition">Uložit moje hodnocení</button>
             </form>
         </div>
     </div>
 
-    <div id="resultsModal" class="fixed inset-0 bg-brand-dark/90 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white max-w-4xl w-full max-h-[90vh] overflow-y-auto p-8 border border-brand-border relative">
-            <button onclick="closeModal('resultsModal')" class="absolute top-4 right-4 text-brand-muted hover:text-poppy-700 font-bold uppercase text-xs">Zavřít ✕</button>
-            <h2 class="text-2xl font-extrabold uppercase mb-2">Analytika Cuppingu</h2>
+    <!-- MODAL VÝSLEDKY -->
+    <div id="resultsModal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-theme-surface max-w-4xl w-full max-h-[90vh] overflow-y-auto p-8 border border-theme-border relative">
+            <button onclick="closeModal('resultsModal')" class="absolute top-4 right-4 text-theme-muted hover:text-theme-accent font-bold uppercase text-xs">Zavřít ✕</button>
+            <h2 class="text-2xl font-extrabold uppercase mb-2 text-theme-text">Analytika Cuppingu</h2>
             
-            <div class="mb-6 border-b border-brand-border pb-6">
-                <label class="block text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-2">Vyber kávu k analýze:</label>
-                <select id="res_sample_select" onchange="renderChartAndList(this.value)" class="input-minimal text-sm font-bold w-full md:w-1/2 bg-brand-bg border-brand-dark"></select>
+            <div class="mb-6 border-b border-theme-border pb-6">
+                <label class="block text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-2">Vyber kávu k analýze:</label>
+                <select id="res_sample_select" onchange="renderChartAndList(this.value)" class="input-minimal text-sm font-bold w-full md:w-1/2 bg-theme-bg border-theme-base"></select>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="bg-brand-bg p-6 border border-brand-border flex flex-col items-center justify-center">
-                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-4 text-center">Průměrný profil této kávy</h3>
+                <div class="bg-theme-bg p-6 border border-theme-border flex flex-col items-center justify-center">
+                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-4 text-center">Průměrný profil této kávy</h3>
                     <div class="w-full max-w-[300px]"><canvas id="radarChart"></canvas></div>
                 </div>
                 <div class="space-y-4">
-                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-brand-muted">Jednotlivá hodnocení baristů</h3>
+                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted">Jednotlivá hodnocení baristů</h3>
                     <div id="individualResults" class="space-y-3">
-                        <div class="text-sm italic text-brand-muted">Načítám data...</div>
+                        <div class="text-sm italic text-theme-muted">Načítám data...</div>
                     </div>
                 </div>
             </div>
@@ -300,21 +346,28 @@
         let isAdmin = false;
         let myChartInstance = null;
         
-        let currentBranch = "Osobní účet"; // Globální proměnná pro aktuální pobočku
+        let currentBranch = "Osobní účet"; 
         
         window.globalCuppings = {}; 
         window.currentResultsScores = [];
 
-        // Detekce pobočky podle e-mailu
         const getBranch = (email) => {
             if(email === "krok@poppybeans.cz") return "Krok";
             if(email === "poppy@poppybeans.cz") return "Poppy Beans";
             return "Osobní účet";
         };
 
-        // Přepínání pobočky pro admina
+        const applyTheme = (branch) => {
+            if (branch === "Krok") {
+                document.body.classList.add('theme-krok');
+            } else {
+                document.body.classList.remove('theme-krok');
+            }
+        };
+
         document.getElementById('adminBranchSelect').addEventListener('change', (e) => {
             currentBranch = e.target.value;
+            applyTheme(currentBranch);
             loadMaintenance();
             loadChecklists();
         });
@@ -347,6 +400,8 @@
                     document.getElementById('admin-maintenance-form').classList.remove('hidden'); 
                 }
 
+                applyTheme(currentBranch);
+
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
                 
@@ -367,7 +422,6 @@
 
         document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
-        // UI: ADD SAMPLES
         window.addSampleField = () => {
             const container = document.getElementById('dynamicSamples');
             const count = container.children.length + 1;
@@ -379,7 +433,6 @@
             container.appendChild(input);
         };
 
-        // TAB SWITCH LOGIC
         window.switchTab = (tabId) => {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(tabId).classList.remove('hidden');
@@ -390,7 +443,6 @@
             activeBtn.classList.replace('tab-inactive', 'tab-active');
         };
 
-        // REAL-TIME DATA FETCHING
         function loadData() {
             // CUPPINGY
             onSnapshot(collection(db, "cuppings"), (sn) => {
@@ -405,37 +457,37 @@
                     const sampleCount = data.samples ? data.samples.length : 0;
 
                     const card = document.createElement('div');
-                    card.className = "bg-white border border-brand-border p-6";
+                    card.className = "bg-theme-surface border border-theme-border p-6";
                     
                     const adminReport = isAdmin ? `
-                        <div class="mt-6 pt-6 border-t border-brand-border grid grid-cols-2 gap-4">
+                        <div class="mt-6 pt-6 border-t border-theme-border grid grid-cols-2 gap-4">
                             <div><div class="text-[10px] font-bold uppercase text-green-700 mb-2">✅ Potvrzeno (${data.attendees?.length || 0})</div><div class="text-xs space-y-1">${data.attendees?.join('<br>') || 'nikdo'}</div></div>
                             <div><div class="text-[10px] font-bold uppercase text-red-700 mb-2">❌ Omluveno (${data.declined?.length || 0})</div><div class="text-xs space-y-1">${data.declined?.join('<br>') || 'nikdo'}</div></div>
                         </div>
                     ` : '';
 
                     const evaluateButton = isAttending ? `
-                        <div class="mt-4 pt-4 border-t border-brand-border">
-                            <button onclick="openEvalModal('${d.id}')" class="w-full bg-brand-dark text-white font-bold text-xs uppercase tracking-widest py-3 hover:bg-black transition">📝 Ohodnotit vzorky</button>
+                        <div class="mt-4 pt-4 border-t border-theme-border">
+                            <button onclick="openEvalModal('${d.id}')" class="w-full bg-theme-base text-white font-bold text-xs uppercase tracking-widest py-3 hover:bg-theme-base-hover transition">📝 Ohodnotit vzorky</button>
                         </div>
                     ` : '';
 
                     const resultsButton = `
-                        <div class="mt-4 pt-4 border-t border-brand-border">
-                            <button onclick="openResultsModal('${d.id}')" class="w-full bg-brand-bg text-brand-dark border border-brand-border font-bold text-xs uppercase tracking-widest py-3 hover:bg-gray-200 transition">📊 Zobrazit výsledky a záznamy</button>
+                        <div class="mt-4 pt-4 border-t border-theme-border">
+                            <button onclick="openResultsModal('${d.id}')" class="w-full bg-theme-bg text-theme-text border border-theme-border font-bold text-xs uppercase tracking-widest py-3 hover:bg-theme-border transition">📊 Zobrazit výsledky a záznamy</button>
                         </div>
                     `;
 
                     card.innerHTML = `
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                             <div>
-                                <div class="text-xs font-bold text-poppy-700 uppercase mb-1 tracking-widest">${data.date} | ${data.time} | Vzorků: ${sampleCount}</div>
-                                <h3 class="text-2xl font-extrabold uppercase tracking-tight">${data.title}</h3>
+                                <div class="text-xs font-bold text-theme-accent uppercase mb-1 tracking-widest">${data.date} | ${data.time} | Vzorků: ${sampleCount}</div>
+                                <h3 class="text-2xl font-extrabold uppercase tracking-tight text-theme-text">${data.title}</h3>
                             </div>
                             <div class="flex gap-2 w-full md:w-auto">
-                                <button onclick="updateAttendance('${d.id}', 'yes')" class="flex-1 md:flex-none px-6 py-2 text-xs font-bold uppercase border border-brand-dark transition ${isAttending ? 'bg-brand-dark text-white' : 'hover:bg-brand-dark hover:text-white'}">Příjdu</button>
-                                <button onclick="updateAttendance('${d.id}', 'no')" class="flex-1 md:flex-none px-6 py-2 text-xs font-bold uppercase border border-brand-border text-brand-muted transition ${isDeclined ? 'bg-poppy-700 text-white border-poppy-700' : 'hover:border-brand-dark hover:text-brand-dark'}">Nepříjdu</button>
-                                ${isAdmin ? `<button onclick="deleteDocById('cuppings', '${d.id}')" class="p-2 text-red-500 hover:bg-red-50 transition">🗑️</button>` : ''}
+                                <button onclick="updateAttendance('${d.id}', 'yes')" class="flex-1 md:flex-none px-6 py-2 text-xs font-bold uppercase border border-theme-base transition ${isAttending ? 'bg-theme-base text-white' : 'hover:bg-theme-base hover:text-white'}">Příjdu</button>
+                                <button onclick="updateAttendance('${d.id}', 'no')" class="flex-1 md:flex-none px-6 py-2 text-xs font-bold uppercase border border-theme-border text-theme-muted transition ${isDeclined ? 'bg-theme-accent text-white border-theme-accent' : 'hover:border-theme-base hover:text-theme-text'}">Nepříjdu</button>
+                                ${isAdmin ? `<button onclick="deleteDocById('cuppings', '${d.id}')" class="p-2 text-theme-accent hover:underline transition">🗑️ Smazat</button>` : ''}
                             </div>
                         </div>
                         ${evaluateButton}
@@ -454,26 +506,26 @@
                     const block = d.data();
                     const hasVoted = block.votedBy?.includes(currentUser.uid);
                     const card = document.createElement('div');
-                    card.className = "bg-white border border-brand-border p-8";
+                    card.className = "bg-theme-surface border border-theme-border p-8";
                     card.innerHTML = `
-                        <div class="flex justify-between items-center mb-8 border-b border-brand-border pb-4">
-                            <h3 class="text-2xl font-extrabold uppercase tracking-tight">${block.roasteryName}</h3>
-                            ${isAdmin ? `<button onclick="deleteDocById('roasterySets', '${d.id}')" class="text-xs uppercase underline hover:text-poppy-700">Smazat</button>` : ''}
+                        <div class="flex justify-between items-center mb-8 border-b border-theme-border pb-4">
+                            <h3 class="text-2xl font-extrabold uppercase tracking-tight text-theme-text">${block.roasteryName}</h3>
+                            ${isAdmin ? `<button onclick="deleteDocById('roasterySets', '${d.id}')" class="text-xs uppercase underline hover:text-theme-accent">Smazat</button>` : ''}
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                             ${block.coffees.map((c, i) => `
-                                <div class="border border-brand-border p-5 bg-brand-bg relative text-sm group hover:border-brand-dark transition">
-                                    <div class="text-[10px] font-bold text-poppy-700 mb-3 uppercase tracking-widest">Vzorek 0${i+1} | ${c.price} Kč/g</div>
-                                    <div class="font-extrabold text-base mb-1 uppercase">${c.name}</div>
-                                    <div class="text-[10px] text-brand-muted uppercase font-bold tracking-wider">${c.origin} • ${c.variety}</div>
-                                    <div class="mt-4 text-[11px] italic text-brand-dark leading-relaxed">"${c.notes}"</div>
+                                <div class="border border-theme-border p-5 bg-theme-bg relative text-sm group hover:border-theme-base transition">
+                                    <div class="text-[10px] font-bold text-theme-accent mb-3 uppercase tracking-widest">Vzorek 0${i+1} | ${c.price} Kč/g</div>
+                                    <div class="font-extrabold text-base mb-1 uppercase text-theme-text">${c.name}</div>
+                                    <div class="text-[10px] text-theme-muted uppercase font-bold tracking-wider">${c.origin} • ${c.variety}</div>
+                                    <div class="mt-4 text-[11px] italic text-theme-text leading-relaxed">"${c.notes}"</div>
                                 </div>
                             `).join('')}
                         </div>
-                        <div class="flex gap-4 items-center bg-brand-bg p-4 border border-brand-border">
-                            <span class="text-[10px] font-bold uppercase tracking-widest mr-auto">${hasVoted ? 'Zahlasováno' : 'Vaše volba:'}</span>
-                            <button ${hasVoted ? 'disabled' : `onclick="vote('${d.id}', 'up')"`} class="px-6 py-2 border border-brand-dark font-bold text-xs hover:bg-brand-dark hover:text-white transition">👍 ${block.votesUp || 0}</button>
-                            <button ${hasVoted ? 'disabled' : `onclick="vote('${d.id}', 'down')"`} class="px-6 py-2 border border-brand-border text-brand-muted font-bold text-xs hover:border-brand-dark hover:text-brand-dark transition">👎 ${block.votesDown || 0}</button>
+                        <div class="flex gap-4 items-center bg-theme-bg p-4 border border-theme-border">
+                            <span class="text-[10px] font-bold uppercase tracking-widest mr-auto text-theme-text">${hasVoted ? 'Zahlasováno' : 'Vaše volba:'}</span>
+                            <button ${hasVoted ? 'disabled' : `onclick="vote('${d.id}', 'up')"`} class="px-6 py-2 border border-theme-base font-bold text-xs hover:bg-theme-base hover:text-white transition text-theme-text">👍 ${block.votesUp || 0}</button>
+                            <button ${hasVoted ? 'disabled' : `onclick="vote('${d.id}', 'down')"`} class="px-6 py-2 border border-theme-border text-theme-muted font-bold text-xs hover:border-theme-base hover:text-theme-text transition">👎 ${block.votesDown || 0}</button>
                         </div>
                     `;
                     list.appendChild(card);
@@ -487,23 +539,22 @@
                 sn.forEach(d => {
                     const data = d.data();
                     const card = document.createElement('div');
-                    card.className = "bg-white p-6 border border-brand-border hover:shadow-sm transition";
+                    card.className = "bg-theme-surface p-6 border border-theme-border hover:shadow-sm transition";
                     card.innerHTML = `
                         <div class="flex justify-between mb-4">
-                            <span class="text-[10px] font-bold bg-brand-dark text-white px-2 py-1 uppercase tracking-widest">${data.method}</span>
-                            <span class="text-[10px] text-brand-muted uppercase font-bold tracking-widest">${data.author.split('@')[0]}</span>
+                            <span class="text-[10px] font-bold bg-theme-base text-white px-2 py-1 uppercase tracking-widest">${data.method}</span>
+                            <span class="text-[10px] text-theme-muted uppercase font-bold tracking-widest">${data.author.split('@')[0]}</span>
                         </div>
-                        <h3 class="text-xl font-extrabold uppercase mb-2 tracking-tight">${data.bean}</h3>
-                        <div class="text-sm font-bold mb-4 border-b border-brand-border pb-2 inline-block text-poppy-700 uppercase tracking-wider">${data.ratio}</div>
-                        <div class="text-xs text-brand-dark bg-brand-bg p-4 font-medium leading-relaxed">"${data.steps}"</div>
-                        ${isAdmin ? `<button onclick="deleteDocById('recipes', '${d.id}')" class="mt-4 text-[10px] uppercase font-bold text-red-500 hover:underline">Smazat</button>` : ''}
+                        <h3 class="text-xl font-extrabold uppercase mb-2 tracking-tight text-theme-text">${data.bean}</h3>
+                        <div class="text-sm font-bold mb-4 border-b border-theme-border pb-2 inline-block text-theme-accent uppercase tracking-wider">${data.ratio}</div>
+                        <div class="text-xs text-theme-text bg-theme-bg p-4 font-medium leading-relaxed">"${data.steps}"</div>
+                        ${isAdmin ? `<button onclick="deleteDocById('recipes', '${d.id}')" class="mt-4 text-[10px] uppercase font-bold text-theme-accent hover:underline">Smazat</button>` : ''}
                     `;
                     list.appendChild(card);
                 });
             });
         }
 
-        // --- ACTIONS ---
         window.updateAttendance = async (id, status) => {
             const ref = doc(db, "cuppings", id);
             if(status === 'yes') await updateDoc(ref, { attendees: arrayUnion(currentUser.email), declined: arrayRemove(currentUser.email) });
@@ -515,7 +566,6 @@
         };
         window.deleteDocById = async (coll, id) => { if(confirm('Tuto položku opravdu smazat?')) await deleteDoc(doc(db, coll, id)); };
 
-        // --- MODALS ---
         window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); };
         
         window.openEvalModal = (cuppingId) => {
@@ -536,7 +586,7 @@
             select.innerHTML = samples.map(s => `<option value="${s}">${s}</option>`).join('');
 
             const indResultsDiv = document.getElementById('individualResults');
-            indResultsDiv.innerHTML = '<div class="text-sm italic text-brand-muted">Stahuji data ze serveru...</div>';
+            indResultsDiv.innerHTML = '<div class="text-sm italic text-theme-muted">Stahuji data ze serveru...</div>';
 
             const q = query(collection(db, "cuppingScores"), where("cuppingId", "==", cuppingId));
             const querySnapshot = await getDocs(q);
@@ -547,7 +597,7 @@
             if(samples.length > 0) {
                 renderChartAndList(samples[0]);
             } else {
-                indResultsDiv.innerHTML = '<div class="text-xs font-bold text-red-500 uppercase">Tento cupping nemá žádné vzorky.</div>';
+                indResultsDiv.innerHTML = '<div class="text-xs font-bold text-theme-accent uppercase">Tento cupping nemá žádné vzorky.</div>';
             }
         };
 
@@ -556,7 +606,7 @@
             const filteredScores = window.currentResultsScores.filter(s => s.sample === sampleName);
 
             if (filteredScores.length === 0) {
-                indResultsDiv.innerHTML = '<div class="text-[10px] font-bold text-red-500 uppercase tracking-widest border border-red-200 bg-red-50 p-4">Tuto kávu zatím nikdo nehodnotil.</div>';
+                indResultsDiv.innerHTML = '<div class="text-[10px] font-bold text-theme-accent uppercase tracking-widest border border-theme-border bg-theme-bg p-4">Tuto kávu zatím nikdo nehodnotil.</div>';
                 if(myChartInstance) myChartInstance.destroy();
                 return;
             }
@@ -566,16 +616,16 @@
             indResultsDiv.innerHTML = filteredScores.map(s => {
                 totals.aroma += s.aroma; totals.acidity += s.acidity; totals.sweetness += s.sweetness; totals.body += s.body; totals.aftertaste += s.aftertaste;
                 return `
-                    <div class="bg-brand-bg p-4 border border-brand-border">
-                        <div class="flex justify-between items-center mb-3 border-b border-brand-border pb-2"><span class="text-xs font-bold text-poppy-700">Barista</span><span class="text-[10px] font-extrabold text-brand-dark uppercase tracking-widest">${s.userEmail.split('@')[0]}</span></div>
-                        <div class="text-[10px] font-bold text-brand-muted grid grid-cols-5 gap-1 text-center">
-                            <div>Aroma<br><span class="text-brand-dark text-sm">${s.aroma}</span></div>
-                            <div>Acidita<br><span class="text-brand-dark text-sm">${s.acidity}</span></div>
-                            <div>Sladkost<br><span class="text-brand-dark text-sm">${s.sweetness}</span></div>
-                            <div>Tělo<br><span class="text-brand-dark text-sm">${s.body}</span></div>
-                            <div>Dochůť<br><span class="text-brand-dark text-sm">${s.aftertaste}</span></div>
+                    <div class="bg-theme-bg p-4 border border-theme-border">
+                        <div class="flex justify-between items-center mb-3 border-b border-theme-border pb-2"><span class="text-xs font-bold text-theme-accent">Barista</span><span class="text-[10px] font-extrabold text-theme-text uppercase tracking-widest">${s.userEmail.split('@')[0]}</span></div>
+                        <div class="text-[10px] font-bold text-theme-muted grid grid-cols-5 gap-1 text-center">
+                            <div>Aroma<br><span class="text-theme-text text-sm">${s.aroma}</span></div>
+                            <div>Acidita<br><span class="text-theme-text text-sm">${s.acidity}</span></div>
+                            <div>Sladkost<br><span class="text-theme-text text-sm">${s.sweetness}</span></div>
+                            <div>Tělo<br><span class="text-theme-text text-sm">${s.body}</span></div>
+                            <div>Dochůť<br><span class="text-theme-text text-sm">${s.aftertaste}</span></div>
                         </div>
-                        ${s.note ? `<div class="mt-3 text-xs italic bg-white p-2 border border-brand-border">"${s.note}"</div>` : ''}
+                        ${s.note ? `<div class="mt-3 text-xs italic bg-theme-surface p-2 border border-theme-border text-theme-text">"${s.note}"</div>` : ''}
                     </div>
                 `;
             }).join('');
@@ -586,17 +636,20 @@
             const ctx = document.getElementById('radarChart').getContext('2d');
             if(myChartInstance) myChartInstance.destroy(); 
             
+            // Barva grafu se přizpůsobí tématu
+            const accentHex = currentBranch === "Krok" ? '#000000' : '#b91c1c';
+            const accentRgba = currentBranch === "Krok" ? 'rgba(0, 0, 0, 0.1)' : 'rgba(185, 28, 28, 0.2)';
+
             myChartInstance = new Chart(ctx, {
                 type: 'radar',
                 data: {
                     labels: ['Aroma', 'Acidita', 'Sladkost', 'Tělo', 'Dochůť'],
-                    datasets: [{ label: 'Průměr hodnocení', data: avgData, backgroundColor: 'rgba(185, 28, 28, 0.2)', borderColor: '#b91c1c', pointBackgroundColor: '#09090b', borderWidth: 2 }]
+                    datasets: [{ label: 'Průměr hodnocení', data: avgData, backgroundColor: accentRgba, borderColor: accentHex, pointBackgroundColor: '#09090b', borderWidth: 2 }]
                 },
                 options: { scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } }, plugins: { legend: { display: false } } }
             });
         };
 
-        // --- BARISTA ADVISOR ---
         window.diagnoseEspresso = () => { 
             const flow = document.getElementById('adv_flow').value; const taste = document.getElementById('adv_taste').value; const resBox = document.getElementById('advisorResult'); const diag = document.getElementById('adv_diagnosis'); const sol = document.getElementById('adv_solution');
             let dt = ""; let st = "";
@@ -612,7 +665,6 @@
             diag.innerText = dt; sol.innerHTML = st; resBox.classList.remove('hidden');
         };
 
-        // --- FORM SUBMITS ---
         document.getElementById('cuppingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const sampleInputs = document.querySelectorAll('.sample-input');
@@ -634,7 +686,6 @@
             }
         });
 
-        // FORMULÁŘ ÚDRŽBY
         document.getElementById('maintenanceForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
@@ -654,7 +705,6 @@
             }
         });
 
-        // NAČÍTÁNÍ ÚDRŽBY (Skrývá cizí pobočky)
         async function loadMaintenance() {
             const q = query(collection(db, "maintenance"), orderBy("createdAt", "desc"), limit(50));
             const querySnapshot = await getDocs(q);
@@ -663,8 +713,6 @@
 
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
-                
-                // Klapky na očí: Vykreslí jen pokud sedí pobočka (nebo u osobních účtů ignoruje)
                 if (data.branch !== currentBranch && currentBranch !== "Osobní účet") return;
 
                 container.innerHTML += `
@@ -695,7 +743,6 @@
             try { await addDoc(collection(db, "cuppingScores"), scoreData); alert('Hodnocení uloženo!'); closeModal('evalModal'); } catch (error) { console.error(error); }
         });
 
-        // --- CHECK-LISTY (SMĚNY) ---
         const handleChecklist = async (e, type, signatureId) => {
             e.preventDefault();
             try {
@@ -720,7 +767,6 @@
         document.getElementById('openShiftForm').addEventListener('submit', (e) => handleChecklist(e, '☀️ Otevíračka', 'open_signature'));
         document.getElementById('closeShiftForm').addEventListener('submit', (e) => handleChecklist(e, '🌙 Zavíračka', 'close_signature'));
 
-        // NAČÍTÁNÍ CHECK-LISTŮ (Skrývá cizí pobočky)
         async function loadChecklists() {
             const q = query(collection(db, "checklists"), orderBy("createdAt", "desc"), limit(50));
             const querySnapshot = await getDocs(q);
@@ -730,7 +776,6 @@
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
                 
-                // Klapky na očí: Vykreslí jen pokud sedí pobočka (nebo u osobních účtů ignoruje)
                 if (data.branch !== currentBranch && currentBranch !== "Osobní účet") return;
 
                 container.innerHTML += `
