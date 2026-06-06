@@ -41,14 +41,13 @@
             --t-bg: #fafafa; 
             --t-surface: #ffffff;
             --t-border: #e4e4e7; 
-            --t-dark-bg: #2a0808; /* Tmavě rubínová pro směny */
+            --t-dark-bg: #2a0808; 
             --t-text: #09090b; 
             --t-muted: #71717a;
             
-            /* Strukturální prvky Poppy */
-            --t-radius: 12px; /* Oblé rohy */
-            --t-border-w: 1px; /* Tenké linky */
-            --t-shadow: 0 10px 25px -5px rgba(185, 28, 28, 0.08); /* Jemný měkký stín */
+            --t-radius: 12px; 
+            --t-border-w: 1px; 
+            --t-shadow: 0 10px 25px -5px rgba(185, 28, 28, 0.08); 
         }
 
         /* TÉMA: KROK (Ostré, Minimalistické, Brutalistní) */
@@ -57,14 +56,13 @@
             --t-bg: #f4f4f5; 
             --t-surface: #ffffff;
             --t-border: #000000; 
-            --t-dark-bg: #000000; /* Absolutní černá */
+            --t-dark-bg: #000000; 
             --t-text: #000000; 
             --t-muted: #52525b;
             
-            /* Strukturální prvky Krok */
-            --t-radius: 0px; /* Ostré hrany */
-            --t-border-w: 2px; /* Tlusté dominantní linky */
-            --t-shadow: 6px 6px 0px 0px rgba(0,0,0,1); /* Tvrdý plný stín */
+            --t-radius: 0px; 
+            --t-border-w: 2px; 
+            --t-shadow: 6px 6px 0px 0px rgba(0,0,0,1); 
         }
 
         body { background-color: var(--t-bg); color: var(--t-text); transition: background-color 0.3s ease; }
@@ -141,7 +139,6 @@
 </head>
 <body class="font-sans min-h-screen antialiased">
 
-    <!-- LOGIN SCREEN -->
     <div id="loginScreen" class="flex flex-col items-center justify-center min-h-screen p-6 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-2 bg-theme-accent"></div>
         <div class="bg-theme-surface p-10 border-theme border-theme-border rounded-theme shadow-theme max-w-md w-full">
@@ -158,7 +155,6 @@
         </div>
     </div>
 
-    <!-- MAIN APP -->
     <div id="mainApp" class="max-w-6xl mx-auto p-6 md:p-12 hidden">
         <header class="mb-8 flex flex-col md:flex-row justify-between items-center border-b border-theme-border pb-6 gap-6">
             <h1 class="text-3xl font-extrabold uppercase tracking-tight text-theme-text">Poppy Beans</h1>
@@ -180,34 +176,31 @@
             </div>
         </header>
 
-        <!-- ZÁLOŽKA: CUPPINGY -->
         <section id="tab-cupping" class="tab-content">
             <div id="admin-cupping-form" class="bg-theme-surface p-8 border-theme border-theme-border rounded-theme shadow-theme mb-10 hidden">
-                <h2 class="font-bold uppercase mb-6 text-theme-accent">Vypsat nový cupping</h2>
+                <h2 class="font-bold uppercase mb-6 text-theme-accent">Vypsat novou anketu (Cupping)</h2>
                 <form id="cuppingForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <input type="text" id="cup_title" class="input-minimal md:col-span-2 text-lg font-bold" placeholder="Název cuppingu (např. Původ: Afrika)" required>
+                    <input type="text" id="cup_title" class="input-minimal md:col-span-2 text-lg font-bold" placeholder="Název cuppingu (např. Testování Keni)" required>
                     <input type="date" id="cup_date" class="input-minimal" required>
                     <input type="time" id="cup_time" class="input-minimal" required>
                     
                     <div class="md:col-span-2 border-theme border-theme-border rounded-theme p-5 bg-theme-bg relative overflow-hidden">
                         <div class="absolute top-0 left-0 w-2 h-full bg-theme-accent"></div>
-                        <h3 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-4 ml-2">Seznam vzorků na stole</h3>
+                        <h3 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-4 ml-2">Předpřipravené vzorky (Nepovinné)</h3>
                         <div id="dynamicSamples" class="space-y-3 mb-4 ml-2">
-                            <input type="text" class="input-minimal sample-input text-sm" placeholder="Název kávy 1 (např. Dak - Peru Washed)" required>
-                            <input type="text" class="input-minimal sample-input text-sm" placeholder="Název kávy 2 (např. Kawa - Colombia Anaerobic)" required>
+                            <input type="text" class="input-minimal sample-input text-sm" placeholder="Název kávy 1 (můžeš doplnit až na místě)">
                         </div>
                         <button type="button" onclick="addSampleField()" class="ml-2 text-xs font-bold uppercase tracking-widest text-theme-text btn-secondary px-4 py-2">
-                            + Přidat další vzorek
+                            + Přidat další políčko
                         </button>
                     </div>
 
-                    <button type="submit" class="btn-primary p-4 uppercase tracking-wider text-xs md:col-span-2">Vypsat událost a otevřít přihlašování</button>
+                    <button type="submit" class="btn-primary p-4 uppercase tracking-wider text-xs md:col-span-2">Vytvořit událost a otevřít přihlašování</button>
                 </form>
             </div>
             <div id="cuppingList" class="grid grid-cols-1 gap-8"></div>
         </section>
 
-        <!-- ZÁLOŽKA: VÝBĚR KÁVY -->
         <section id="tab-kavy" class="tab-content hidden">
             <div id="admin-coffee-form" class="bg-theme-surface p-8 border-theme border-theme-border rounded-theme shadow-theme mb-10 hidden">
                 <h2 class="font-bold uppercase mb-6 text-theme-accent text-sm">Nový výběrový set (3 vzorky)</h2>
@@ -224,7 +217,6 @@
             <div id="roasteryList" class="space-y-10"></div>
         </section>
 
-        <!-- ZÁLOŽKA: RECEPTY -->
         <section id="tab-recepty" class="tab-content hidden">
             <div id="admin-recipe-form" class="bg-theme-surface p-8 border-theme border-theme-border rounded-theme shadow-theme mb-10 hidden">
                 <h2 class="font-bold uppercase mb-4 text-theme-accent">Sdílet nový recept</h2>
@@ -239,7 +231,6 @@
             <div id="recipeList" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
         </section>
 
-        <!-- ZÁLOŽKA: RÁDCE -->
         <section id="tab-advisor" class="tab-content hidden">
             <div class="max-w-3xl mx-auto">
                 <div class="bg-theme-surface p-10 border-theme border-theme-border rounded-theme shadow-theme mb-8 text-center">
@@ -271,7 +262,6 @@
             </div>
         </section>
 
-        <!-- ZÁLOŽKA: ÚDRŽBA -->
         <section id="tab-maintenance" class="tab-content hidden bg-theme-darkBg p-8 rounded-theme border-theme border-theme-border mt-8 shadow-theme">
             <h2 class="text-2xl font-bold mb-6 text-white">🛠 Deník údržby techniky</h2>
             
@@ -288,7 +278,6 @@
             </div>
         </section>
 
-        <!-- ZÁLOŽKA: SMĚNY (CHECK-LISTY) -->
         <section id="tab-checklists" class="tab-content hidden bg-theme-darkBg p-8 rounded-theme border-theme border-theme-border mt-8 shadow-theme">
             <h2 class="text-2xl font-bold mb-8 text-white">📋 Otevírací a Zavírací Check-listy</h2>
             
@@ -326,7 +315,6 @@
         </section>
     </div>
 
-    <!-- MODAL HODNOCENÍ -->
     <div id="evalModal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-theme-surface max-w-md w-full p-8 border-theme border-theme-border rounded-theme shadow-theme relative">
             <button onclick="closeModal('evalModal')" class="absolute top-4 right-4 text-theme-muted hover:text-theme-accent font-bold uppercase text-xs">Zavřít ✕</button>
@@ -336,7 +324,7 @@
                 <input type="hidden" id="eval_cuppingId">
                 <div>
                     <label class="block text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-2">Vyber kávu, kterou hodnotíš:</label>
-                    <select id="eval_sample" class="input-minimal text-sm font-bold bg-theme-bg">
+                    <select id="eval_sample" class="input-minimal text-sm font-bold bg-theme-bg border-theme-base">
                         </select>
                 </div>
 
@@ -354,7 +342,6 @@
         </div>
     </div>
 
-    <!-- MODAL VÝSLEDKY -->
     <div id="resultsModal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-theme-surface max-w-4xl w-full max-h-[90vh] overflow-y-auto p-8 border-theme border-theme-border rounded-theme shadow-theme relative">
             <button onclick="closeModal('resultsModal')" class="absolute top-4 right-4 text-theme-muted hover:text-theme-accent font-bold uppercase text-xs">Zavřít ✕</button>
@@ -429,7 +416,6 @@
             loadChecklists();
         });
 
-        // AUTHENTICATION
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
@@ -485,8 +471,7 @@
             const input = document.createElement('input');
             input.type = 'text';
             input.className = 'input-minimal sample-input text-sm mt-3';
-            input.placeholder = `Název kávy ${count} (Farma, Zpracování...)`;
-            input.required = true;
+            input.placeholder = `Název kávy ${count} (můžeš doplnit až na místě)`;
             container.appendChild(input);
         };
 
@@ -516,6 +501,17 @@
                     const card = document.createElement('div');
                     card.className = "bg-theme-surface border-theme border-theme-border rounded-theme shadow-theme p-8 mb-6";
                     
+                    const samplesListHtml = sampleCount > 0 
+                        ? `<div class="mt-5 p-4 bg-theme-bg border-theme border-theme-border rounded-theme"><h4 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-3">Na stole bude:</h4><ul class="text-sm text-theme-text space-y-2">${data.samples.map((s, i) => `<li class="flex justify-between items-center group"><span><strong>${i+1}.</strong> ${s}</span>${isAdmin ? `<button onclick="removeSampleFromCupping('${d.id}', '${s.replace(/'/g, "\\'")}')" class="text-red-500 opacity-0 group-hover:opacity-100 transition px-2 hover:bg-white rounded">✕</button>` : ''}</li>`).join('')}</ul></div>`
+                        : `<div class="mt-5 p-4 bg-theme-bg border-theme border-theme-border rounded-theme text-xs text-theme-muted italic">Vzorky budou doplněny později...</div>`;
+
+                    const adminAddSample = isAdmin ? `
+                        <div class="mt-4 flex gap-3 items-center">
+                            <input type="text" id="add_sample_${d.id}" class="input-minimal text-xs" placeholder="Přidat kávu na stůl (např. Keňa washed)...">
+                            <button onclick="addSampleToCupping('${d.id}')" class="btn-secondary px-4 py-2 font-bold text-xs uppercase tracking-widest whitespace-nowrap">+ Přidat</button>
+                        </div>
+                    ` : '';
+
                     const adminReport = isAdmin ? `
                         <div class="mt-8 pt-6 border-t border-theme-border grid grid-cols-2 gap-6">
                             <div><div class="text-[10px] font-bold uppercase text-green-600 mb-2">✅ Potvrzeno (${data.attendees?.length || 0})</div><div class="text-xs space-y-1">${data.attendees?.join('<br>') || 'nikdo'}</div></div>
@@ -523,7 +519,7 @@
                         </div>
                     ` : '';
 
-                    const evaluateButton = isAttending ? `
+                    const evaluateButton = isAttending && sampleCount > 0 ? `
                         <div class="mt-6 pt-6 border-t border-theme-border">
                             <button onclick="openEvalModal('${d.id}')" class="w-full btn-primary p-4 text-xs uppercase tracking-widest">📝 Ohodnotit vzorky</button>
                         </div>
@@ -536,15 +532,17 @@
                     `;
 
                     card.innerHTML = `
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                            <div>
+                        <div class="flex flex-col md:flex-row justify-between items-start gap-6">
+                            <div class="w-full">
                                 <div class="text-xs font-bold text-theme-accent uppercase mb-2 tracking-widest">${data.date} | ${data.time} | Vzorků: ${sampleCount}</div>
                                 <h3 class="text-2xl font-extrabold uppercase tracking-tight text-theme-text">${data.title}</h3>
+                                ${samplesListHtml}
+                                ${adminAddSample}
                             </div>
-                            <div class="flex gap-3 w-full md:w-auto">
+                            <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto mt-2">
                                 <button onclick="updateAttendance('${d.id}', 'yes')" class="flex-1 md:flex-none px-8 py-3 text-xs font-bold uppercase transition ${isAttending ? 'btn-primary' : 'btn-secondary'}">Příjdu</button>
                                 <button onclick="updateAttendance('${d.id}', 'no')" class="flex-1 md:flex-none px-8 py-3 text-xs font-bold uppercase transition ${isDeclined ? 'bg-theme-text text-white border-theme border-theme-text rounded-theme' : 'btn-secondary'}">Nepříjdu</button>
-                                ${isAdmin ? `<button onclick="deleteDocById('cuppings', '${d.id}')" class="p-3 text-red-500 font-bold hover:underline transition uppercase text-xs tracking-widest">Smazat</button>` : ''}
+                                ${isAdmin ? `<button onclick="deleteDocById('cuppings', '${d.id}')" class="p-3 text-red-500 font-bold hover:underline transition uppercase text-xs tracking-widest text-center mt-2 md:mt-0">Smazat</button>` : ''}
                             </div>
                         </div>
                         ${evaluateButton}
@@ -611,6 +609,31 @@
                 });
             });
         }
+
+        window.addSampleToCupping = async (id) => {
+            const input = document.getElementById(`add_sample_${id}`);
+            if (!input || !input.value.trim()) return;
+            try {
+                await updateDoc(doc(db, "cuppings", id), {
+                    samples: arrayUnion(input.value.trim())
+                });
+                input.value = '';
+            } catch (error) {
+                console.error(error);
+                alert("Chyba při ukládání vzorku.");
+            }
+        };
+
+        window.removeSampleFromCupping = async (id, sampleName) => {
+            if(!confirm(`Opravdu smazat vzorek "${sampleName}"?`)) return;
+            try {
+                await updateDoc(doc(db, "cuppings", id), {
+                    samples: arrayRemove(sampleName)
+                });
+            } catch (error) {
+                console.error(error);
+            }
+        };
 
         window.updateAttendance = async (id, status) => {
             const ref = doc(db, "cuppings", id);
