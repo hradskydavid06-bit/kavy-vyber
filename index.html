@@ -370,7 +370,7 @@
                 </div>
                 
                 <textarea id="eval_note" class="input-minimal text-sm h-16" placeholder="Osobní poznámka k chuti..."></textarea>
-                <button type="submit" class="w-full btn-primary p-4 uppercase tracking-widest text-xs">Uložit moje hodnocení</button>
+                <button type="submit" id="submitEvalBtn" class="w-full btn-primary p-4 uppercase tracking-widest text-xs font-bold transition-all duration-300">Uložit a vybrat další</button>
             </form>
         </div>
     </div>
@@ -520,6 +520,7 @@
         };
 
         function loadData() {
+            // CUPPINGY
             onSnapshot(collection(db, "cuppings"), (sn) => {
                 const list = document.getElementById('cuppingList');
                 list.innerHTML = '';
@@ -686,9 +687,11 @@
             select.innerHTML = samples.map(s => `<option value="${s}">${s}</option>`).join('');
 
             document.getElementById('evalForm').reset();
-            ['aroma', 'acid', 'sweet', 'body', 'after'].forEach(i => document.getElementById(`val_${i}`).innerText = "5");
+            ['aroma', 'acid', 'sweet', 'body', 'after'].forEach(i => {
+                document.getElementById(`sl_${i}`).value = 5;
+                document.getElementById(`val_${i}`).innerText = "5";
+            });
             
-            // Vyčištění vybraných tagů
             document.querySelectorAll('#flavorTagsContainer .tag-btn.selected').forEach(btn => btn.classList.remove('selected'));
             
             document.getElementById('evalModal').classList.remove('hidden');
@@ -887,7 +890,9 @@
 
         document.getElementById('evalForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            // Získání vybraných tagů
+            const submitBtn = document.getElementById('submitEvalBtn');
+            const originalBtnText = submitBtn.innerText;
+            
             const selectedTags = Array.from(document.querySelectorAll('#flavorTagsContainer .tag-btn.selected')).map(btn => btn.innerText);
 
             const scoreData = { 
@@ -899,11 +904,45 @@
                 sweetness: parseFloat(document.getElementById('sl_sweet').value), 
                 body: parseFloat(document.getElementById('sl_body').value), 
                 aftertaste: parseFloat(document.getElementById('sl_after').value), 
-                flavorTags: selectedTags, // Uložení tagů
+                flavorTags: selectedTags,
                 note: document.getElementById('eval_note').value, 
                 timestamp: new Date() 
             };
-            try { await addDoc(collection(db, "cuppingScores"), scoreData); alert('Hodnocení uloženo!'); closeModal('evalModal'); } catch (error) { console.error(error); }
+            
+            try { 
+                submitBtn.innerText = "Ukládám...";
+                await addDoc(collection(db, "cuppingScores"), scoreData); 
+                
+                // UX zpětná vazba a reset
+                submitBtn.innerText = "✅ Uloženo! Vyber další vzorek";
+                submitBtn.classList.replace('btn-primary', 'bg-green-600');
+                submitBtn.classList.add('text-white', 'border-green-600');
+                
+                // Nulování formuláře
+                ['aroma', 'acid', 'sweet', 'body', 'after'].forEach(i => {
+                    document.getElementById(`sl_${i}`).value = 5;
+                    document.getElementById(`val_${i}`).innerText = "5";
+                });
+                document.querySelectorAll('#flavorTagsContainer .tag-btn.selected').forEach(btn => btn.classList.remove('selected'));
+                document.getElementById('eval_note').value = "";
+                
+                // Automatický posun roletky na další vzorek
+                const select = document.getElementById('eval_sample');
+                if (select.selectedIndex < select.options.length - 1) {
+                    select.selectedIndex += 1;
+                }
+
+                setTimeout(() => {
+                    submitBtn.innerText = originalBtnText;
+                    submitBtn.classList.replace('bg-green-600', 'btn-primary');
+                    submitBtn.classList.remove('border-green-600');
+                }, 2000);
+                
+            } catch (error) { 
+                console.error(error); 
+                submitBtn.innerText = "Chyba při ukládání!";
+                setTimeout(() => submitBtn.innerText = originalBtnText, 2000);
+            }
         });
 
         const handleChecklist = async (e, type, signatureId) => {
