@@ -123,6 +123,23 @@
             color: var(--t-accent);
         }
 
+        /* Tagy pro hodnocení cuppingu */
+        .tag-btn { 
+            border: var(--t-border-w) solid var(--t-border); 
+            color: var(--t-text); 
+            background: var(--t-surface); 
+            border-radius: 9999px; 
+            padding: 6px 14px; 
+            font-size: 10px; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em; 
+            transition: all 0.2s; 
+            cursor: pointer; 
+        }
+        .tag-btn:hover { border-color: var(--t-accent); }
+        .tag-btn.selected { background-color: var(--t-accent); color: #fff; border-color: var(--t-accent); }
+
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         
@@ -316,7 +333,7 @@
     </div>
 
     <div id="evalModal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-theme-surface max-w-md w-full p-8 border-theme border-theme-border rounded-theme shadow-theme relative">
+        <div class="bg-theme-surface max-w-md w-full p-8 border-theme border-theme-border rounded-theme shadow-theme relative max-h-[95vh] overflow-y-auto hide-scroll">
             <button onclick="closeModal('evalModal')" class="absolute top-4 right-4 text-theme-muted hover:text-theme-accent font-bold uppercase text-xs">Zavřít ✕</button>
             <h2 class="text-xl font-extrabold uppercase mb-6 border-b border-theme-border pb-4 text-theme-text">Hodnocení Vzorku</h2>
             
@@ -335,8 +352,24 @@
                     <div><div class="flex justify-between text-xs font-bold uppercase mb-2 text-theme-text"><span>Tělo</span><span id="val_body" class="text-theme-accent">5</span></div><input type="range" id="sl_body" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_body').innerText=this.value"></div>
                     <div><div class="flex justify-between text-xs font-bold uppercase mb-2 text-theme-text"><span>Dochůť</span><span id="val_after" class="text-theme-accent">5</span></div><input type="range" id="sl_after" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_after').innerText=this.value"></div>
                 </div>
+
+                <div class="pt-4 border-t border-theme-border">
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-3">Chuťový profil (Co cítíš?)</label>
+                    <div class="flex flex-wrap gap-2" id="flavorTagsContainer">
+                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected')">Květiny</button>
+                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected')">Bobule</button>
+                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected')">Citrusy</button>
+                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected')">Peckovice</button>
+                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected')">Tropické ovoce</button>
+                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected')">Čokoláda / Kakao</button>
+                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected')">Karamel / Ořechy</button>
+                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected')">Koření</button>
+                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected')">Černý čaj</button>
+                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected')">Fermentace</button>
+                    </div>
+                </div>
                 
-                <textarea id="eval_note" class="input-minimal text-sm h-20" placeholder="Osobní poznámka k chuti..."></textarea>
+                <textarea id="eval_note" class="input-minimal text-sm h-16" placeholder="Osobní poznámka k chuti..."></textarea>
                 <button type="submit" class="w-full btn-primary p-4 uppercase tracking-widest text-xs">Uložit moje hodnocení</button>
             </form>
         </div>
@@ -353,9 +386,10 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <div class="bg-theme-bg p-8 border-theme border-theme-border rounded-theme flex flex-col items-center justify-center">
+                <div id="chartContainerDiv" class="bg-theme-bg p-8 border-theme border-theme-border rounded-theme flex flex-col items-center justify-start">
                     <h3 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-6 text-center">Průměrný profil této kávy</h3>
-                    <div class="w-full max-w-[300px]"><canvas id="radarChart"></canvas></div>
+                    <div class="w-full max-w-[300px] mb-4"><canvas id="radarChart"></canvas></div>
+                    <div id="topTagsContainer" class="w-full"></div>
                 </div>
                 <div class="space-y-4">
                     <h3 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-4">Jednotlivá hodnocení baristů</h3>
@@ -486,7 +520,6 @@
         };
 
         function loadData() {
-            // CUPPINGY
             onSnapshot(collection(db, "cuppings"), (sn) => {
                 const list = document.getElementById('cuppingList');
                 list.innerHTML = '';
@@ -507,7 +540,7 @@
 
                     const adminAddSample = isAdmin ? `
                         <div class="mt-4 flex gap-3 items-center">
-                            <input type="text" id="add_sample_${d.id}" class="input-minimal text-xs" placeholder="Přidat kávu na stůl (např. Keňa washed)...">
+                            <input type="text" id="add_sample_${d.id}" class="input-minimal text-xs" placeholder="Přidat kávu na stůl...">
                             <button onclick="addSampleToCupping('${d.id}')" class="btn-secondary px-4 py-2 font-bold text-xs uppercase tracking-widest whitespace-nowrap">+ Přidat</button>
                         </div>
                     ` : '';
@@ -553,7 +586,6 @@
                 });
             });
 
-            // ROASTERY SETS
             onSnapshot(collection(db, "roasterySets"), (sn) => {
                 const list = document.getElementById('roasteryList');
                 list.innerHTML = '';
@@ -587,7 +619,6 @@
                 });
             });
 
-            // RECIPES
             onSnapshot(collection(db, "recipes"), (sn) => {
                 const list = document.getElementById('recipeList');
                 list.innerHTML = '';
@@ -656,6 +687,10 @@
 
             document.getElementById('evalForm').reset();
             ['aroma', 'acid', 'sweet', 'body', 'after'].forEach(i => document.getElementById(`val_${i}`).innerText = "5");
+            
+            // Vyčištění vybraných tagů
+            document.querySelectorAll('#flavorTagsContainer .tag-btn.selected').forEach(btn => btn.classList.remove('selected'));
+            
             document.getElementById('evalModal').classList.remove('hidden');
         };
         
@@ -667,6 +702,7 @@
 
             const indResultsDiv = document.getElementById('individualResults');
             indResultsDiv.innerHTML = '<div class="text-sm italic text-theme-muted">Stahuji data ze serveru...</div>';
+            document.getElementById('topTagsContainer').innerHTML = ''; // Vyčištění tagů
 
             const q = query(collection(db, "cuppingScores"), where("cuppingId", "==", cuppingId));
             const querySnapshot = await getDocs(q);
@@ -683,18 +719,34 @@
 
         window.renderChartAndList = (sampleName) => {
             const indResultsDiv = document.getElementById('individualResults');
+            const topTagsContainer = document.getElementById('topTagsContainer');
             const filteredScores = window.currentResultsScores.filter(s => s.sample === sampleName);
 
             if (filteredScores.length === 0) {
                 indResultsDiv.innerHTML = '<div class="text-[10px] font-bold text-theme-text uppercase tracking-widest border-theme border-theme-border bg-theme-bg p-6 rounded-theme">Tuto kávu zatím nikdo nehodnotil.</div>';
+                topTagsContainer.innerHTML = '';
                 if(myChartInstance) myChartInstance.destroy();
                 return;
             }
 
             let totals = { aroma: 0, acidity: 0, sweetness: 0, body: 0, aftertaste: 0 };
+            let tagCounts = {};
             
             indResultsDiv.innerHTML = filteredScores.map(s => {
                 totals.aroma += s.aroma; totals.acidity += s.acidity; totals.sweetness += s.sweetness; totals.body += s.body; totals.aftertaste += s.aftertaste;
+                
+                // Počítání tagů
+                if (s.flavorTags && Array.isArray(s.flavorTags)) {
+                    s.flavorTags.forEach(tag => {
+                        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+                    });
+                }
+
+                // Vykreslení tagů pro daného baristu
+                const tagsHtml = s.flavorTags && s.flavorTags.length > 0 
+                    ? `<div class="mt-3 flex flex-wrap gap-1">${s.flavorTags.map(t => `<span class="bg-theme-surface border border-theme-border text-theme-text px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider">${t}</span>`).join('')}</div>`
+                    : '';
+
                 return `
                     <div class="bg-theme-bg p-5 border-theme border-theme-border rounded-theme">
                         <div class="flex justify-between items-center mb-4 border-b border-theme-border pb-3"><span class="text-xs font-bold text-theme-accent">Barista</span><span class="text-[10px] font-extrabold text-theme-text uppercase tracking-widest">${s.userEmail.split('@')[0]}</span></div>
@@ -705,10 +757,26 @@
                             <div>Tělo<br><span class="text-theme-text text-base">${s.body}</span></div>
                             <div>Dochůť<br><span class="text-theme-text text-base">${s.aftertaste}</span></div>
                         </div>
+                        ${tagsHtml}
                         ${s.note ? `<div class="mt-4 text-xs italic bg-theme-surface p-3 border-theme border-theme-border rounded-theme text-theme-text">"${s.note}"</div>` : ''}
                     </div>
                 `;
             }).join('');
+
+            // Agregace nejčastějších tagů
+            const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 4); // Top 4
+            if (sortedTags.length > 0) {
+                topTagsContainer.innerHTML = `
+                    <div class="mt-2 border-t border-theme-border pt-4 w-full">
+                        <h4 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-3 text-center">Nejčastější chutě</h4>
+                        <div class="flex flex-wrap justify-center gap-2">
+                            ${sortedTags.map(t => `<span class="bg-theme-accent text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">${t[0]} <span class="opacity-70 ml-1">(${t[1]}x)</span></span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                topTagsContainer.innerHTML = '';
+            }
 
             const count = filteredScores.length;
             const avgData = [ totals.aroma/count, totals.acidity/count, totals.sweetness/count, totals.body/count, totals.aftertaste/count ];
@@ -744,6 +812,7 @@
             diag.innerText = dt; sol.innerHTML = st; resBox.classList.remove('hidden');
         };
 
+        // --- FORM SUBMITS ---
         document.getElementById('cuppingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const sampleInputs = document.querySelectorAll('.sample-input');
@@ -818,7 +887,22 @@
 
         document.getElementById('evalForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const scoreData = { cuppingId: document.getElementById('eval_cuppingId').value, userEmail: currentUser.email, sample: document.getElementById('eval_sample').value, aroma: parseFloat(document.getElementById('sl_aroma').value), acidity: parseFloat(document.getElementById('sl_acid').value), sweetness: parseFloat(document.getElementById('sl_sweet').value), body: parseFloat(document.getElementById('sl_body').value), aftertaste: parseFloat(document.getElementById('sl_after').value), note: document.getElementById('eval_note').value, timestamp: new Date() };
+            // Získání vybraných tagů
+            const selectedTags = Array.from(document.querySelectorAll('#flavorTagsContainer .tag-btn.selected')).map(btn => btn.innerText);
+
+            const scoreData = { 
+                cuppingId: document.getElementById('eval_cuppingId').value, 
+                userEmail: currentUser.email, 
+                sample: document.getElementById('eval_sample').value, 
+                aroma: parseFloat(document.getElementById('sl_aroma').value), 
+                acidity: parseFloat(document.getElementById('sl_acid').value), 
+                sweetness: parseFloat(document.getElementById('sl_sweet').value), 
+                body: parseFloat(document.getElementById('sl_body').value), 
+                aftertaste: parseFloat(document.getElementById('sl_after').value), 
+                flavorTags: selectedTags, // Uložení tagů
+                note: document.getElementById('eval_note').value, 
+                timestamp: new Date() 
+            };
             try { await addDoc(collection(db, "cuppingScores"), scoreData); alert('Hodnocení uloženo!'); closeModal('evalModal'); } catch (error) { console.error(error); }
         });
 
