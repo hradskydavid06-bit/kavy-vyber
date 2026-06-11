@@ -435,7 +435,6 @@
         let currentBranch = "Osobní účet"; 
         let globalAllScores = []; 
         
-        // DOPLNĚNÁ KRABICE NA DATA
         window.globalCuppings = {}; 
         window.currentResultsScores = [];
 
@@ -459,13 +458,31 @@
 
                 scores.forEach(s => {
                     if(s.userEmail === ADMIN_EMAIL) return;
+                    
+                    // 1. Rozdíl struktury (posuvníky)
                     let diff = Math.abs(adminScore.aroma - s.aroma) +
                                Math.abs(adminScore.acidity - s.acidity) +
                                Math.abs(adminScore.sweetness - s.sweetness) +
                                Math.abs(adminScore.body - s.body) +
                                Math.abs(adminScore.aftertaste - s.aftertaste);
                     
-                    let totalMatch = 100 - ((diff / 50) * 100); 
+                    let numMatch = 100 - ((diff / 50) * 100); 
+
+                    // 2. Shoda chuťových tagů (Jaccardův index)
+                    let aTags = adminScore.flavorTags || [];
+                    let sTags = s.flavorTags || [];
+                    let tagMatch = 0;
+                    
+                    if (aTags.length === 0 && sTags.length === 0) {
+                        tagMatch = 100; // Oba nevybrali nic
+                    } else if (aTags.length > 0 || sTags.length > 0) {
+                        let intersection = aTags.filter(t => sTags.includes(t)).length;
+                        let union = new Set([...aTags, ...sTags]).size;
+                        tagMatch = (intersection / union) * 100;
+                    }
+
+                    // 3. Celkové skóre (70 % struktura, 30 % tagy)
+                    let totalMatch = (numMatch * 0.7) + (tagMatch * 0.3);
                     
                     if(totalMatch > highestScore) {
                         highestScore = totalMatch;
@@ -870,7 +887,23 @@
                                Math.abs(adminScore.body - s.body) +
                                Math.abs(adminScore.aftertaste - s.aftertaste);
                     
-                    let totalMatch = 100 - ((diff / 50) * 100); 
+                    let numMatch = 100 - ((diff / 50) * 100); 
+
+                    // Jaccard index
+                    let aTags = adminScore.flavorTags || [];
+                    let sTags = s.flavorTags || [];
+                    let tagMatch = 0;
+                    
+                    if (aTags.length === 0 && sTags.length === 0) {
+                        tagMatch = 100;
+                    } else if (aTags.length > 0 || sTags.length > 0) {
+                        let intersection = aTags.filter(t => sTags.includes(t)).length;
+                        let union = new Set([...aTags, ...sTags]).size;
+                        tagMatch = (intersection / union) * 100;
+                    }
+
+                    // 70% struktura, 30% tagy
+                    let totalMatch = (numMatch * 0.7) + (tagMatch * 0.3);
 
                     if (totalMatch > highestScore) {
                         highestScore = totalMatch;
