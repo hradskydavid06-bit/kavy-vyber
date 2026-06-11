@@ -705,7 +705,7 @@
 
             const indResultsDiv = document.getElementById('individualResults');
             indResultsDiv.innerHTML = '<div class="text-sm italic text-theme-muted">Stahuji data ze serveru...</div>';
-            document.getElementById('topTagsContainer').innerHTML = ''; // Vyčištění tagů
+            document.getElementById('topTagsContainer').innerHTML = '';
 
             const q = query(collection(db, "cuppingScores"), where("cuppingId", "==", cuppingId));
             const querySnapshot = await getDocs(q);
@@ -735,24 +735,67 @@
             let totals = { aroma: 0, acidity: 0, sweetness: 0, body: 0, aftertaste: 0 };
             let tagCounts = {};
             
-            indResultsDiv.innerHTML = filteredScores.map(s => {
+            // --- ALGORITMUS PRO VÝHERCE KALIBRACE ---
+            const adminScore = filteredScores.find(s => s.userEmail === ADMIN_EMAIL);
+            let winnerHtml = '';
+
+            if (adminScore && filteredScores.length > 1) {
+                let bestMatch = null;
+                let highestScore = -1;
+
+                filteredScores.forEach(s => {
+                    if (s.userEmail === ADMIN_EMAIL) return; 
+
+                    let diff = Math.abs(adminScore.aroma - s.aroma) +
+                               Math.abs(adminScore.acidity - s.acidity) +
+                               Math.abs(adminScore.sweetness - s.sweetness) +
+                               Math.abs(adminScore.body - s.body) +
+                               Math.abs(adminScore.aftertaste - s.aftertaste);
+                    
+                    let totalMatch = 100 - ((diff / 50) * 100); 
+
+                    if (totalMatch > highestScore) {
+                        highestScore = totalMatch;
+                        bestMatch = s;
+                    }
+                });
+
+                if (bestMatch) {
+                    winnerHtml = `
+                        <div class="bg-yellow-500/10 border-2 border-yellow-500 p-5 rounded-theme mb-6 shadow-sm">
+                            <div class="flex items-center gap-4">
+                                <div class="text-3xl">🏆</div>
+                                <div>
+                                    <div class="text-[10px] font-bold uppercase tracking-widest text-yellow-600 mb-1">Nejpřesnější kalibrace (Výherce)</div>
+                                    <div class="font-extrabold text-theme-text uppercase text-lg">${bestMatch.userEmail.split('@')[0]} <span class="text-xs font-bold bg-yellow-500 text-white px-2 py-1 rounded-full ml-2">Shoda: ${Math.round(highestScore)} %</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            // ----------------------------------------
+
+            let resultsHtml = filteredScores.map(s => {
                 totals.aroma += s.aroma; totals.acidity += s.acidity; totals.sweetness += s.sweetness; totals.body += s.body; totals.aftertaste += s.aftertaste;
                 
-                // Počítání tagů
                 if (s.flavorTags && Array.isArray(s.flavorTags)) {
                     s.flavorTags.forEach(tag => {
                         tagCounts[tag] = (tagCounts[tag] || 0) + 1;
                     });
                 }
 
-                // Vykreslení tagů pro daného baristu
                 const tagsHtml = s.flavorTags && s.flavorTags.length > 0 
                     ? `<div class="mt-3 flex flex-wrap gap-1">${s.flavorTags.map(t => `<span class="bg-theme-surface border border-theme-border text-theme-text px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider">${t}</span>`).join('')}</div>`
                     : '';
 
+                const isAdminBadge = s.userEmail === ADMIN_EMAIL 
+                    ? `<span class="bg-theme-accent text-white text-[9px] px-2 py-1 rounded-full ml-2">Referenční vzorek (Ty)</span>` 
+                    : '';
+
                 return `
-                    <div class="bg-theme-bg p-5 border-theme border-theme-border rounded-theme">
-                        <div class="flex justify-between items-center mb-4 border-b border-theme-border pb-3"><span class="text-xs font-bold text-theme-accent">Barista</span><span class="text-[10px] font-extrabold text-theme-text uppercase tracking-widest">${s.userEmail.split('@')[0]}</span></div>
+                    <div class="bg-theme-bg p-5 border-theme border-theme-border rounded-theme ${s.userEmail === ADMIN_EMAIL ? 'border-theme-accent' : ''}">
+                        <div class="flex justify-between items-center mb-4 border-b border-theme-border pb-3"><span class="text-xs font-bold text-theme-accent">Barista</span><span class="text-[10px] font-extrabold text-theme-text uppercase tracking-widest">${s.userEmail.split('@')[0]} ${isAdminBadge}</span></div>
                         <div class="text-[10px] font-bold text-theme-muted grid grid-cols-5 gap-1 text-center">
                             <div>Aroma<br><span class="text-theme-text text-base">${s.aroma}</span></div>
                             <div>Acidita<br><span class="text-theme-text text-base">${s.acidity}</span></div>
@@ -766,8 +809,9 @@
                 `;
             }).join('');
 
-            // Agregace nejčastějších tagů
-            const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 4); // Top 4
+            indResultsDiv.innerHTML = winnerHtml + resultsHtml;
+
+            const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 4); 
             if (sortedTags.length > 0) {
                 topTagsContainer.innerHTML = `
                     <div class="mt-2 border-t border-theme-border pt-4 w-full">
@@ -815,7 +859,6 @@
             diag.innerText = dt; sol.innerHTML = st; resBox.classList.remove('hidden');
         };
 
-        // --- FORM SUBMITS ---
         document.getElementById('cuppingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const sampleInputs = document.querySelectorAll('.sample-input');
@@ -913,12 +956,10 @@
                 submitBtn.innerText = "Ukládám...";
                 await addDoc(collection(db, "cuppingScores"), scoreData); 
                 
-                // UX zpětná vazba a reset
                 submitBtn.innerText = "✅ Uloženo! Vyber další vzorek";
                 submitBtn.classList.replace('btn-primary', 'bg-green-600');
                 submitBtn.classList.add('text-white', 'border-green-600');
                 
-                // Nulování formuláře
                 ['aroma', 'acid', 'sweet', 'body', 'after'].forEach(i => {
                     document.getElementById(`sl_${i}`).value = 5;
                     document.getElementById(`val_${i}`).innerText = "5";
@@ -926,7 +967,6 @@
                 document.querySelectorAll('#flavorTagsContainer .tag-btn.selected').forEach(btn => btn.classList.remove('selected'));
                 document.getElementById('eval_note').value = "";
                 
-                // Automatický posun roletky na další vzorek
                 const select = document.getElementById('eval_sample');
                 if (select.selectedIndex < select.options.length - 1) {
                     select.selectedIndex += 1;
