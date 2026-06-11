@@ -254,6 +254,11 @@
                     <div class="md:col-span-4"><textarea id="rec_steps" class="input-minimal h-24 text-sm" placeholder="Postup (mletí, teplota, časy...)"></textarea></div>
                 </form>
             </div>
+            
+            <div class="mb-8 relative">
+                <input type="text" id="searchRecipeInput" oninput="window.renderRecipesList()" class="input-minimal w-full font-bold text-sm bg-theme-bg" placeholder="🔍 Hledat recept (např. Keňa, V60, jméno baristy)...">
+            </div>
+
             <div id="recipeList" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
         </section>
 
@@ -528,7 +533,19 @@
             if(!list) return;
             list.innerHTML = '';
             
+            // FILTR VYHLEDÁVÁNÍ
+            const searchTerm = document.getElementById('searchRecipeInput')?.value.toLowerCase() || '';
+
             let recipesArr = window.globalRecipes.filter(r => r.branch === currentBranch || currentBranch === "Osobní účet");
+            
+            if (searchTerm !== '') {
+                recipesArr = recipesArr.filter(r => 
+                    (r.bean && r.bean.toLowerCase().includes(searchTerm)) ||
+                    (r.method && r.method.toLowerCase().includes(searchTerm)) ||
+                    (r.author && r.author.toLowerCase().includes(searchTerm)) ||
+                    (r.steps && r.steps.toLowerCase().includes(searchTerm))
+                );
+            }
             
             recipesArr.sort((a, b) => (b.isCurrent ? 1 : 0) - (a.isCurrent ? 1 : 0));
 
@@ -540,7 +557,6 @@
                 
                 const currentBadge = isCurrent ? `<span class="bg-theme-accent text-white text-[9px] px-2 py-1 rounded-full uppercase tracking-widest font-bold ml-2">☕ Na mlýnku</span>` : '';
                 
-                // Přidáno tlačítko UPRAVIT pro Admina
                 const adminControls = isAdmin ? `
                     <div class="mt-5 flex justify-between border-t border-theme-border pt-4 items-center">
                         <button onclick="toggleRecipeStatus('${data.id}', ${!isCurrent})" class="text-[10px] uppercase font-bold text-theme-text hover:text-theme-accent transition">${isCurrent ? '✕ Sundat z mlýnku' : '⚡ Dát na mlýnek'}</button>
@@ -577,7 +593,6 @@
             }
         };
 
-        // --- FUNKCE PRO ÚPRAVU RECEPTU ---
         window.editRecipe = (id) => {
             const recipe = window.globalRecipes.find(r => r.id === id);
             if(!recipe) return;
@@ -592,7 +607,6 @@
             document.getElementById('submitRecipeBtn').innerText = 'Uložit změny';
             document.getElementById('cancelEditRecipeBtn').classList.remove('hidden');
             
-            // Odscrollování nahoru k formuláři
             window.scrollTo({ top: document.getElementById('admin-recipe-form').offsetTop - 20, behavior: 'smooth' });
         };
 
@@ -1154,11 +1168,9 @@
 
             try {
                 if (editId) {
-                    // Update existujícího receptu
                     await updateDoc(doc(db, "recipes", editId), recipeData);
-                    window.cancelEditRecipe(); // Vyčistí formulář
+                    window.cancelEditRecipe(); 
                 } else {
-                    // Vytvoření nového
                     await addDoc(collection(db, "recipes"), { 
                         ...recipeData,
                         author: currentUser.email,
