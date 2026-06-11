@@ -123,7 +123,6 @@
             color: var(--t-accent);
         }
 
-        /* Tagy pro hodnocení cuppingu */
         .tag-btn { 
             border: var(--t-border-w) solid var(--t-border); 
             color: var(--t-text); 
@@ -426,7 +425,6 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         
-        // Záchranná brzda proti antivirům a blokacím na Wi-Fi
         const db = initializeFirestore(app, {
             experimentalForceLongPolling: true
         });
@@ -436,6 +434,10 @@
         let myChartInstance = null;
         let currentBranch = "Osobní účet"; 
         let globalAllScores = []; 
+        
+        // DOPLNĚNÁ KRABICE NA DATA
+        window.globalCuppings = {}; 
+        window.currentResultsScores = [];
 
         window.renderLeaderboard = () => {
             let wins = {};
@@ -524,7 +526,6 @@
             loadChecklists();
         });
 
-        // --- SKRÝVÁNÍ ZÁLOŽEK PODLE ROLE ---
         const updateNavVisibility = () => {
             const btns = {
                 cupping: document.getElementById('btn-tab-cupping'),
@@ -539,7 +540,6 @@
                 Object.values(btns).forEach(b => b.classList.remove('hidden'));
                 window.switchTab('tab-checklists');
             } else if (currentBranch !== "Osobní účet") {
-                // Tablety na baru
                 btns.cupping.classList.add('hidden');
                 btns.kavy.classList.add('hidden');
                 btns.recepty.classList.remove('hidden');
@@ -548,7 +548,6 @@
                 btns.checklists.classList.remove('hidden');
                 window.switchTab('tab-checklists');
             } else {
-                // Osobní mobily baristů
                 btns.cupping.classList.remove('hidden');
                 btns.kavy.classList.remove('hidden');
                 btns.recepty.classList.remove('hidden');
@@ -975,6 +974,7 @@
             diag.innerText = dt; sol.innerHTML = st; resBox.classList.remove('hidden');
         };
 
+        // --- FORM SUBMITS ---
         document.getElementById('cuppingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const sampleInputs = document.querySelectorAll('.sample-input');
