@@ -194,6 +194,13 @@
         </header>
 
         <section id="tab-cupping" class="tab-content">
+            
+            <div id="leaderboardContainer" class="mb-10 hidden">
+                <h2 class="font-extrabold uppercase mb-4 text-theme-text flex items-center gap-2"><span class="text-2xl">🏆</span> Síň slávy (Top Kalibrace)</h2>
+                <div id="leaderboardList" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    </div>
+            </div>
+
             <div id="admin-cupping-form" class="bg-theme-surface p-8 border-theme border-theme-border rounded-theme shadow-theme mb-10 hidden">
                 <h2 class="font-bold uppercase mb-6 text-theme-accent">Vypsat novou anketu (Cupping)</h2>
                 <form id="cuppingForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -428,6 +435,76 @@
         
         window.globalCuppings = {}; 
         window.currentResultsScores = [];
+        let globalAllScores = []; // Paměť pro všechny scores kvůli žebříčku
+
+        // --- VYKRESLENÍ LEADERBOARDU ---
+        window.renderLeaderboard = () => {
+            let wins = {};
+            let grouped = {};
+            
+            // Seskupení score podle cuppingu a vzorku
+            globalAllScores.forEach(s => {
+                let key = s.cuppingId + '_' + s.sample;
+                if(!grouped[key]) grouped[key] = [];
+                grouped[key].push(s);
+            });
+
+            for(let key in grouped) {
+                let scores = grouped[key];
+                let adminScore = scores.find(s => s.userEmail === ADMIN_EMAIL);
+                if(!adminScore) continue;
+
+                let bestMatch = null;
+                let highestScore = -1;
+
+                scores.forEach(s => {
+                    if(s.userEmail === ADMIN_EMAIL) return;
+                    let diff = Math.abs(adminScore.aroma - s.aroma) +
+                               Math.abs(adminScore.acidity - s.acidity) +
+                               Math.abs(adminScore.sweetness - s.sweetness) +
+                               Math.abs(adminScore.body - s.body) +
+                               Math.abs(adminScore.aftertaste - s.aftertaste);
+                    
+                    let totalMatch = 100 - ((diff / 50) * 100); 
+                    
+                    if(totalMatch > highestScore) {
+                        highestScore = totalMatch;
+                        bestMatch = s;
+                    }
+                });
+
+                if(bestMatch) {
+                    let email = bestMatch.userEmail.split('@')[0];
+                    wins[email] = (wins[email] || 0) + 1;
+                }
+            }
+
+            let sortedWins = Object.entries(wins).sort((a,b) => b[1] - a[1]).slice(0, 3);
+            const lbContainer = document.getElementById('leaderboardContainer');
+            const lbList = document.getElementById('leaderboardList');
+            
+            if(sortedWins.length === 0) {
+                lbContainer.classList.add('hidden');
+                return;
+            }
+            
+            lbContainer.classList.remove('hidden');
+            
+            const medals = ['🥇', '🥈', '🥉'];
+            // Barvy medailí se přizpůsobí světlému/tmavému tématu (Krok vs Poppy)
+            const borders = ['border-yellow-500', 'border-slate-400', 'border-amber-700'];
+            const bgColors = ['bg-yellow-500/10', 'bg-slate-400/10', 'bg-amber-700/10'];
+
+            lbList.innerHTML = sortedWins.map((w, i) => `
+                <div class="${bgColors[i]} border-theme ${borders[i]} p-5 rounded-theme flex items-center gap-4 shadow-sm">
+                    <div class="text-4xl drop-shadow-sm">${medals[i]}</div>
+                    <div>
+                        <div class="font-extrabold text-theme-text uppercase tracking-widest text-lg">${w[0]}</div>
+                        <div class="text-xs font-bold text-theme-muted uppercase tracking-widest mt-1">Počet výher: ${w[1]}</div>
+                    </div>
+                </div>
+            `).join('');
+        };
 
         const getBranch = (email) => {
             if(email === "krok@poppybeans.cz") return "Krok";
@@ -520,6 +597,13 @@
         };
 
         function loadData() {
+            // GLOBÁLNÍ SCORES PRO LEADERBOARD
+            onSnapshot(collection(db, "cuppingScores"), (sn) => {
+                globalAllScores = [];
+                sn.forEach(d => globalAllScores.push(d.data()));
+                if(typeof window.renderLeaderboard === 'function') window.renderLeaderboard();
+            });
+
             // CUPPINGY
             onSnapshot(collection(db, "cuppings"), (sn) => {
                 const list = document.getElementById('cuppingList');
@@ -735,7 +819,7 @@
             let totals = { aroma: 0, acidity: 0, sweetness: 0, body: 0, aftertaste: 0 };
             let tagCounts = {};
             
-            // --- ALGORITMUS PRO VÝHERCE KALIBRACE ---
+            // --- ALGORITMUS PRO VÝHERCE KALIBRACE (Pouze z číselných hodnot) ---
             const adminScore = filteredScores.find(s => s.userEmail === ADMIN_EMAIL);
             let winnerHtml = '';
 
@@ -762,19 +846,17 @@
 
                 if (bestMatch) {
                     winnerHtml = `
-                        <div class="bg-yellow-500/10 border-2 border-yellow-500 p-5 rounded-theme mb-6 shadow-sm">
-                            <div class="flex items-center gap-4">
-                                <div class="text-3xl">🏆</div>
-                                <div>
-                                    <div class="text-[10px] font-bold uppercase tracking-widest text-yellow-600 mb-1">Nejpřesnější kalibrace (Výherce)</div>
-                                    <div class="font-extrabold text-theme-text uppercase text-lg">${bestMatch.userEmail.split('@')[0]} <span class="text-xs font-bold bg-yellow-500 text-white px-2 py-1 rounded-full ml-2">Shoda: ${Math.round(highestScore)} %</span></div>
-                                </div>
+                        <div class="bg-yellow-500/10 border-2 border-yellow-500 p-5 rounded-theme mb-6 shadow-sm flex flex-col md:flex-row items-center gap-4">
+                            <div class="text-4xl drop-shadow-sm">🏆</div>
+                            <div class="text-center md:text-left">
+                                <div class="text-[10px] font-bold uppercase tracking-widest text-yellow-600 mb-1">Nejpřesnější kalibrace</div>
+                                <div class="font-extrabold text-theme-text uppercase text-lg">${bestMatch.userEmail.split('@')[0]} <span class="text-xs font-bold bg-yellow-500 text-white px-2 py-1 rounded-full ml-2">Shoda: ${Math.round(highestScore)} %</span></div>
                             </div>
                         </div>
                     `;
                 }
             }
-            // ----------------------------------------
+            // ---------------------------------------------------------------------
 
             let resultsHtml = filteredScores.map(s => {
                 totals.aroma += s.aroma; totals.acidity += s.acidity; totals.sweetness += s.sweetness; totals.body += s.body; totals.aftertaste += s.aftertaste;
@@ -859,6 +941,7 @@
             diag.innerText = dt; sol.innerHTML = st; resBox.classList.remove('hidden');
         };
 
+        // --- FORM SUBMITS ---
         document.getElementById('cuppingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const sampleInputs = document.querySelectorAll('.sample-input');
