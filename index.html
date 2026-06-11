@@ -459,7 +459,6 @@
                 scores.forEach(s => {
                     if(s.userEmail === ADMIN_EMAIL) return;
                     
-                    // 1. Rozdíl struktury (posuvníky)
                     let diff = Math.abs(adminScore.aroma - s.aroma) +
                                Math.abs(adminScore.acidity - s.acidity) +
                                Math.abs(adminScore.sweetness - s.sweetness) +
@@ -468,20 +467,18 @@
                     
                     let numMatch = 100 - ((diff / 50) * 100); 
 
-                    // 2. Shoda chuťových tagů (Jaccardův index)
                     let aTags = adminScore.flavorTags || [];
                     let sTags = s.flavorTags || [];
                     let tagMatch = 0;
                     
                     if (aTags.length === 0 && sTags.length === 0) {
-                        tagMatch = 100; // Oba nevybrali nic
+                        tagMatch = 100;
                     } else if (aTags.length > 0 || sTags.length > 0) {
                         let intersection = aTags.filter(t => sTags.includes(t)).length;
                         let union = new Set([...aTags, ...sTags]).size;
                         tagMatch = (intersection / union) * 100;
                     }
 
-                    // 3. Celkové skóre (70 % struktura, 30 % tagy)
                     let totalMatch = (numMatch * 0.7) + (tagMatch * 0.3);
                     
                     if(totalMatch > highestScore) {
@@ -650,6 +647,15 @@
             }
         };
 
+        window.toggleRecipeStatus = async (id, status) => {
+            try {
+                await updateDoc(doc(db, "recipes", id), { isCurrent: status });
+            } catch (error) {
+                console.error(error);
+                alert("Chyba při aktualizaci receptu.");
+            }
+        };
+
         function loadData() {
             onSnapshot(collection(db, "cuppingScores"), (sn) => {
                 globalAllScores = [];
@@ -759,19 +765,41 @@
             onSnapshot(collection(db, "recipes"), (sn) => {
                 const list = document.getElementById('recipeList');
                 list.innerHTML = '';
-                sn.forEach(d => {
-                    const data = d.data();
+                
+                let recipesArr = [];
+                sn.forEach(d => recipesArr.push({ id: d.id, ...d.data() }));
+                
+                // Setřídění receptů: Ty na mlýnku (isCurrent = true) půjdou nahoru
+                recipesArr.sort((a, b) => (b.isCurrent ? 1 : 0) - (a.isCurrent ? 1 : 0));
+
+                recipesArr.forEach(data => {
                     const card = document.createElement('div');
-                    card.className = "bg-theme-surface p-8 border-theme border-theme-border rounded-theme shadow-theme transition-transform hover:-translate-y-1";
+                    const isCurrent = data.isCurrent === true;
+                    
+                    // Změna designu karty, pokud je na mlýnku
+                    card.className = `bg-theme-surface p-8 rounded-theme transition-transform hover:-translate-y-1 shadow-theme ${isCurrent ? 'border-theme-w border-theme-accent ring-1 ring-theme-accent' : 'border-theme border-theme-border'}`;
+                    
+                    const currentBadge = isCurrent ? `<span class="bg-theme-accent text-white text-[9px] px-2 py-1 rounded-full uppercase tracking-widest font-bold ml-2">☕ Na mlýnku</span>` : '';
+                    
+                    const adminControls = isAdmin ? `
+                        <div class="mt-5 flex justify-between border-t border-theme-border pt-4">
+                            <button onclick="toggleRecipeStatus('${data.id}', ${!isCurrent})" class="text-[10px] uppercase font-bold text-theme-text hover:text-theme-accent transition">${isCurrent ? '✕ Sundat z mlýnku' : '⚡ Dát na mlýnek'}</button>
+                            <button onclick="deleteDocById('recipes', '${data.id}')" class="text-[10px] uppercase font-bold text-red-500 hover:underline">Smazat</button>
+                        </div>
+                    ` : '';
+
                     card.innerHTML = `
                         <div class="flex justify-between mb-5 items-center">
-                            <span class="text-[10px] font-bold bg-theme-accent text-white px-3 py-1 rounded-theme uppercase tracking-widest">${data.method}</span>
+                            <div class="flex items-center">
+                                <span class="text-[10px] font-bold bg-theme-accent text-white px-3 py-1 rounded-theme uppercase tracking-widest">${data.method}</span>
+                                ${currentBadge}
+                            </div>
                             <span class="text-[10px] text-theme-muted uppercase font-bold tracking-widest">${data.author.split('@')[0]}</span>
                         </div>
                         <h3 class="text-xl font-extrabold uppercase mb-2 tracking-tight text-theme-text">${data.bean}</h3>
                         <div class="text-sm font-bold mb-5 border-b border-theme-border pb-3 inline-block text-theme-text uppercase tracking-wider">${data.ratio}</div>
                         <div class="text-xs text-theme-text bg-theme-bg p-5 rounded-theme border-theme border-theme-border font-medium leading-relaxed">"${data.steps}"</div>
-                        ${isAdmin ? `<button onclick="deleteDocById('recipes', '${d.id}')" class="mt-5 text-[10px] uppercase font-bold text-red-500 hover:underline">Smazat</button>` : ''}
+                        ${adminControls}
                     `;
                     list.appendChild(card);
                 });
@@ -889,7 +917,6 @@
                     
                     let numMatch = 100 - ((diff / 50) * 100); 
 
-                    // Jaccard index
                     let aTags = adminScore.flavorTags || [];
                     let sTags = s.flavorTags || [];
                     let tagMatch = 0;
@@ -902,7 +929,6 @@
                         tagMatch = (intersection / union) * 100;
                     }
 
-                    // 70% struktura, 30% tagy
                     let totalMatch = (numMatch * 0.7) + (tagMatch * 0.3);
 
                     if (totalMatch > highestScore) {
@@ -1077,7 +1103,16 @@
         });
 
         document.getElementById('recipeForm').addEventListener('submit', async (e) => {
-            e.preventDefault(); await addDoc(collection(db, "recipes"), { bean: document.getElementById('rec_bean').value, method: document.getElementById('rec_method').value, ratio: document.getElementById('rec_ratio').value, steps: document.getElementById('rec_steps').value, author: currentUser.email }); e.target.reset();
+            e.preventDefault(); 
+            await addDoc(collection(db, "recipes"), { 
+                bean: document.getElementById('rec_bean').value, 
+                method: document.getElementById('rec_method').value, 
+                ratio: document.getElementById('rec_ratio').value, 
+                steps: document.getElementById('rec_steps').value, 
+                author: currentUser.email,
+                isCurrent: false 
+            }); 
+            e.target.reset();
         });
 
         document.getElementById('evalForm').addEventListener('submit', async (e) => {
