@@ -240,13 +240,17 @@
         </section>
 
         <section id="tab-recepty" class="tab-content hidden">
-            <div id="admin-recipe-form" class="bg-theme-surface p-8 border-theme border-theme-border rounded-theme shadow-theme mb-10 hidden">
-                <h2 class="font-bold uppercase mb-4 text-theme-accent">Sdílet nový recept</h2>
+            <div id="admin-recipe-form" class="bg-theme-surface p-8 border-theme border-theme-border rounded-theme shadow-theme mb-10 hidden transition-all">
+                <h2 id="recipeFormTitle" class="font-bold uppercase mb-4 text-theme-accent">Sdílet nový recept</h2>
                 <form id="recipeForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="hidden" id="edit_recipe_id" value="">
                     <input type="text" id="rec_bean" class="input-minimal text-sm" placeholder="Káva / Zpracování" required>
                     <select id="rec_method" class="input-minimal text-sm"><option>V60</option><option>Aeropress</option><option>Espresso</option><option>Chemex</option><option>Batch Brew</option></select>
                     <input type="text" id="rec_ratio" class="input-minimal text-sm" placeholder="Ratio (např. 18g/300ml)" required>
-                    <button type="submit" class="btn-primary p-3 uppercase text-xs">Přidat recept</button>
+                    <div class="flex gap-2">
+                        <button type="submit" id="submitRecipeBtn" class="w-full btn-primary p-3 uppercase text-[10px] tracking-wider font-bold">Přidat</button>
+                        <button type="button" id="cancelEditRecipeBtn" onclick="cancelEditRecipe()" class="hidden w-full btn-secondary p-3 uppercase text-[10px] tracking-wider font-bold">Zrušit</button>
+                    </div>
                     <div class="md:col-span-4"><textarea id="rec_steps" class="input-minimal h-24 text-sm" placeholder="Postup (mletí, teplota, časy...)"></textarea></div>
                 </form>
             </div>
@@ -524,7 +528,6 @@
             if(!list) return;
             list.innerHTML = '';
             
-            // FILTR: Povolí se jen recepty, které jsou pro aktuální pobočku, nebo pokud jsi na "Osobní účet"
             let recipesArr = window.globalRecipes.filter(r => r.branch === currentBranch || currentBranch === "Osobní účet");
             
             recipesArr.sort((a, b) => (b.isCurrent ? 1 : 0) - (a.isCurrent ? 1 : 0));
@@ -537,10 +540,14 @@
                 
                 const currentBadge = isCurrent ? `<span class="bg-theme-accent text-white text-[9px] px-2 py-1 rounded-full uppercase tracking-widest font-bold ml-2">☕ Na mlýnku</span>` : '';
                 
+                // Přidáno tlačítko UPRAVIT pro Admina
                 const adminControls = isAdmin ? `
-                    <div class="mt-5 flex justify-between border-t border-theme-border pt-4">
+                    <div class="mt-5 flex justify-between border-t border-theme-border pt-4 items-center">
                         <button onclick="toggleRecipeStatus('${data.id}', ${!isCurrent})" class="text-[10px] uppercase font-bold text-theme-text hover:text-theme-accent transition">${isCurrent ? '✕ Sundat z mlýnku' : '⚡ Dát na mlýnek'}</button>
-                        <button onclick="deleteDocById('recipes', '${data.id}')" class="text-[10px] uppercase font-bold text-red-500 hover:underline">Smazat</button>
+                        <div class="flex gap-4">
+                            <button onclick="editRecipe('${data.id}')" class="text-[10px] uppercase font-bold text-blue-500 hover:underline">Upravit</button>
+                            <button onclick="deleteDocById('recipes', '${data.id}')" class="text-[10px] uppercase font-bold text-red-500 hover:underline">Smazat</button>
+                        </div>
                     </div>
                 ` : '';
 
@@ -554,7 +561,7 @@
                     </div>
                     <h3 class="text-xl font-extrabold uppercase mb-2 tracking-tight text-theme-text">${data.bean}</h3>
                     <div class="text-sm font-bold mb-5 border-b border-theme-border pb-3 inline-block text-theme-text uppercase tracking-wider">${data.ratio}</div>
-                    <div class="text-xs text-theme-text bg-theme-bg p-5 rounded-theme border-theme border-theme-border font-medium leading-relaxed">"${data.steps}"</div>
+                    <div class="text-xs text-theme-text bg-theme-bg p-5 rounded-theme border-theme border-theme-border font-medium leading-relaxed whitespace-pre-wrap">"${data.steps}"</div>
                     ${adminControls}
                 `;
                 list.appendChild(card);
@@ -568,6 +575,33 @@
                 console.error(error);
                 alert("Chyba při aktualizaci receptu.");
             }
+        };
+
+        // --- FUNKCE PRO ÚPRAVU RECEPTU ---
+        window.editRecipe = (id) => {
+            const recipe = window.globalRecipes.find(r => r.id === id);
+            if(!recipe) return;
+            
+            document.getElementById('recipeFormTitle').innerText = "Úprava receptu";
+            document.getElementById('edit_recipe_id').value = id;
+            document.getElementById('rec_bean').value = recipe.bean;
+            document.getElementById('rec_method').value = recipe.method;
+            document.getElementById('rec_ratio').value = recipe.ratio;
+            document.getElementById('rec_steps').value = recipe.steps;
+            
+            document.getElementById('submitRecipeBtn').innerText = 'Uložit změny';
+            document.getElementById('cancelEditRecipeBtn').classList.remove('hidden');
+            
+            // Odscrollování nahoru k formuláři
+            window.scrollTo({ top: document.getElementById('admin-recipe-form').offsetTop - 20, behavior: 'smooth' });
+        };
+
+        window.cancelEditRecipe = () => {
+            document.getElementById('recipeFormTitle').innerText = "Sdílet nový recept";
+            document.getElementById('edit_recipe_id').value = '';
+            document.getElementById('recipeForm').reset();
+            document.getElementById('submitRecipeBtn').innerText = 'Přidat';
+            document.getElementById('cancelEditRecipeBtn').classList.add('hidden');
         };
 
         const getBranch = (email) => {
@@ -1110,16 +1144,33 @@
 
         document.getElementById('recipeForm').addEventListener('submit', async (e) => {
             e.preventDefault(); 
-            await addDoc(collection(db, "recipes"), { 
+            const editId = document.getElementById('edit_recipe_id').value;
+            const recipeData = {
                 bean: document.getElementById('rec_bean').value, 
                 method: document.getElementById('rec_method').value, 
                 ratio: document.getElementById('rec_ratio').value, 
-                steps: document.getElementById('rec_steps').value, 
-                author: currentUser.email,
-                isCurrent: false,
-                branch: currentBranch 
-            }); 
-            e.target.reset();
+                steps: document.getElementById('rec_steps').value
+            };
+
+            try {
+                if (editId) {
+                    // Update existujícího receptu
+                    await updateDoc(doc(db, "recipes", editId), recipeData);
+                    window.cancelEditRecipe(); // Vyčistí formulář
+                } else {
+                    // Vytvoření nového
+                    await addDoc(collection(db, "recipes"), { 
+                        ...recipeData,
+                        author: currentUser.email,
+                        isCurrent: false,
+                        branch: currentBranch 
+                    }); 
+                    e.target.reset();
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Chyba při ukládání receptu.");
+            }
         });
 
         document.getElementById('evalForm').addEventListener('submit', async (e) => {
