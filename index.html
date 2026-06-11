@@ -193,6 +193,7 @@
         </header>
 
         <section id="tab-cupping" class="tab-content">
+            
             <div id="leaderboardContainer" class="mb-10 hidden">
                 <h2 class="font-extrabold uppercase mb-4 text-theme-text flex items-center gap-2"><span class="text-2xl">🏆</span> Síň slávy (Top Kalibrace)</h2>
                 <div id="leaderboardList" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
@@ -523,7 +524,8 @@
             if(!list) return;
             list.innerHTML = '';
             
-            let recipesArr = window.globalRecipes.filter(r => r.branch === currentBranch || currentBranch === "Osobní účet" || !r.branch);
+            // FILTR: Povolí se jen recepty, které jsou pro aktuální pobočku, nebo pokud jsi na "Osobní účet"
+            let recipesArr = window.globalRecipes.filter(r => r.branch === currentBranch || currentBranch === "Osobní účet");
             
             recipesArr.sort((a, b) => (b.isCurrent ? 1 : 0) - (a.isCurrent ? 1 : 0));
 
