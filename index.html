@@ -123,7 +123,6 @@
             color: var(--t-accent);
         }
 
-        /* Tagy pro hodnocení cuppingu */
         .tag-btn { 
             border: var(--t-border-w) solid var(--t-border); 
             color: var(--t-text); 
@@ -175,7 +174,7 @@
     <div id="mainApp" class="max-w-6xl mx-auto p-6 md:p-12 hidden">
         <header class="mb-8 flex flex-col md:flex-row justify-between items-center border-b border-theme-border pb-6 gap-6">
             <h1 class="text-3xl font-extrabold uppercase tracking-tight text-theme-text">Poppy Beans</h1>
-            <nav class="flex gap-1 text-[11px] md:text-xs uppercase tracking-widest font-bold overflow-x-auto w-full md:w-auto hide-scroll bg-theme-border/20 p-2 rounded-theme items-center border-theme border-theme-border">
+            <nav id="mainNav" class="flex gap-1 text-[11px] md:text-xs uppercase tracking-widest font-bold overflow-x-auto w-full md:w-auto hide-scroll bg-theme-border/20 p-2 rounded-theme items-center border-theme border-theme-border">
                 <button onclick="switchTab('tab-cupping')" id="btn-tab-cupping" class="tab-active px-5 py-2 whitespace-nowrap">Cuppingy</button>
                 <button onclick="switchTab('tab-kavy')" id="btn-tab-kavy" class="tab-inactive px-5 py-2 whitespace-nowrap">Výběr Kávy</button>
                 <button onclick="switchTab('tab-recepty')" id="btn-tab-recepty" class="tab-inactive px-5 py-2 whitespace-nowrap">Recepty</button>
@@ -194,11 +193,9 @@
         </header>
 
         <section id="tab-cupping" class="tab-content">
-            
             <div id="leaderboardContainer" class="mb-10 hidden">
                 <h2 class="font-extrabold uppercase mb-4 text-theme-text flex items-center gap-2"><span class="text-2xl">🏆</span> Síň slávy (Top Kalibrace)</h2>
-                <div id="leaderboardList" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    </div>
+                <div id="leaderboardList" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
             </div>
 
             <div id="admin-cupping-form" class="bg-theme-surface p-8 border-theme border-theme-border rounded-theme shadow-theme mb-10 hidden">
@@ -430,19 +427,13 @@
         let currentUser = null;
         let isAdmin = false;
         let myChartInstance = null;
-        
         let currentBranch = "Osobní účet"; 
-        
-        window.globalCuppings = {}; 
-        window.currentResultsScores = [];
-        let globalAllScores = []; // Paměť pro všechny scores kvůli žebříčku
+        let globalAllScores = []; 
 
-        // --- VYKRESLENÍ LEADERBOARDU ---
         window.renderLeaderboard = () => {
             let wins = {};
             let grouped = {};
             
-            // Seskupení score podle cuppingu a vzorku
             globalAllScores.forEach(s => {
                 let key = s.cuppingId + '_' + s.sample;
                 if(!grouped[key]) grouped[key] = [];
@@ -491,7 +482,6 @@
             lbContainer.classList.remove('hidden');
             
             const medals = ['🥇', '🥈', '🥉'];
-            // Barvy medailí se přizpůsobí světlému/tmavému tématu (Krok vs Poppy)
             const borders = ['border-yellow-500', 'border-slate-400', 'border-amber-700'];
             const bgColors = ['bg-yellow-500/10', 'bg-slate-400/10', 'bg-amber-700/10'];
 
@@ -527,6 +517,41 @@
             loadChecklists();
         });
 
+        // --- SKRÝVÁNÍ ZÁLOŽEK PODLE ROLE ---
+        const updateNavVisibility = () => {
+            const btns = {
+                cupping: document.getElementById('btn-tab-cupping'),
+                kavy: document.getElementById('btn-tab-kavy'),
+                recepty: document.getElementById('btn-tab-recepty'),
+                advisor: document.getElementById('btn-tab-advisor'),
+                maintenance: document.getElementById('btn-tab-maintenance'),
+                checklists: document.getElementById('btn-tab-checklists')
+            };
+
+            if (isAdmin) {
+                Object.values(btns).forEach(b => b.classList.remove('hidden'));
+                window.switchTab('tab-checklists');
+            } else if (currentBranch !== "Osobní účet") {
+                // Tablety na baru
+                btns.cupping.classList.add('hidden');
+                btns.kavy.classList.add('hidden');
+                btns.recepty.classList.remove('hidden');
+                btns.advisor.classList.remove('hidden');
+                btns.maintenance.classList.remove('hidden');
+                btns.checklists.classList.remove('hidden');
+                window.switchTab('tab-checklists');
+            } else {
+                // Osobní mobily baristů
+                btns.cupping.classList.remove('hidden');
+                btns.kavy.classList.remove('hidden');
+                btns.recepty.classList.remove('hidden');
+                btns.advisor.classList.remove('hidden');
+                btns.maintenance.classList.add('hidden');
+                btns.checklists.classList.add('hidden');
+                window.switchTab('tab-cupping');
+            }
+        };
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
@@ -551,10 +576,11 @@
                     document.getElementById('admin-cupping-form').classList.add('hidden');
                     document.getElementById('admin-coffee-form').classList.add('hidden');
                     document.getElementById('admin-recipe-form').classList.add('hidden');
-                    document.getElementById('admin-maintenance-form').classList.remove('hidden'); 
+                    document.getElementById('admin-maintenance-form').classList.add('hidden'); 
                 }
 
                 applyTheme(currentBranch);
+                updateNavVisibility();
 
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
@@ -589,22 +615,26 @@
         window.switchTab = (tabId) => {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(tabId).classList.remove('hidden');
-            document.querySelectorAll('nav button').forEach(btn => {
-                btn.classList.replace('tab-active', 'tab-inactive');
+            
+            // Odstranění z dříve aktivních, přidání na ten aktuálně kliknutý (pouze ty viditelné)
+            document.querySelectorAll('#mainNav button').forEach(btn => {
+                btn.classList.remove('tab-active');
+                btn.classList.add('tab-inactive');
             });
             const activeBtn = document.getElementById('btn-' + tabId);
-            activeBtn.classList.replace('tab-inactive', 'tab-active');
+            if(activeBtn) {
+                activeBtn.classList.remove('tab-inactive');
+                activeBtn.classList.add('tab-active');
+            }
         };
 
         function loadData() {
-            // GLOBÁLNÍ SCORES PRO LEADERBOARD
             onSnapshot(collection(db, "cuppingScores"), (sn) => {
                 globalAllScores = [];
                 sn.forEach(d => globalAllScores.push(d.data()));
                 if(typeof window.renderLeaderboard === 'function') window.renderLeaderboard();
             });
 
-            // CUPPINGY
             onSnapshot(collection(db, "cuppings"), (sn) => {
                 const list = document.getElementById('cuppingList');
                 list.innerHTML = '';
@@ -819,7 +849,6 @@
             let totals = { aroma: 0, acidity: 0, sweetness: 0, body: 0, aftertaste: 0 };
             let tagCounts = {};
             
-            // --- ALGORITMUS PRO VÝHERCE KALIBRACE (Pouze z číselných hodnot) ---
             const adminScore = filteredScores.find(s => s.userEmail === ADMIN_EMAIL);
             let winnerHtml = '';
 
@@ -856,7 +885,6 @@
                     `;
                 }
             }
-            // ---------------------------------------------------------------------
 
             let resultsHtml = filteredScores.map(s => {
                 totals.aroma += s.aroma; totals.acidity += s.acidity; totals.sweetness += s.sweetness; totals.body += s.body; totals.aftertaste += s.aftertaste;
