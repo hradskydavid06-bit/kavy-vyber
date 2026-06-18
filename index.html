@@ -482,6 +482,21 @@
         window.currentResultsScores = [];
         window.globalRecipes = [];
 
+        // PŘEKLADAČ STARÝCH DAT
+        const normalizeScore = (s) => {
+            if (s.aroma_int === undefined && s.aroma !== undefined) {
+                return {
+                    ...s,
+                    aroma_int: s.aroma, aroma_qual: s.aroma,
+                    acid_int: s.acidity, acid_qual: s.acidity,
+                    sweet_int: s.sweetness, sweet_qual: s.sweetness,
+                    body_int: s.body, body_qual: s.body,
+                    after_int: s.aftertaste, after_qual: s.aftertaste
+                };
+            }
+            return s;
+        };
+
         window.renderLeaderboard = () => {
             let wins = {};
             let grouped = {};
@@ -495,13 +510,13 @@
             for(let key in grouped) {
                 let scores = grouped[key];
                 let adminScore = scores.find(s => s.userEmail === ADMIN_EMAIL);
-                if(!adminScore || adminScore.aroma_int === undefined) continue; // Přeskočí staré formáty
+                if(!adminScore) continue;
 
                 let bestMatch = null;
                 let highestScore = -1;
 
                 scores.forEach(s => {
-                    if(s.userEmail === ADMIN_EMAIL || s.aroma_int === undefined) return;
+                    if(s.userEmail === ADMIN_EMAIL) return;
                     
                     // 10 posuvníků, max rozdíl 100 bodů
                     let diff = Math.abs(adminScore.aroma_int - s.aroma_int) + Math.abs(adminScore.aroma_qual - s.aroma_qual) +
@@ -785,7 +800,8 @@
         function loadData() {
             onSnapshot(collection(db, "cuppingScores"), (sn) => {
                 globalAllScores = [];
-                sn.forEach(d => globalAllScores.push(d.data()));
+                // ZDE NORMALIZUJEME STARÁ DATA HNED PŘI NAČTENÍ Z DATABÁZE
+                sn.forEach(d => globalAllScores.push(normalizeScore(d.data())));
                 if(typeof window.renderLeaderboard === 'function') window.renderLeaderboard();
             });
 
@@ -969,7 +985,10 @@
             const querySnapshot = await getDocs(q);
             
             window.currentResultsScores = [];
-            querySnapshot.forEach((doc) => window.currentResultsScores.push(doc.data()));
+            querySnapshot.forEach((doc) => {
+                // OPĚT NORMALIZUJEME STARÁ DATA
+                window.currentResultsScores.push(normalizeScore(doc.data()));
+            });
 
             if(samples.length > 0) {
                 renderChartAndList(samples[0]);
@@ -981,10 +1000,11 @@
         window.renderChartAndList = (sampleName) => {
             const indResultsDiv = document.getElementById('individualResults');
             const topTagsContainer = document.getElementById('topTagsContainer');
-            const filteredScores = window.currentResultsScores.filter(s => s.sample === sampleName && s.aroma_int !== undefined);
+            // ODEBRÁN FILTR na s.aroma_int !== undefined, data už jsou znormalizovaná
+            const filteredScores = window.currentResultsScores.filter(s => s.sample === sampleName);
 
             if (filteredScores.length === 0) {
-                indResultsDiv.innerHTML = '<div class="text-[10px] font-bold text-theme-text uppercase tracking-widest border-theme border-theme-border bg-theme-bg p-6 rounded-theme">Tuto kávu zatím nikdo nehodnotil novým systémem.</div>';
+                indResultsDiv.innerHTML = '<div class="text-[10px] font-bold text-theme-text uppercase tracking-widest border-theme border-theme-border bg-theme-bg p-6 rounded-theme">Tuto kávu zatím nikdo nehodnotil.</div>';
                 topTagsContainer.innerHTML = '';
                 if(myChartInstance) myChartInstance.destroy();
                 return;
