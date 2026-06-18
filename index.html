@@ -35,7 +35,7 @@
         }
     </script>
     <style>
-        /* TÉMA: POPPY BEANS (Měkké, Hřejivé, Zaoblené) */
+        /* TÉMA: POPPY BEANS */
         :root {
             --t-accent: #b91c1c; 
             --t-bg: #fafafa; 
@@ -50,7 +50,7 @@
             --t-shadow: 0 10px 25px -5px rgba(185, 28, 28, 0.08); 
         }
 
-        /* TÉMA: KROK (Ostré, Minimalistické, Brutalistní) */
+        /* TÉMA: KROK */
         body.theme-krok {
             --t-accent: #000000; 
             --t-bg: #f4f4f5; 
@@ -145,6 +145,8 @@
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: var(--t-accent); cursor: pointer; margin-top: -6px; border: 2px solid var(--t-surface); }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: var(--t-border); border-radius: 2px; }
+        
+        .score-block { background: var(--t-bg); padding: 12px; border-radius: var(--t-radius); border: 1px solid var(--t-border); margin-bottom: 12px; }
     </style>
     <link rel="manifest" href="manifest.json">
     <script>
@@ -155,6 +157,7 @@
 </head>
 <body class="font-sans min-h-screen antialiased">
 
+    <!-- LOGIN SCREEN -->
     <div id="loginScreen" class="flex flex-col items-center justify-center min-h-screen p-6 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-2 bg-theme-accent"></div>
         <div class="bg-theme-surface p-10 border-theme border-theme-border rounded-theme shadow-theme max-w-md w-full">
@@ -171,6 +174,7 @@
         </div>
     </div>
 
+    <!-- MAIN APP -->
     <div id="mainApp" class="max-w-6xl mx-auto p-6 md:p-12 hidden">
         <header class="mb-8 flex flex-col md:flex-row justify-between items-center border-b border-theme-border pb-6 gap-6">
             <h1 class="text-3xl font-extrabold uppercase tracking-tight text-theme-text">Poppy Beans</h1>
@@ -192,6 +196,7 @@
             </div>
         </header>
 
+        <!-- ZÁLOŽKA: CUPPINGY -->
         <section id="tab-cupping" class="tab-content">
             
             <div id="leaderboardContainer" class="mb-10 hidden">
@@ -223,6 +228,7 @@
             <div id="cuppingList" class="grid grid-cols-1 gap-8"></div>
         </section>
 
+        <!-- ZÁLOŽKA: VÝBĚR KÁVY -->
         <section id="tab-kavy" class="tab-content hidden">
             <div id="admin-coffee-form" class="bg-theme-surface p-8 border-theme border-theme-border rounded-theme shadow-theme mb-10 hidden">
                 <h2 class="font-bold uppercase mb-6 text-theme-accent text-sm">Nový výběrový set (3 vzorky)</h2>
@@ -239,6 +245,7 @@
             <div id="roasteryList" class="space-y-10"></div>
         </section>
 
+        <!-- ZÁLOŽKA: RECEPTY -->
         <section id="tab-recepty" class="tab-content hidden">
             <div id="admin-recipe-form" class="bg-theme-surface p-8 border-theme border-theme-border rounded-theme shadow-theme mb-10 hidden transition-all">
                 <h2 id="recipeFormTitle" class="font-bold uppercase mb-4 text-theme-accent">Sdílet nový recept</h2>
@@ -262,6 +269,7 @@
             <div id="recipeList" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
         </section>
 
+        <!-- ZÁLOŽKA: RÁDCE -->
         <section id="tab-advisor" class="tab-content hidden">
             <div class="max-w-3xl mx-auto">
                 <div class="bg-theme-surface p-10 border-theme border-theme-border rounded-theme shadow-theme mb-8 text-center">
@@ -293,6 +301,7 @@
             </div>
         </section>
 
+        <!-- ZÁLOŽKA: ÚDRŽBA -->
         <section id="tab-maintenance" class="tab-content hidden bg-theme-darkBg p-8 rounded-theme border-theme border-theme-border mt-8 shadow-theme">
             <h2 class="text-2xl font-bold mb-6 text-white">🛠 Deník údržby techniky</h2>
             
@@ -309,6 +318,7 @@
             </div>
         </section>
 
+        <!-- ZÁLOŽKA: SMĚNY (CHECK-LISTY) -->
         <section id="tab-checklists" class="tab-content hidden bg-theme-darkBg p-8 rounded-theme border-theme border-theme-border mt-8 shadow-theme">
             <h2 class="text-2xl font-bold mb-8 text-white">📋 Otevírací a Zavírací Check-listy</h2>
             
@@ -346,29 +356,54 @@
         </section>
     </div>
 
+    <!-- MODAL HODNOCENÍ -->
     <div id="evalModal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-theme-surface max-w-md w-full p-8 border-theme border-theme-border rounded-theme shadow-theme relative max-h-[95vh] overflow-y-auto hide-scroll">
+        <div class="bg-theme-surface max-w-md w-full p-6 border-theme border-theme-border rounded-theme shadow-theme relative max-h-[95vh] overflow-y-auto hide-scroll">
             <button onclick="closeModal('evalModal')" class="absolute top-4 right-4 text-theme-muted hover:text-theme-accent font-bold uppercase text-xs">Zavřít ✕</button>
-            <h2 class="text-xl font-extrabold uppercase mb-6 border-b border-theme-border pb-4 text-theme-text">Hodnocení Vzorku</h2>
+            <h2 class="text-xl font-extrabold uppercase mb-4 border-b border-theme-border pb-4 text-theme-text">Hodnocení Vzorku</h2>
             
-            <form id="evalForm" class="space-y-6">
+            <form id="evalForm" class="space-y-4">
                 <input type="hidden" id="eval_cuppingId">
                 <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-2">Vyber kávu, kterou hodnotíš:</label>
-                    <select id="eval_sample" class="input-minimal text-sm font-bold bg-theme-bg border-theme-base">
-                        </select>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-2">Vyber kávu:</label>
+                    <select id="eval_sample" class="input-minimal text-sm font-bold bg-theme-bg border-theme-base"></select>
                 </div>
 
-                <div class="space-y-5 pt-4 border-t border-theme-border">
-                    <div><div class="flex justify-between text-xs font-bold uppercase mb-2 text-theme-text"><span>Aroma</span><span id="val_aroma" class="text-theme-accent">5</span></div><input type="range" id="sl_aroma" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_aroma').innerText=this.value"></div>
-                    <div><div class="flex justify-between text-xs font-bold uppercase mb-2 text-theme-text"><span>Acidita</span><span id="val_acid" class="text-theme-accent">5</span></div><input type="range" id="sl_acid" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_acid').innerText=this.value"></div>
-                    <div><div class="flex justify-between text-xs font-bold uppercase mb-2 text-theme-text"><span>Sladkost</span><span id="val_sweet" class="text-theme-accent">5</span></div><input type="range" id="sl_sweet" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_sweet').innerText=this.value"></div>
-                    <div><div class="flex justify-between text-xs font-bold uppercase mb-2 text-theme-text"><span>Tělo</span><span id="val_body" class="text-theme-accent">5</span></div><input type="range" id="sl_body" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_body').innerText=this.value"></div>
-                    <div><div class="flex justify-between text-xs font-bold uppercase mb-2 text-theme-text"><span>Dochůť</span><span id="val_after" class="text-theme-accent">5</span></div><input type="range" id="sl_after" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_after').innerText=this.value"></div>
+                <div class="pt-2">
+                    <!-- AROMA -->
+                    <div class="score-block">
+                        <div class="text-xs font-bold uppercase tracking-widest mb-3 text-theme-text flex justify-between"><span>Aroma</span></div>
+                        <div class="flex items-center gap-3 mb-2"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Intenzita</span><input type="range" id="sl_aroma_int" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_ar_i').innerText=this.value"><span id="val_ar_i" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
+                        <div class="flex items-center gap-3"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Kvalita</span><input type="range" id="sl_aroma_qual" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_ar_q').innerText=this.value"><span id="val_ar_q" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
+                    </div>
+                    <!-- ACIDITA -->
+                    <div class="score-block">
+                        <div class="text-xs font-bold uppercase tracking-widest mb-3 text-theme-text flex justify-between"><span>Acidita</span></div>
+                        <div class="flex items-center gap-3 mb-2"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Intenzita</span><input type="range" id="sl_acid_int" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_ac_i').innerText=this.value"><span id="val_ac_i" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
+                        <div class="flex items-center gap-3"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Kvalita</span><input type="range" id="sl_acid_qual" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_ac_q').innerText=this.value"><span id="val_ac_q" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
+                    </div>
+                    <!-- SLADKOST -->
+                    <div class="score-block">
+                        <div class="text-xs font-bold uppercase tracking-widest mb-3 text-theme-text flex justify-between"><span>Sladkost</span></div>
+                        <div class="flex items-center gap-3 mb-2"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Intenzita</span><input type="range" id="sl_sweet_int" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_sw_i').innerText=this.value"><span id="val_sw_i" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
+                        <div class="flex items-center gap-3"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Kvalita</span><input type="range" id="sl_sweet_qual" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_sw_q').innerText=this.value"><span id="val_sw_q" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
+                    </div>
+                    <!-- TĚLO -->
+                    <div class="score-block">
+                        <div class="text-xs font-bold uppercase tracking-widest mb-3 text-theme-text flex justify-between"><span>Tělo (Body)</span></div>
+                        <div class="flex items-center gap-3 mb-2"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Intenzita</span><input type="range" id="sl_body_int" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_bd_i').innerText=this.value"><span id="val_bd_i" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
+                        <div class="flex items-center gap-3"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Kvalita</span><input type="range" id="sl_body_qual" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_bd_q').innerText=this.value"><span id="val_bd_q" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
+                    </div>
+                    <!-- DOCHŮŤ -->
+                    <div class="score-block">
+                        <div class="text-xs font-bold uppercase tracking-widest mb-3 text-theme-text flex justify-between"><span>Dochůť</span></div>
+                        <div class="flex items-center gap-3 mb-2"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Délka</span><input type="range" id="sl_after_int" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_af_i').innerText=this.value"><span id="val_af_i" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
+                        <div class="flex items-center gap-3"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Kvalita</span><input type="range" id="sl_after_qual" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_af_q').innerText=this.value"><span id="val_af_q" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
+                    </div>
                 </div>
 
-                <div class="pt-4 border-t border-theme-border">
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-3">Chuťový profil (Co cítíš?)</label>
+                <div class="pt-2 border-t border-theme-border">
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-3">Chuťový profil</label>
                     <div class="flex flex-wrap gap-2" id="flavorTagsContainer">
                         <button type="button" class="tag-btn" onclick="this.classList.toggle('selected')">Květiny</button>
                         <button type="button" class="tag-btn" onclick="this.classList.toggle('selected')">Bobule</button>
@@ -389,6 +424,7 @@
         </div>
     </div>
 
+    <!-- MODAL VÝSLEDKY -->
     <div id="resultsModal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-theme-surface max-w-4xl w-full max-h-[90vh] overflow-y-auto p-8 border-theme border-theme-border rounded-theme shadow-theme relative">
             <button onclick="closeModal('resultsModal')" class="absolute top-4 right-4 text-theme-muted hover:text-theme-accent font-bold uppercase text-xs">Zavřít ✕</button>
@@ -401,7 +437,8 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div id="chartContainerDiv" class="bg-theme-bg p-8 border-theme border-theme-border rounded-theme flex flex-col items-center justify-start">
-                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-6 text-center">Průměrný profil této kávy</h3>
+                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-2 text-center">Průměrný profil kávy</h3>
+                    <div class="text-[9px] text-theme-muted mb-6 flex gap-4"><span class="flex items-center gap-1"><span class="w-3 h-3 bg-theme-accent rounded-full inline-block"></span> Kvalita</span> <span class="flex items-center gap-1"><span class="w-3 h-3 border border-dashed border-gray-500 rounded-full inline-block"></span> Intenzita</span></div>
                     <div class="w-full max-w-[300px] mb-4"><canvas id="radarChart"></canvas></div>
                     <div id="topTagsContainer" class="w-full"></div>
                 </div>
@@ -433,9 +470,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         
-        const db = initializeFirestore(app, {
-            experimentalForceLongPolling: true
-        });
+        const db = initializeFirestore(app, { experimentalForceLongPolling: true });
 
         let currentUser = null;
         let isAdmin = false;
@@ -460,21 +495,22 @@
             for(let key in grouped) {
                 let scores = grouped[key];
                 let adminScore = scores.find(s => s.userEmail === ADMIN_EMAIL);
-                if(!adminScore) continue;
+                if(!adminScore || adminScore.aroma_int === undefined) continue; // Přeskočí staré formáty
 
                 let bestMatch = null;
                 let highestScore = -1;
 
                 scores.forEach(s => {
-                    if(s.userEmail === ADMIN_EMAIL) return;
+                    if(s.userEmail === ADMIN_EMAIL || s.aroma_int === undefined) return;
                     
-                    let diff = Math.abs(adminScore.aroma - s.aroma) +
-                               Math.abs(adminScore.acidity - s.acidity) +
-                               Math.abs(adminScore.sweetness - s.sweetness) +
-                               Math.abs(adminScore.body - s.body) +
-                               Math.abs(adminScore.aftertaste - s.aftertaste);
+                    // 10 posuvníků, max rozdíl 100 bodů
+                    let diff = Math.abs(adminScore.aroma_int - s.aroma_int) + Math.abs(adminScore.aroma_qual - s.aroma_qual) +
+                               Math.abs(adminScore.acid_int - s.acid_int) + Math.abs(adminScore.acid_qual - s.acid_qual) +
+                               Math.abs(adminScore.sweet_int - s.sweet_int) + Math.abs(adminScore.sweet_qual - s.sweet_qual) +
+                               Math.abs(adminScore.body_int - s.body_int) + Math.abs(adminScore.body_qual - s.body_qual) +
+                               Math.abs(adminScore.after_int - s.after_int) + Math.abs(adminScore.after_qual - s.after_qual);
                     
-                    let numMatch = 100 - ((diff / 50) * 100); 
+                    let numMatch = 100 - ((diff / 100) * 100); 
 
                     let aTags = adminScore.flavorTags || [];
                     let sTags = s.flavorTags || [];
@@ -533,7 +569,6 @@
             if(!list) return;
             list.innerHTML = '';
             
-            // FILTR VYHLEDÁVÁNÍ
             const searchTerm = document.getElementById('searchRecipeInput')?.value.toLowerCase() || '';
 
             let recipesArr = window.globalRecipes.filter(r => r.branch === currentBranch || currentBranch === "Osobní účet");
@@ -905,10 +940,15 @@
             select.innerHTML = samples.map(s => `<option value="${s}">${s}</option>`).join('');
 
             document.getElementById('evalForm').reset();
-            ['aroma', 'acid', 'sweet', 'body', 'after'].forEach(i => {
+            ['aroma_int', 'aroma_qual', 'acid_int', 'acid_qual', 'sweet_int', 'sweet_qual', 'body_int', 'body_qual', 'after_int', 'after_qual'].forEach(i => {
                 document.getElementById(`sl_${i}`).value = 5;
-                document.getElementById(`val_${i}`).innerText = "5";
             });
+            // Reset text values
+            document.getElementById('val_ar_i').innerText = "5"; document.getElementById('val_ar_q').innerText = "5";
+            document.getElementById('val_ac_i').innerText = "5"; document.getElementById('val_ac_q').innerText = "5";
+            document.getElementById('val_sw_i').innerText = "5"; document.getElementById('val_sw_q').innerText = "5";
+            document.getElementById('val_bd_i').innerText = "5"; document.getElementById('val_bd_q').innerText = "5";
+            document.getElementById('val_af_i').innerText = "5"; document.getElementById('val_af_q').innerText = "5";
             
             document.querySelectorAll('#flavorTagsContainer .tag-btn.selected').forEach(btn => btn.classList.remove('selected'));
             
@@ -941,16 +981,20 @@
         window.renderChartAndList = (sampleName) => {
             const indResultsDiv = document.getElementById('individualResults');
             const topTagsContainer = document.getElementById('topTagsContainer');
-            const filteredScores = window.currentResultsScores.filter(s => s.sample === sampleName);
+            const filteredScores = window.currentResultsScores.filter(s => s.sample === sampleName && s.aroma_int !== undefined);
 
             if (filteredScores.length === 0) {
-                indResultsDiv.innerHTML = '<div class="text-[10px] font-bold text-theme-text uppercase tracking-widest border-theme border-theme-border bg-theme-bg p-6 rounded-theme">Tuto kávu zatím nikdo nehodnotil.</div>';
+                indResultsDiv.innerHTML = '<div class="text-[10px] font-bold text-theme-text uppercase tracking-widest border-theme border-theme-border bg-theme-bg p-6 rounded-theme">Tuto kávu zatím nikdo nehodnotil novým systémem.</div>';
                 topTagsContainer.innerHTML = '';
                 if(myChartInstance) myChartInstance.destroy();
                 return;
             }
 
-            let totals = { aroma: 0, acidity: 0, sweetness: 0, body: 0, aftertaste: 0 };
+            let totals = { 
+                a_i: 0, a_q: 0, ac_i: 0, ac_q: 0, 
+                sw_i: 0, sw_q: 0, b_i: 0, b_q: 0, 
+                af_i: 0, af_q: 0 
+            };
             let tagCounts = {};
             
             const adminScore = filteredScores.find(s => s.userEmail === ADMIN_EMAIL);
@@ -963,13 +1007,13 @@
                 filteredScores.forEach(s => {
                     if (s.userEmail === ADMIN_EMAIL) return; 
 
-                    let diff = Math.abs(adminScore.aroma - s.aroma) +
-                               Math.abs(adminScore.acidity - s.acidity) +
-                               Math.abs(adminScore.sweetness - s.sweetness) +
-                               Math.abs(adminScore.body - s.body) +
-                               Math.abs(adminScore.aftertaste - s.aftertaste);
+                    let diff = Math.abs(adminScore.aroma_int - s.aroma_int) + Math.abs(adminScore.aroma_qual - s.aroma_qual) +
+                               Math.abs(adminScore.acid_int - s.acid_int) + Math.abs(adminScore.acid_qual - s.acid_qual) +
+                               Math.abs(adminScore.sweet_int - s.sweet_int) + Math.abs(adminScore.sweet_qual - s.sweet_qual) +
+                               Math.abs(adminScore.body_int - s.body_int) + Math.abs(adminScore.body_qual - s.body_qual) +
+                               Math.abs(adminScore.after_int - s.after_int) + Math.abs(adminScore.after_qual - s.after_qual);
                     
-                    let numMatch = 100 - ((diff / 50) * 100); 
+                    let numMatch = 100 - ((diff / 100) * 100); 
 
                     let aTags = adminScore.flavorTags || [];
                     let sTags = s.flavorTags || [];
@@ -1005,12 +1049,14 @@
             }
 
             let resultsHtml = filteredScores.map(s => {
-                totals.aroma += s.aroma; totals.acidity += s.acidity; totals.sweetness += s.sweetness; totals.body += s.body; totals.aftertaste += s.aftertaste;
+                totals.a_i += s.aroma_int; totals.a_q += s.aroma_qual;
+                totals.ac_i += s.acid_int; totals.ac_q += s.acid_qual;
+                totals.sw_i += s.sweet_int; totals.sw_q += s.sweet_qual;
+                totals.b_i += s.body_int; totals.b_q += s.body_qual;
+                totals.af_i += s.after_int; totals.af_q += s.after_qual;
                 
                 if (s.flavorTags && Array.isArray(s.flavorTags)) {
-                    s.flavorTags.forEach(tag => {
-                        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-                    });
+                    s.flavorTags.forEach(tag => { tagCounts[tag] = (tagCounts[tag] || 0) + 1; });
                 }
 
                 const tagsHtml = s.flavorTags && s.flavorTags.length > 0 
@@ -1024,12 +1070,12 @@
                 return `
                     <div class="bg-theme-bg p-5 border-theme border-theme-border rounded-theme ${s.userEmail === ADMIN_EMAIL ? 'border-theme-accent' : ''}">
                         <div class="flex justify-between items-center mb-4 border-b border-theme-border pb-3"><span class="text-xs font-bold text-theme-accent">Barista</span><span class="text-[10px] font-extrabold text-theme-text uppercase tracking-widest">${s.userEmail.split('@')[0]} ${isAdminBadge}</span></div>
-                        <div class="text-[10px] font-bold text-theme-muted grid grid-cols-5 gap-1 text-center">
-                            <div>Aroma<br><span class="text-theme-text text-base">${s.aroma}</span></div>
-                            <div>Acidita<br><span class="text-theme-text text-base">${s.acidity}</span></div>
-                            <div>Sladkost<br><span class="text-theme-text text-base">${s.sweetness}</span></div>
-                            <div>Tělo<br><span class="text-theme-text text-base">${s.body}</span></div>
-                            <div>Dochůť<br><span class="text-theme-text text-base">${s.aftertaste}</span></div>
+                        <div class="text-[10px] font-bold text-theme-muted grid grid-cols-5 gap-2 text-center">
+                            <div>Aroma<br><span class="text-theme-text text-sm">I: ${s.aroma_int}</span><br><span class="text-theme-text text-sm">K: ${s.aroma_qual}</span></div>
+                            <div>Acidita<br><span class="text-theme-text text-sm">I: ${s.acid_int}</span><br><span class="text-theme-text text-sm">K: ${s.acid_qual}</span></div>
+                            <div>Sladk.<br><span class="text-theme-text text-sm">I: ${s.sweet_int}</span><br><span class="text-theme-text text-sm">K: ${s.sweet_qual}</span></div>
+                            <div>Tělo<br><span class="text-theme-text text-sm">I: ${s.body_int}</span><br><span class="text-theme-text text-sm">K: ${s.body_qual}</span></div>
+                            <div>Dochůť<br><span class="text-theme-text text-sm">D: ${s.after_int}</span><br><span class="text-theme-text text-sm">K: ${s.after_qual}</span></div>
                         </div>
                         ${tagsHtml}
                         ${s.note ? `<div class="mt-4 text-xs italic bg-theme-surface p-3 border-theme border-theme-border rounded-theme text-theme-text">"${s.note}"</div>` : ''}
@@ -1054,19 +1100,23 @@
             }
 
             const count = filteredScores.length;
-            const avgData = [ totals.aroma/count, totals.acidity/count, totals.sweetness/count, totals.body/count, totals.aftertaste/count ];
+            const avgIntData = [ totals.a_i/count, totals.ac_i/count, totals.sw_i/count, totals.b_i/count, totals.af_i/count ];
+            const avgQualData = [ totals.a_q/count, totals.ac_q/count, totals.sw_q/count, totals.b_q/count, totals.af_q/count ];
             
             const ctx = document.getElementById('radarChart').getContext('2d');
             if(myChartInstance) myChartInstance.destroy(); 
             
             const accentHex = currentBranch === "Krok" ? '#000000' : '#b91c1c';
-            const accentRgba = currentBranch === "Krok" ? 'rgba(0, 0, 0, 0.1)' : 'rgba(185, 28, 28, 0.2)';
+            const accentRgba = currentBranch === "Krok" ? 'rgba(0, 0, 0, 0.2)' : 'rgba(185, 28, 28, 0.2)';
 
             myChartInstance = new Chart(ctx, {
                 type: 'radar',
                 data: {
                     labels: ['Aroma', 'Acidita', 'Sladkost', 'Tělo', 'Dochůť'],
-                    datasets: [{ label: 'Průměr hodnocení', data: avgData, backgroundColor: accentRgba, borderColor: accentHex, pointBackgroundColor: '#09090b', borderWidth: currentBranch === "Krok" ? 3 : 2 }]
+                    datasets: [
+                        { label: 'Kvalita', data: avgQualData, backgroundColor: accentRgba, borderColor: accentHex, pointBackgroundColor: accentHex, borderWidth: currentBranch === "Krok" ? 3 : 2 },
+                        { label: 'Intenzita', data: avgIntData, backgroundColor: 'transparent', borderColor: '#71717a', pointBackgroundColor: '#71717a', borderDash: [5, 5], borderWidth: 2 }
+                    ]
                 },
                 options: { scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } }, plugins: { legend: { display: false } } }
             });
@@ -1087,7 +1137,6 @@
             diag.innerText = dt; sol.innerHTML = st; resBox.classList.remove('hidden');
         };
 
-        // --- FORM SUBMITS ---
         document.getElementById('cuppingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const sampleInputs = document.querySelectorAll('.sample-input');
@@ -1196,11 +1245,22 @@
                 cuppingId: document.getElementById('eval_cuppingId').value, 
                 userEmail: currentUser.email, 
                 sample: document.getElementById('eval_sample').value, 
-                aroma: parseFloat(document.getElementById('sl_aroma').value), 
-                acidity: parseFloat(document.getElementById('sl_acid').value), 
-                sweetness: parseFloat(document.getElementById('sl_sweet').value), 
-                body: parseFloat(document.getElementById('sl_body').value), 
-                aftertaste: parseFloat(document.getElementById('sl_after').value), 
+                
+                aroma_int: parseFloat(document.getElementById('sl_aroma_int').value), 
+                aroma_qual: parseFloat(document.getElementById('sl_aroma_qual').value), 
+                
+                acid_int: parseFloat(document.getElementById('sl_acid_int').value), 
+                acid_qual: parseFloat(document.getElementById('sl_acid_qual').value), 
+                
+                sweet_int: parseFloat(document.getElementById('sl_sweet_int').value), 
+                sweet_qual: parseFloat(document.getElementById('sl_sweet_qual').value), 
+                
+                body_int: parseFloat(document.getElementById('sl_body_int').value), 
+                body_qual: parseFloat(document.getElementById('sl_body_qual').value), 
+                
+                after_int: parseFloat(document.getElementById('sl_after_int').value), 
+                after_qual: parseFloat(document.getElementById('sl_after_qual').value), 
+                
                 flavorTags: selectedTags,
                 note: document.getElementById('eval_note').value, 
                 timestamp: new Date() 
@@ -1214,10 +1274,15 @@
                 submitBtn.classList.replace('btn-primary', 'bg-green-600');
                 submitBtn.classList.add('text-white', 'border-green-600');
                 
-                ['aroma', 'acid', 'sweet', 'body', 'after'].forEach(i => {
+                ['aroma_int', 'aroma_qual', 'acid_int', 'acid_qual', 'sweet_int', 'sweet_qual', 'body_int', 'body_qual', 'after_int', 'after_qual'].forEach(i => {
                     document.getElementById(`sl_${i}`).value = 5;
-                    document.getElementById(`val_${i}`).innerText = "5";
                 });
+                document.getElementById('val_ar_i').innerText = "5"; document.getElementById('val_ar_q').innerText = "5";
+                document.getElementById('val_ac_i').innerText = "5"; document.getElementById('val_ac_q').innerText = "5";
+                document.getElementById('val_sw_i').innerText = "5"; document.getElementById('val_sw_q').innerText = "5";
+                document.getElementById('val_bd_i').innerText = "5"; document.getElementById('val_bd_q').innerText = "5";
+                document.getElementById('val_af_i').innerText = "5"; document.getElementById('val_af_q').innerText = "5";
+
                 document.querySelectorAll('#flavorTagsContainer .tag-btn.selected').forEach(btn => btn.classList.remove('selected'));
                 document.getElementById('eval_note').value = "";
                 
