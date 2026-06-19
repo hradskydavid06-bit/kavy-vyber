@@ -198,30 +198,24 @@
 
         <!-- ZÁLOŽKA: CUPPINGY -->
         <section id="tab-cupping" class="tab-content">
-            
             <div id="leaderboardContainer" class="mb-10 hidden">
                 <h2 class="font-extrabold uppercase mb-4 text-theme-text flex items-center gap-2"><span class="text-2xl">🏆</span> Síň slávy (Top Kalibrace)</h2>
                 <div id="leaderboardList" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
             </div>
-
             <div id="admin-cupping-form" class="bg-theme-surface p-8 border-theme border-theme-border rounded-theme shadow-theme mb-10 hidden">
                 <h2 class="font-bold uppercase mb-6 text-theme-accent">Vypsat novou anketu (Cupping)</h2>
                 <form id="cuppingForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <input type="text" id="cup_title" class="input-minimal md:col-span-2 text-lg font-bold" placeholder="Název cuppingu (např. Testování Keni)" required>
                     <input type="date" id="cup_date" class="input-minimal" required>
                     <input type="time" id="cup_time" class="input-minimal" required>
-                    
                     <div class="md:col-span-2 border-theme border-theme-border rounded-theme p-5 bg-theme-bg relative overflow-hidden">
                         <div class="absolute top-0 left-0 w-2 h-full bg-theme-accent"></div>
                         <h3 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-4 ml-2">Předpřipravené vzorky (Nepovinné)</h3>
                         <div id="dynamicSamples" class="space-y-3 mb-4 ml-2">
                             <input type="text" class="input-minimal sample-input text-sm" placeholder="Název kávy 1 (můžeš doplnit až na místě)">
                         </div>
-                        <button type="button" onclick="addSampleField()" class="ml-2 text-xs font-bold uppercase tracking-widest text-theme-text btn-secondary px-4 py-2">
-                            + Přidat další políčko
-                        </button>
+                        <button type="button" onclick="addSampleField()" class="ml-2 text-xs font-bold uppercase tracking-widest text-theme-text btn-secondary px-4 py-2">+ Přidat další políčko</button>
                     </div>
-
                     <button type="submit" class="btn-primary p-4 uppercase tracking-wider text-xs md:col-span-2">Vytvořit událost a otevřít přihlašování</button>
                 </form>
             </div>
@@ -252,7 +246,11 @@
                 <form id="recipeForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <input type="hidden" id="edit_recipe_id" value="">
                     <input type="text" id="rec_bean" class="input-minimal text-sm" placeholder="Káva / Zpracování" required>
-                    <select id="rec_method" class="input-minimal text-sm"><option>V60</option><option>Aeropress</option><option>Espresso</option><option>Chemex</option><option>Batch Brew</option></select>
+                    <select id="rec_method" class="input-minimal text-sm">
+                        <option value="Espresso">Espresso</option>
+                        <option value="V60">V60</option>
+                        <option value="Batch">Batch</option>
+                    </select>
                     <input type="text" id="rec_ratio" class="input-minimal text-sm" placeholder="Ratio (např. 18g/300ml)" required>
                     <div class="flex gap-2">
                         <button type="submit" id="submitRecipeBtn" class="w-full btn-primary p-3 uppercase text-[10px] tracking-wider font-bold">Přidat</button>
@@ -262,8 +260,17 @@
                 </form>
             </div>
             
-            <div class="mb-8 relative">
-                <input type="text" id="searchRecipeInput" oninput="window.renderRecipesList()" class="input-minimal w-full font-bold text-sm bg-theme-bg" placeholder="🔍 Hledat recept (např. Keňa, V60, jméno baristy)...">
+            <!-- FILTRY A VYHLEDÁVÁNÍ RECEPTŮ -->
+            <div class="mb-8 flex flex-col lg:flex-row gap-4">
+                <div class="relative flex-1">
+                    <input type="text" id="searchRecipeInput" oninput="window.renderRecipesList()" class="input-minimal w-full font-bold text-sm bg-theme-bg" placeholder="🔍 Hledat text (Keňa, autor, postup)...">
+                </div>
+                <div class="flex gap-2 overflow-x-auto hide-scroll pb-2 lg:pb-0">
+                    <button type="button" onclick="setRecipeFilter('')" id="filter-all" class="filter-btn btn-primary px-5 py-3 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap">Vše</button>
+                    <button type="button" onclick="setRecipeFilter('Espresso')" id="filter-espresso" class="filter-btn btn-secondary px-5 py-3 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap">Espresso</button>
+                    <button type="button" onclick="setRecipeFilter('V60')" id="filter-v60" class="filter-btn btn-secondary px-5 py-3 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap">V60</button>
+                    <button type="button" onclick="setRecipeFilter('Batch')" id="filter-batch" class="filter-btn btn-secondary px-5 py-3 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap">Batch</button>
+                </div>
             </div>
 
             <div id="recipeList" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
@@ -304,7 +311,6 @@
         <!-- ZÁLOŽKA: ÚDRŽBA -->
         <section id="tab-maintenance" class="tab-content hidden bg-theme-darkBg p-8 rounded-theme border-theme border-theme-border mt-8 shadow-theme">
             <h2 class="text-2xl font-bold mb-6 text-white">🛠 Deník údržby techniky</h2>
-            
             <div id="admin-maintenance-form" class="hidden">
                 <form id="maintenanceForm" class="space-y-4 mb-10">
                     <input type="text" id="maint_task" placeholder="Co jsi udělal? (např. Výměna kamenů mlýnku)" class="w-full p-4 bg-white/10 border-theme border-white/20 rounded-theme text-white placeholder:text-gray-400 focus:outline-none focus:border-white transition-colors" required>
@@ -312,10 +318,7 @@
                     <button type="submit" class="w-full bg-white text-black font-extrabold py-4 rounded-theme hover:bg-gray-200 transition uppercase tracking-widest text-sm">Zapsat údržbu</button>
                 </form>
             </div>
-
-            <div id="maintenanceList" class="space-y-4">
-                <p class="text-gray-400">Načítám záznamy...</p>
-            </div>
+            <div id="maintenanceList" class="space-y-4"><p class="text-gray-400">Načítám záznamy...</p></div>
         </section>
 
         <!-- ZÁLOŽKA: SMĚNY (CHECK-LISTY) -->
@@ -370,31 +373,26 @@
                 </div>
 
                 <div class="pt-2">
-                    <!-- AROMA -->
                     <div class="score-block">
                         <div class="text-xs font-bold uppercase tracking-widest mb-3 text-theme-text flex justify-between"><span>Aroma</span></div>
                         <div class="flex items-center gap-3 mb-2"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Intenzita</span><input type="range" id="sl_aroma_int" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_ar_i').innerText=this.value"><span id="val_ar_i" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
                         <div class="flex items-center gap-3"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Kvalita</span><input type="range" id="sl_aroma_qual" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_ar_q').innerText=this.value"><span id="val_ar_q" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
                     </div>
-                    <!-- ACIDITA -->
                     <div class="score-block">
                         <div class="text-xs font-bold uppercase tracking-widest mb-3 text-theme-text flex justify-between"><span>Acidita</span></div>
                         <div class="flex items-center gap-3 mb-2"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Intenzita</span><input type="range" id="sl_acid_int" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_ac_i').innerText=this.value"><span id="val_ac_i" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
                         <div class="flex items-center gap-3"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Kvalita</span><input type="range" id="sl_acid_qual" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_ac_q').innerText=this.value"><span id="val_ac_q" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
                     </div>
-                    <!-- SLADKOST -->
                     <div class="score-block">
                         <div class="text-xs font-bold uppercase tracking-widest mb-3 text-theme-text flex justify-between"><span>Sladkost</span></div>
                         <div class="flex items-center gap-3 mb-2"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Intenzita</span><input type="range" id="sl_sweet_int" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_sw_i').innerText=this.value"><span id="val_sw_i" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
                         <div class="flex items-center gap-3"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Kvalita</span><input type="range" id="sl_sweet_qual" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_sw_q').innerText=this.value"><span id="val_sw_q" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
                     </div>
-                    <!-- TĚLO -->
                     <div class="score-block">
                         <div class="text-xs font-bold uppercase tracking-widest mb-3 text-theme-text flex justify-between"><span>Tělo (Body)</span></div>
                         <div class="flex items-center gap-3 mb-2"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Intenzita</span><input type="range" id="sl_body_int" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_bd_i').innerText=this.value"><span id="val_bd_i" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
                         <div class="flex items-center gap-3"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Kvalita</span><input type="range" id="sl_body_qual" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_bd_q').innerText=this.value"><span id="val_bd_q" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
                     </div>
-                    <!-- DOCHŮŤ -->
                     <div class="score-block">
                         <div class="text-xs font-bold uppercase tracking-widest mb-3 text-theme-text flex justify-between"><span>Dochůť</span></div>
                         <div class="flex items-center gap-3 mb-2"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Délka</span><input type="range" id="sl_after_int" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_af_i').innerText=this.value"><span id="val_af_i" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
@@ -469,7 +467,6 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        
         const db = initializeFirestore(app, { experimentalForceLongPolling: true });
 
         let currentUser = null;
@@ -481,8 +478,8 @@
         window.globalCuppings = {}; 
         window.currentResultsScores = [];
         window.globalRecipes = [];
+        window.currentRecipeFilter = '';
 
-        // PŘEKLADAČ STARÝCH DAT
         const normalizeScore = (s) => {
             if (s.aroma_int === undefined && s.aroma !== undefined) {
                 return {
@@ -518,7 +515,6 @@
                 scores.forEach(s => {
                     if(s.userEmail === ADMIN_EMAIL) return;
                     
-                    // 10 posuvníků, max rozdíl 100 bodů
                     let diff = Math.abs(adminScore.aroma_int - s.aroma_int) + Math.abs(adminScore.aroma_qual - s.aroma_qual) +
                                Math.abs(adminScore.acid_int - s.acid_int) + Math.abs(adminScore.acid_qual - s.acid_qual) +
                                Math.abs(adminScore.sweet_int - s.sweet_int) + Math.abs(adminScore.sweet_qual - s.sweet_qual) +
@@ -579,19 +575,36 @@
             `).join('');
         };
 
+        window.setRecipeFilter = (method) => {
+            window.currentRecipeFilter = method;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-secondary');
+            });
+            const activeId = method === '' ? 'filter-all' : 'filter-' + method.toLowerCase();
+            const activeBtn = document.getElementById(activeId);
+            if(activeBtn) {
+                activeBtn.classList.remove('btn-secondary');
+                activeBtn.classList.add('btn-primary');
+            }
+            window.renderRecipesList();
+        };
+
         window.renderRecipesList = () => {
             const list = document.getElementById('recipeList');
             if(!list) return;
             list.innerHTML = '';
             
-            const searchTerm = document.getElementById('searchRecipeInput')?.value.toLowerCase() || '';
-
             let recipesArr = window.globalRecipes.filter(r => r.branch === currentBranch || currentBranch === "Osobní účet");
             
+            if (window.currentRecipeFilter !== '') {
+                recipesArr = recipesArr.filter(r => r.method === window.currentRecipeFilter);
+            }
+
+            const searchTerm = document.getElementById('searchRecipeInput')?.value.toLowerCase() || '';
             if (searchTerm !== '') {
                 recipesArr = recipesArr.filter(r => 
                     (r.bean && r.bean.toLowerCase().includes(searchTerm)) ||
-                    (r.method && r.method.toLowerCase().includes(searchTerm)) ||
                     (r.author && r.author.toLowerCase().includes(searchTerm)) ||
                     (r.steps && r.steps.toLowerCase().includes(searchTerm))
                 );
@@ -800,7 +813,6 @@
         function loadData() {
             onSnapshot(collection(db, "cuppingScores"), (sn) => {
                 globalAllScores = [];
-                // ZDE NORMALIZUJEME STARÁ DATA HNED PŘI NAČTENÍ Z DATABÁZE
                 sn.forEach(d => globalAllScores.push(normalizeScore(d.data())));
                 if(typeof window.renderLeaderboard === 'function') window.renderLeaderboard();
             });
@@ -959,7 +971,6 @@
             ['aroma_int', 'aroma_qual', 'acid_int', 'acid_qual', 'sweet_int', 'sweet_qual', 'body_int', 'body_qual', 'after_int', 'after_qual'].forEach(i => {
                 document.getElementById(`sl_${i}`).value = 5;
             });
-            // Reset text values
             document.getElementById('val_ar_i').innerText = "5"; document.getElementById('val_ar_q').innerText = "5";
             document.getElementById('val_ac_i').innerText = "5"; document.getElementById('val_ac_q').innerText = "5";
             document.getElementById('val_sw_i').innerText = "5"; document.getElementById('val_sw_q').innerText = "5";
@@ -986,7 +997,6 @@
             
             window.currentResultsScores = [];
             querySnapshot.forEach((doc) => {
-                // OPĚT NORMALIZUJEME STARÁ DATA
                 window.currentResultsScores.push(normalizeScore(doc.data()));
             });
 
@@ -1000,7 +1010,6 @@
         window.renderChartAndList = (sampleName) => {
             const indResultsDiv = document.getElementById('individualResults');
             const topTagsContainer = document.getElementById('topTagsContainer');
-            // ODEBRÁN FILTR na s.aroma_int !== undefined, data už jsou znormalizovaná
             const filteredScores = window.currentResultsScores.filter(s => s.sample === sampleName);
 
             if (filteredScores.length === 0) {
