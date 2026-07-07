@@ -1,0 +1,66 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if the user is logged in
+    function isLoggedIn() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if the logged-in user is one of the administrators
+    function isAdmin() {
+      return isLoggedIn() && (
+        request.auth.token.email == 'hradskydavid06@gmail.com' || 
+        request.auth.token.email == 'nemec.tereza@seznam.cz'
+      );
+    }
+    
+    // Cuppings (cupping events)
+    match /cuppings/{cuppingId} {
+      allow read: if isLoggedIn();
+      allow write: if isAdmin();
+    }
+    
+    // Cupping Scores (evaluations submitted by baristas)
+    match /cuppingScores/{scoreId} {
+      allow read: if isLoggedIn();
+      // Baristas can only submit evaluations under their own verified email
+      allow create: if isLoggedIn() && request.resource.data.userEmail == request.auth.token.email;
+      allow update, delete: if isAdmin();
+    }
+    
+    // Roastery sets (sets of coffee to be voted on)
+    match /roasterySets/{setId} {
+      allow read: if isLoggedIn();
+      allow create, delete: if isAdmin();
+      // Allow users to update sets specifically to vote (increment votesUp/votesDown and append uid to votedBy)
+      allow update: if isLoggedIn() && (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['votesUp', 'votesDown', 'votedBy']) &&
+        request.resource.data.votedBy.hasAll([request.auth.uid])
+      );
+    }
+    
+    // Brewing Recipes
+    match /recipes/{recipeId} {
+      allow read: if isLoggedIn();
+      // Baristas can create/update recipes with their email as the author
+      allow create: if isLoggedIn() && request.resource.data.author == request.auth.token.email;
+      allow update: if isAdmin() || (isLoggedIn() && resource.data.author == request.auth.token.email && request.resource.data.author == request.auth.token.email);
+      allow delete: if isAdmin();
+    }
+    
+    // Maintenance Logs
+    match /maintenance/{logId} {
+      allow read: if isLoggedIn();
+      allow create: if isLoggedIn() && request.resource.data.performedBy == request.auth.token.email;
+      allow update, delete: if isAdmin();
+    }
+    
+    // Shift Checklists (opening and closing confirmations)
+    match /checklists/{checklistId} {
+      allow read: if isLoggedIn();
+      allow create: if isLoggedIn() && request.resource.data.user == request.auth.token.email;
+      allow update, delete: if isAdmin();
+    }
+  }
+}

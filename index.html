@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poppy Beans | OS</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        theme: {
+                            accent: 'var(--t-accent)',
+                            surface: 'var(--t-surface)',
+                            bg: 'var(--t-bg)',
+                            border: 'var(--t-border)',
+                            text: 'var(--t-text)',
+                            muted: 'var(--t-muted)',
+                            darkBg: 'var(--t-dark-bg)'
+                        }
+                    },
+                    borderRadius: { 'theme': 'var(--t-radius)' },
+                    borderWidth: { 'theme': 'var(--t-border-w)' },
+                    boxShadow: { 'theme': 'var(--t-shadow)' }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* TÉMA: POPPY BEANS */
+        :root {
+            --t-accent: #b91c1c; 
+            --t-accent-rgb: 185, 28, 28;
+            --t-bg: #fafafa; 
+            --t-surface: #ffffff;
+            --t-surface-rgb: 255, 255, 255;
+            --t-border: #e4e4e7; 
+            --t-dark-bg: #2a0808; 
+            --t-text: #09090b; 
+            --t-muted: #71717a;
+            
+            --t-radius: 16px; 
+            --t-border-w: 1px; 
+            --t-shadow: 0 10px 30px -10px rgba(185, 28, 28, 0.12), 0 1px 3px rgba(0,0,0,0.05); 
+        }
+
+        /* TÉMA: KROK */
+        body.theme-krok {
+            --t-accent: #000000; 
+            --t-accent-rgb: 0, 0, 0;
+            --t-bg: #f4f4f5; 
+            --t-surface: #ffffff;
+            --t-surface-rgb: 255, 255, 255;
+            --t-border: #000000; 
+            --t-dark-bg: #000000; 
+            --t-text: #000000; 
+            --t-muted: #52525b;
+            
+            --t-radius: 0px; 
+            --t-border-w: 2px; 
+            --t-shadow: 6px 6px 0px 0px rgba(0,0,0,1); 
+        }
+
+        body { 
+            background-color: var(--t-bg); 
+            color: var(--t-text); 
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .glass-card {
+            background: rgba(var(--t-surface-rgb), 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: var(--t-border-w) solid var(--t-border);
+            border-radius: var(--t-radius);
+            box-shadow: var(--t-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .input-minimal { 
+            background: rgba(var(--t-surface-rgb), 0.9); 
+            border: var(--t-border-w) solid var(--t-border); 
+            border-radius: var(--t-radius); 
+            padding: 0.75rem 1rem; 
+            transition: all 0.2s ease; 
+            width: 100%; 
+            color: var(--t-text); 
+        }
+        .input-minimal:focus { 
+            outline: none; 
+            border-color: var(--t-accent); 
+            box-shadow: 0 0 0 3px rgba(var(--t-accent-rgb), 0.15); 
+        }
+        
+        .tab-active { 
+            background-color: var(--t-accent); 
+            color: #ffffff; 
+            border-radius: var(--t-radius); 
+            box-shadow: var(--t-shadow); 
+            transition: all 0.25s ease; 
+        }
+        .tab-inactive { 
+            color: var(--t-muted); 
+            border-radius: var(--t-radius); 
+            transition: all 0.25s ease; 
+        }
+        .tab-inactive:hover { 
+            color: var(--t-text); 
+            background-color: var(--t-border); 
+        }
+
+        .btn-primary {
+            background-color: var(--t-accent);
+            color: white;
+            border-radius: var(--t-radius);
+            box-shadow: var(--t-shadow);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border: var(--t-border-w) solid var(--t-accent);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 12px 28px -6px rgba(var(--t-accent-rgb), 0.25);
+            opacity: 0.95;
+        }
+        .btn-primary:active {
+            transform: translateY(0px) scale(0.98);
+        }
+        .btn-secondary {
+            background-color: var(--t-surface);
+            color: var(--t-text);
+            border: var(--t-border-w) solid var(--t-border);
+            border-radius: var(--t-radius);
+            transition: all 0.25s ease;
+        }
+        .btn-secondary:hover {
+            border-color: var(--t-accent);
+            color: var(--t-accent);
+            transform: translateY(-1px);
+        }
+        .btn-secondary:active {
+            transform: translateY(0px);
+        }
+
+        .tag-btn { 
+            border: var(--t-border-w) solid var(--t-border); 
+            color: var(--t-text); 
+            background: var(--t-surface); 
+            border-radius: 9999px; 
+            padding: 6px 14px; 
+            font-size: 10px; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em; 
+            transition: all 0.2s ease; 
+            cursor: pointer; 
+        }
+        .tag-btn:hover { 
+            border-color: var(--t-accent); 
+            transform: translateY(-1px);
+        }
+        .tag-btn.selected { 
+            background-color: var(--t-accent); 
+            color: #fff; 
+            border-color: var(--t-accent); 
+            box-shadow: 0 4px 10px rgba(var(--t-accent-rgb), 0.2);
+        }
+
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { 
+            -webkit-appearance: none; 
+            height: 18px; 
+            width: 18px; 
+            border-radius: 50%; 
+            background: var(--t-accent); 
+            cursor: pointer; 
+            margin-top: -6px; 
+            border: 2px solid var(--t-surface); 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            transition: transform 0.1s ease, background-color 0.2s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+        }
+        input[type=range]::-webkit-slider-runnable-track { 
+            width: 100%; 
+            height: 6px; 
+            cursor: pointer; 
+            background: var(--t-border); 
+            border-radius: 3px; 
+        }
+        
+        .score-block { 
+            background: var(--t-bg); 
+            padding: 14px; 
+            border-radius: var(--t-radius); 
+            border: 1px solid var(--t-border); 
+            margin-bottom: 12px; 
+            transition: border-color 0.2s ease;
+        }
+        .score-block:hover {
+            border-color: rgba(var(--t-accent-rgb), 0.3);
+        }
+    </style>
+    <link rel="manifest" href="manifest.json">
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('SW Registered:', reg.scope))
+          .catch(err => console.error('SW Registration failed:', err));
+      }
+    </script>
+</head>
+<body class="font-sans min-h-screen antialiased">
+
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="flex flex-col items-center justify-center min-h-screen p-6 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-2 bg-theme-accent"></div>
+        <div class="bg-theme-surface p-10 border-theme border-theme-border rounded-theme shadow-theme max-w-md w-full">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl font-extrabold tracking-tight mb-2 uppercase text-theme-text">Poppy Beans</h1>
+                <p class="text-xs font-bold tracking-widest text-theme-muted uppercase">Internal System</p>
+            </div>
+            <form id="loginForm" class="space-y-6">
+                <input type="email" id="emailInput" class="input-minimal" placeholder="E-mail" required>
+                <input type="password" id="passwordInput" class="input-minimal" placeholder="Heslo" required>
+                <div id="loginError" class="text-red-500 text-sm hidden font-medium text-center">Přihlášení se nezdařilo.</div>
+                <button type="submit" class="w-full btn-primary p-3 font-bold uppercase tracking-wider">Vstoupit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="mainApp" class="max-w-6xl mx-auto p-6 md:p-12 hidden">
+        <header class="mb-8 flex flex-col md:flex-row justify-between items-center border-b border-theme-border pb-6 gap-6">
+            <h1 class="text-3xl font-extrabold uppercase tracking-tight text-theme-text">Poppy Beans</h1>
+            <nav id="mainNav" class="flex gap-1 text-[11px] md:text-xs uppercase tracking-widest font-bold overflow-x-auto w-full md:w-auto hide-scroll bg-theme-border/20 p-2 rounded-theme items-center border-theme border-theme-border">
+                <button onclick="switchTab('tab-cupping')" id="btn-tab-cupping" class="tab-active px-5 py-2 whitespace-nowrap">Cuppingy</button>
+                <button onclick="switchTab('tab-kavy')" id="btn-tab-kavy" class="tab-inactive px-5 py-2 whitespace-nowrap">Výběr Kávy</button>
+                <button onclick="switchTab('tab-recepty')" id="btn-tab-recepty" class="tab-inactive px-5 py-2 whitespace-nowrap">Recepty</button>
+                <button onclick="switchTab('tab-advisor')" id="btn-tab-advisor" class="tab-inactive px-5 py-2 whitespace-nowrap">Rádce</button>
+                <button onclick="switchTab('tab-maintenance')" id="btn-tab-maintenance" class="tab-inactive px-5 py-2 whitespace-nowrap">Údržba</button>
+                <button onclick="switchTab('tab-checklists')" id="btn-tab-checklists" class="tab-inactive px-5 py-2 whitespace-nowrap">Směny</button>
+            </nav>
+            <div class="flex items-center gap-4 text-xs font-bold whitespace-nowrap">
+                <select id="adminBranchSelect" class="hidden bg-theme-surface border-theme border-theme-border text-theme-accent py-2 px-3 rounded-theme cursor-pointer uppercase tracking-widest outline-none">
+                    <option value="Poppy Beans">📍 Poppy Beans</option>
+                    <option value="Krok">📍 Krok</option>
+                </select>
+                <span id="userGreeting" class="text-theme-muted uppercase"></span>
+                <button id="logoutBtn" class="text-theme-accent hover:underline uppercase">Odhlásit</button>
+            </div>
+        </header>
+
+        <!-- ZÁLOŽKA: CUPPINGY -->
+        <section id="tab-cupping" class="tab-content">
+            
+            <div id="leaderboardContainer" class="mb-10 hidden">
+                <h2 class="font-extrabold uppercase mb-4 text-theme-text flex items-center gap-2"><span class="text-2xl">🏆</span> Síň slávy (Top Kalibrace)</h2>
+                <div id="leaderboardList" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+            </div>
+
+            <div id="admin-cupping-form" class="bg-theme-surface p-8 border-theme border-theme-border rounded-theme shadow-theme mb-10 hidden">
+                <h2 class="font-bold uppercase mb-6 text-theme-accent">Vypsat novou anketu (Cupping)</h2>
+                <form id="cuppingForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <input type="text" id="cup_title" class="input-minimal md:col-span-2 text-lg font-bold" placeholder="Název cuppingu (např. Testování Keni)" required>
+                    <input type="date" id="cup_date" class="input-minimal" required>
+                    <input type="time" id="cup_time" class="input-minimal" required>
+                    
+                    <div class="md:col-span-2 border-theme border-theme-border rounded-theme p-5 bg-theme-bg relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-2 h-full bg-theme-accent"></div>
+                        <h3 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-4 ml-2">Předpřipravené vzorky (Nepovinné)</h3>
+                        <div id="dynamicSamples" class="space-y-3 mb-4 ml-2">
+                            <input type="text" class="input-minimal sample-input text-sm" placeholder="Název kávy 1 (můžeš doplnit až na místě)">
+                        </div>
+                        <button type="button" onclick="addSampleField()" class="ml-2 text-xs font-bold uppercase tracking-widest text-theme-text btn-secondary px-4 py-2">
+                            + Přidat další políčko
+                        </button>
+                    </div>
+
+                    <button type="submit" class="btn-primary p-4 uppercase tracking-wider text-xs md:col-span-2">Vytvořit událost a otevřít přihlašování</button>
+                </form>
+            </div>
+            <div id="cuppingList" class="grid grid-cols-1 gap-8"></div>
+        </section>
+
+        <!-- ZÁLOŽKA: VÝBĚR KÁVY -->
+        <section id="tab-kavy" class="tab-content hidden">
+            <div id="admin-coffee-form" class="bg-theme-surface p-8 border-theme border-theme-border rounded-theme shadow-theme mb-10 hidden">
+                <h2 class="font-bold uppercase mb-6 text-theme-accent text-sm">Nový výběrový set (3 vzorky)</h2>
+                <form id="roasteryForm" class="space-y-6">
+                    <input type="text" id="roasteryName" class="input-minimal font-bold text-lg" placeholder="Pražírna / Dodavatel" required>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="p-4 border-theme border-theme-border rounded-theme bg-theme-bg space-y-3"><h3 class="text-[10px] font-bold uppercase text-theme-muted">Vzorek 1</h3><input type="text" id="c1_name" class="input-minimal text-xs" placeholder="Název" required><input type="text" id="c1_origin" class="input-minimal text-xs" placeholder="Původ" required><input type="text" id="c1_variety" class="input-minimal text-xs" placeholder="Odrůda" required><input type="number" step="0.01" id="c1_price" class="input-minimal text-xs" placeholder="Kč/g" required><textarea id="c1_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea></div>
+                        <div class="p-4 border-theme border-theme-border rounded-theme bg-theme-bg space-y-3"><h3 class="text-[10px] font-bold uppercase text-theme-muted">Vzorek 2</h3><input type="text" id="c2_name" class="input-minimal text-xs" placeholder="Název" required><input type="text" id="c2_origin" class="input-minimal text-xs" placeholder="Původ" required><input type="text" id="c2_variety" class="input-minimal text-xs" placeholder="Odrůda" required><input type="number" step="0.01" id="c2_price" class="input-minimal text-xs" placeholder="Kč/g" required><textarea id="c2_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea></div>
+                        <div class="p-4 border-theme border-theme-border rounded-theme bg-theme-bg space-y-3"><h3 class="text-[10px] font-bold uppercase text-theme-muted">Vzorek 3</h3><input type="text" id="c3_name" class="input-minimal text-xs" placeholder="Název" required><input type="text" id="c3_origin" class="input-minimal text-xs" placeholder="Původ" required><input type="text" id="c3_variety" class="input-minimal text-xs" placeholder="Odrůda" required><input type="number" step="0.01" id="c3_price" class="input-minimal text-xs" placeholder="Kč/g" required><textarea id="c3_notes" class="input-minimal text-xs h-16" placeholder="Chuť..."></textarea></div>
+                    </div>
+                    <button type="submit" class="btn-primary px-8 py-4 uppercase text-xs w-full md:w-auto">Uložit k hlasování</button>
+                </form>
+            </div>
+            <div id="roasteryList" class="space-y-10"></div>
+        </section>
+
+        <!-- ZÁLOŽKA: RECEPTY -->
+        <section id="tab-recepty" class="tab-content hidden">
+            <div id="admin-recipe-form" class="bg-theme-surface p-8 border-theme border-theme-border rounded-theme shadow-theme mb-10 hidden transition-all">
+                <h2 id="recipeFormTitle" class="font-bold uppercase mb-4 text-theme-accent">Sdílet nový recept</h2>
+                <form id="recipeForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="hidden" id="edit_recipe_id" value="">
+                    <input type="text" id="rec_bean" class="input-minimal text-sm" placeholder="Káva / Zpracování" required>
+                    <select id="rec_method" class="input-minimal text-sm">
+                        <option value="Espresso">Espresso</option>
+                        <option value="V60">V60</option>
+                        <option value="Batch">Batch</option>
+                    </select>
+                    <input type="text" id="rec_ratio" class="input-minimal text-sm" placeholder="Ratio (např. 18g/300ml)" required>
+                    <div class="flex gap-2">
+                        <button type="submit" id="submitRecipeBtn" class="w-full btn-primary p-3 uppercase text-[10px] tracking-wider font-bold">Přidat</button>
+                        <button type="button" id="cancelEditRecipeBtn" onclick="cancelEditRecipe()" class="hidden w-full btn-secondary p-3 uppercase text-[10px] tracking-wider font-bold">Zrušit</button>
+                    </div>
+                    <div class="md:col-span-4"><textarea id="rec_steps" class="input-minimal h-24 text-sm" placeholder="Postup (mletí, teplota, časy...)"></textarea></div>
+                </form>
+            </div>
+            
+            <!-- FILTRY A VYHLEDÁVÁNÍ RECEPTŮ -->
+            <div class="mb-8 flex flex-col lg:flex-row gap-4">
+                <div class="relative flex-1">
+                    <input type="text" id="searchRecipeInput" oninput="window.renderRecipesList()" class="input-minimal w-full font-bold text-sm bg-theme-bg" placeholder="🔍 Hledat text (Keňa, autor, postup)...">
+                </div>
+                <div class="flex gap-2 overflow-x-auto hide-scroll pb-2 lg:pb-0">
+                    <button type="button" onclick="setRecipeFilter('')" id="filter-all" class="filter-btn btn-primary px-5 py-3 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap">Vše</button>
+                    <button type="button" onclick="setRecipeFilter('Espresso')" id="filter-espresso" class="filter-btn btn-secondary px-5 py-3 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap">Espresso</button>
+                    <button type="button" onclick="setRecipeFilter('V60')" id="filter-v60" class="filter-btn btn-secondary px-5 py-3 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap">V60</button>
+                    <button type="button" onclick="setRecipeFilter('Batch')" id="filter-batch" class="filter-btn btn-secondary px-5 py-3 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap">Batch</button>
+                </div>
+            </div>
+
+            <div id="recipeList" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        </section>
+
+        <!-- ZÁLOŽKA: RÁDCE -->
+        <section id="tab-advisor" class="tab-content hidden">
+            <div class="max-w-3xl mx-auto">
+                <div class="bg-theme-surface p-10 border-theme border-theme-border rounded-theme shadow-theme mb-8 text-center">
+                    <h2 class="text-3xl font-extrabold uppercase tracking-tight mb-3 text-theme-text">Espresso Kompas</h2>
+                    <p class="text-sm font-medium text-theme-muted">Nedaří se nastavit káva? Zadej parametry aktuální extrakce a získej radu.</p>
+                </div>
+                <div class="bg-theme-bg p-8 border-theme border-theme-border rounded-theme grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-widest text-theme-text mb-4 border-b border-theme-border pb-2">1. Jak to teče?</label>
+                        <select id="adv_flow" class="input-minimal font-bold cursor-pointer">
+                            <option value="ideal">Trefil jsem čas (cca 25-30s)</option><option value="fast">Příliš rychle (pod 20s)</option><option value="slow">Příliš pomalu / Kape (nad 35s)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-widest text-theme-text mb-4 border-b border-theme-border pb-2">2. Jak to chutná?</label>
+                        <select id="adv_taste" class="input-minimal font-bold cursor-pointer">
+                            <option value="sour">Je to nepříjemně kyselé (až svíravé)</option><option value="bitter">Je to spálené, drsné a hořké</option><option value="watery">Chybí tomu tělo, je to vodové a prázdné</option><option value="good">Chutná to skvěle, sladce a vyváženě</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="diagnoseEspresso()" class="w-full btn-primary p-5 uppercase tracking-widest text-sm mb-8">Zeptat se baristy</button>
+                
+                <div id="advisorResult" class="hidden bg-theme-surface p-8 border-l-8 border-theme-accent border-theme border-theme-border rounded-theme shadow-theme relative">
+                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-2">Diagnóza:</h3>
+                    <div id="adv_diagnosis" class="text-xl font-bold mb-6 text-theme-text"></div>
+                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-2">Akční krok:</h3>
+                    <div id="adv_solution" class="text-sm font-medium leading-relaxed bg-theme-bg p-5 border-theme border-theme-border rounded-theme text-theme-text"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ZÁLOŽKA: ÚDRŽBA -->
+        <section id="tab-maintenance" class="tab-content hidden bg-theme-darkBg p-8 rounded-theme border-theme border-theme-border mt-8 shadow-theme">
+            <h2 class="text-2xl font-bold mb-6 text-white">🛠 Deník údržby techniky</h2>
+            <div id="admin-maintenance-form" class="hidden">
+                <form id="maintenanceForm" class="space-y-4 mb-10">
+                    <input type="text" id="maint_task" placeholder="Co jsi udělal? (např. Výměna kamenů mlýnku)" class="w-full p-4 bg-white/10 border-theme border-white/20 rounded-theme text-white placeholder:text-gray-400 focus:outline-none focus:border-white transition-colors" required>
+                    <input type="text" id="maint_signature" placeholder="Tvůj podpis (např. David)" class="w-full p-4 bg-white/5 border-theme border-white/15 rounded-theme text-white/50 cursor-not-allowed focus:outline-none transition-colors" readonly required>
+                    <button type="submit" class="w-full bg-white text-black font-extrabold py-4 rounded-theme hover:bg-gray-200 transition uppercase tracking-widest text-sm">Zapsat údržbu</button>
+                </form>
+            </div>
+            <div id="maintenanceList" class="space-y-4"><p class="text-gray-400">Načítám záznamy...</p></div>
+        </section>
+
+        <!-- ZÁLOŽKA: SMĚNY (CHECK-LISTY) -->
+        <section id="tab-checklists" class="tab-content hidden bg-theme-darkBg p-8 rounded-theme border-theme border-theme-border mt-8 shadow-theme">
+            <h2 class="text-2xl font-bold mb-8 text-white">📋 Otevírací a Zavírací Check-listy</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                <div class="bg-white/5 p-8 rounded-theme border-theme border-white/10">
+                    <h3 class="font-bold text-white uppercase tracking-widest mb-6 border-b border-white/10 pb-4">☀️ Otevírací směna</h3>
+                    <form id="openShiftForm" class="space-y-4">
+                        <label class="flex items-center space-x-4 text-white text-sm"><input type="checkbox" class="h-5 w-5 rounded-theme accent-white" required><span>Nahřát kávovar a zapnout mlýnky</span></label>
+                        <label class="flex items-center space-x-4 text-white text-sm"><input type="checkbox" class="h-5 w-5 rounded-theme accent-white" required><span>Nastavit ranní espresso (zapsat recept)</span></label>
+                        <label class="flex items-center space-x-4 text-white text-sm"><input type="checkbox" class="h-5 w-5 rounded-theme accent-white" required><span>Zkontrolovat stav vitríny a čistotu stolů</span></label>
+                        <label class="flex items-center space-x-4 text-white text-sm"><input type="checkbox" class="h-5 w-5 rounded-theme accent-white" required><span>Doplnit papírové kelímky a zásobu mléka</span></label>
+                        <input type="text" id="open_signature" placeholder="Tvůj podpis (např. David)" class="w-full mt-6 p-4 bg-black/40 border-theme border-white/20 rounded-theme text-white/50 cursor-not-allowed focus:outline-none transition-colors" readonly required>
+                        <button type="submit" class="w-full mt-4 bg-white text-black font-extrabold py-4 rounded-theme hover:bg-gray-200 transition uppercase tracking-widest text-xs">Potvrdit otevíračku</button>
+                    </form>
+                </div>
+                <div class="bg-white/5 p-8 rounded-theme border-theme border-white/10">
+                    <h3 class="font-bold text-gray-400 uppercase tracking-widest mb-6 border-b border-white/10 pb-4">🌙 Zavírací směna</h3>
+                    <form id="closeShiftForm" class="space-y-4">
+                        <label class="flex items-center space-x-4 text-gray-300 text-sm"><input type="checkbox" class="h-5 w-5 rounded-theme accent-gray-500" required><span>Backflush kávovaru a vyčištění pák</span></label>
+                        <label class="flex items-center space-x-4 text-gray-300 text-sm"><input type="checkbox" class="h-5 w-5 rounded-theme accent-gray-500" required><span>Vyčistit hlavy mlýnků a zvážit zbytky káv</span></label>
+                        <label class="flex items-center space-x-4 text-gray-300 text-sm"><input type="checkbox" class="h-5 w-5 rounded-theme accent-gray-500" required><span>Umýt odkapávač a vyleštit nerezové plochy</span></label>
+                        <label class="flex items-center space-x-4 text-gray-300 text-sm"><input type="checkbox" class="h-5 w-5 rounded-theme accent-gray-500" required><span>Uklidit bar, zapsat stavy zásob a zamknout</span></label>
+                        <input type="text" id="close_signature" placeholder="Tvůj podpis (např. David)" class="w-full mt-6 p-4 bg-black/40 border-theme border-white/20 rounded-theme text-white/50 cursor-not-allowed focus:outline-none transition-colors" readonly required>
+                        <button type="submit" class="w-full mt-4 bg-gray-700 text-white font-extrabold py-4 rounded-theme hover:bg-gray-600 transition uppercase tracking-widest text-xs">Potvrdit zavíračku</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="admin-checklists-log" class="border-t border-white/10 pt-8">
+                <h3 class="font-bold text-white uppercase tracking-widest mb-6 text-sm">Záznamy potvrzených směn a údržby</h3>
+                <div id="checklistHistory" class="space-y-3 max-h-80 overflow-y-auto hide-scroll pr-2">
+                    <p class="text-gray-400 text-xs">Načítám historii...</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- MODAL HODNOCENÍ -->
+    <div id="evalModal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-theme-surface max-w-md w-full p-6 border-theme border-theme-border rounded-theme shadow-theme relative max-h-[95vh] overflow-y-auto hide-scroll">
+            <button onclick="closeModal('evalModal')" class="absolute top-4 right-4 text-theme-muted hover:text-theme-accent font-bold uppercase text-xs">Zavřít ✕</button>
+            <h2 class="text-xl font-extrabold uppercase mb-4 border-b border-theme-border pb-4 text-theme-text">Hodnocení Vzorku</h2>
+            
+            <form id="evalForm" class="space-y-4">
+                <input type="hidden" id="eval_cuppingId">
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-2">Vyber kávu:</label>
+                    <select id="eval_sample" class="input-minimal text-sm font-bold bg-theme-bg border-theme-base"></select>
+                </div>
+
+                <div class="pt-2">
+                    <div class="score-block">
+                        <div class="text-xs font-bold uppercase tracking-widest mb-3 text-theme-text flex justify-between"><span>Aroma</span></div>
+                        <div class="flex items-center gap-3 mb-2"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Intenzita</span><input type="range" id="sl_aroma_int" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_ar_i').innerText=this.value"><span id="val_ar_i" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
+                        <div class="flex items-center gap-3"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Kvalita</span><input type="range" id="sl_aroma_qual" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_ar_q').innerText=this.value"><span id="val_ar_q" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
+                    </div>
+                    <div class="score-block">
+                        <div class="text-xs font-bold uppercase tracking-widest mb-3 text-theme-text flex justify-between"><span>Acidita</span></div>
+                        <div class="flex items-center gap-3 mb-2"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Intenzita</span><input type="range" id="sl_acid_int" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_ac_i').innerText=this.value"><span id="val_ac_i" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
+                        <div class="flex items-center gap-3"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Kvalita</span><input type="range" id="sl_acid_qual" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_ac_q').innerText=this.value"><span id="val_ac_q" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
+                    </div>
+                    <div class="score-block">
+                        <div class="text-xs font-bold uppercase tracking-widest mb-3 text-theme-text flex justify-between"><span>Sladkost</span></div>
+                        <div class="flex items-center gap-3 mb-2"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Intenzita</span><input type="range" id="sl_sweet_int" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_sw_i').innerText=this.value"><span id="val_sw_i" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
+                        <div class="flex items-center gap-3"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Kvalita</span><input type="range" id="sl_sweet_qual" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_sw_q').innerText=this.value"><span id="val_sw_q" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
+                    </div>
+                    <div class="score-block">
+                        <div class="text-xs font-bold uppercase tracking-widest mb-3 text-theme-text flex justify-between"><span>Tělo (Body)</span></div>
+                        <div class="flex items-center gap-3 mb-2"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Intenzita</span><input type="range" id="sl_body_int" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_bd_i').innerText=this.value"><span id="val_bd_i" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
+                        <div class="flex items-center gap-3"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Kvalita</span><input type="range" id="sl_body_qual" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_bd_q').innerText=this.value"><span id="val_bd_q" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
+                    </div>
+                    <div class="score-block">
+                        <div class="text-xs font-bold uppercase tracking-widest mb-3 text-theme-text flex justify-between"><span>Dochůť</span></div>
+                        <div class="flex items-center gap-3 mb-2"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Délka</span><input type="range" id="sl_after_int" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_af_i').innerText=this.value"><span id="val_af_i" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
+                        <div class="flex items-center gap-3"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Kvalita</span><input type="range" id="sl_after_qual" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_af_q').innerText=this.value"><span id="val_af_q" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
+                    </div>
+                </div>
+
+                <div class="pt-2 border-t border-theme-border">
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-3">Chuťový profil</label>
+                    <div class="flex flex-wrap gap-2" id="flavorTagsContainer">
+                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected'); window.saveCuppingDraft();">Květiny</button>
+                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected'); window.saveCuppingDraft();">Bobule</button>
+                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected'); window.saveCuppingDraft();">Citrusy</button>
+                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected'); window.saveCuppingDraft();">Peckovice</button>
+                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected'); window.saveCuppingDraft();">Tropické ovoce</button>
+                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected'); window.saveCuppingDraft();">Čokoláda / Kakao</button>
+                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected'); window.saveCuppingDraft();">Karamel / Ořechy</button>
+                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected'); window.saveCuppingDraft();">Koření</button>
+                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected'); window.saveCuppingDraft();">Černý čaj</button>
+                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected'); window.saveCuppingDraft();">Fermentace</button>
+                    </div>
+                </div>
+                
+                <textarea id="eval_note" class="input-minimal text-sm h-16" placeholder="Osobní poznámka k chuti..."></textarea>
+                <button type="submit" id="submitEvalBtn" class="w-full btn-primary p-4 uppercase tracking-widest text-xs font-bold transition-all duration-300">Uložit a vybrat další</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL VÝSLEDKY -->
+    <div id="resultsModal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-theme-surface max-w-4xl w-full max-h-[90vh] overflow-y-auto p-8 border-theme border-theme-border rounded-theme shadow-theme relative">
+            <button onclick="closeModal('resultsModal')" class="absolute top-4 right-4 text-theme-muted hover:text-theme-accent font-bold uppercase text-xs">Zavřít ✕</button>
+            <h2 class="text-2xl font-extrabold uppercase mb-4 text-theme-text">Analytika Cuppingu</h2>
+            
+            <div class="mb-8 border-b border-theme-border pb-6">
+                <label class="block text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-2">Vyber kávu k analýze:</label>
+                <select id="res_sample_select" onchange="renderChartAndList(this.value)" class="input-minimal text-sm font-bold w-full md:w-1/2"></select>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div id="chartContainerDiv" class="bg-theme-bg p-8 border-theme border-theme-border rounded-theme flex flex-col items-center justify-start">
+                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-2 text-center">Průměrný profil kávy</h3>
+                    <div class="text-[9px] text-theme-muted mb-6 flex gap-4"><span class="flex items-center gap-1"><span class="w-3 h-3 bg-theme-accent rounded-full inline-block"></span> Kvalita</span> <span class="flex items-center gap-1"><span class="w-3 h-3 border border-dashed border-gray-500 rounded-full inline-block"></span> Intenzita</span></div>
+                    <div class="w-full max-w-[300px] mb-4"><canvas id="radarChart"></canvas></div>
+                    <div id="topTagsContainer" class="w-full"></div>
+                </div>
+                <div class="space-y-4">
+                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-4">Jednotlivá hodnocení baristů</h3>
+                    <div id="individualResults" class="space-y-4">
+                        <div class="text-sm italic text-theme-muted">Načítám data...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, arrayUnion, arrayRemove, increment, query, where, getDocs, serverTimestamp, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+        // VÍCE ADMINŮ PRO PROVOZ (ROZDĚLENÍ PRÁV)
+        const ADMIN_EMAILS = ["hradskydavid06@gmail.com", "nemec.tereza@seznam.cz"];
+        // HLAVNÍ ADMIN PRO ALGORITMUS SÍNĚ SLÁVY (TVŮJ ÚČET)
+        const MASTER_CUPPING_ADMIN = "hradskydavid06@gmail.com"; 
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyD4EELQxfjdbmAnbFCegwbc_km-xrzTTuw",
+            authDomain: "poppyaplikace.firebaseapp.com",
+            projectId: "poppyaplikace",
+            storageBucket: "poppyaplikace.firebasestorage.app",
+            messagingSenderId: "201291289880",
+            appId: "1:201291289880:web:c633d79a2853bf8475fa6d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        
+        // Enable Multi-Tab Offline Persistent Cache
+        const db = initializeFirestore(app, { 
+            experimentalForceLongPolling: true,
+            localCache: persistentLocalCache({
+                tabManager: persistentMultipleTabManager()
+            })
+        });
+
+        let currentUser = null;
+        let isAdmin = false;
+        let myChartInstance = null;
+        let currentBranch = "Osobní účet"; 
+        let globalAllScores = []; 
+        
+        window.globalCuppings = {}; 
+        window.currentResultsScores = [];
+        window.globalRecipes = [];
+        window.currentRecipeFilter = '';
+
+        const normalizeScore = (s) => {
+            if (s.aroma_int === undefined && s.aroma !== undefined) {
+                return {
+                    ...s,
+                    aroma_int: s.aroma, aroma_qual: s.aroma,
+                    acid_int: s.acidity, acid_qual: s.acidity,
+                    sweet_int: s.sweetness, sweet_qual: s.sweetness,
+                    body_int: s.body, body_qual: s.body,
+                    after_int: s.aftertaste, after_qual: s.aftertaste
+                };
+            }
+            return s;
+        };
+
+        window.renderLeaderboard = () => {
+            let wins = {};
+            let grouped = {};
+            
+            globalAllScores.forEach(s => {
+                let key = s.cuppingId + '_' + s.sample;
+                if(!grouped[key]) grouped[key] = [];
+                grouped[key].push(s);
+            });
+
+            for(let key in grouped) {
+                let scores = grouped[key];
+                let adminScore = scores.find(s => s.userEmail === MASTER_CUPPING_ADMIN);
+                if(!adminScore || adminScore.aroma_int === undefined) continue;
+
+                let bestMatch = null;
+                let highestScore = -1;
+
+                scores.forEach(s => {
+                    if(s.userEmail === MASTER_CUPPING_ADMIN || s.aroma_int === undefined) return;
+                    
+                    let diff = Math.abs(adminScore.aroma_int - s.aroma_int) + Math.abs(adminScore.aroma_qual - s.aroma_qual) +
+                               Math.abs(adminScore.acid_int - s.acid_int) + Math.abs(adminScore.acid_qual - s.acid_qual) +
+                               Math.abs(adminScore.sweet_int - s.sweet_int) + Math.abs(adminScore.sweet_qual - s.sweet_qual) +
+                               Math.abs(adminScore.body_int - s.body_int) + Math.abs(adminScore.body_qual - s.body_qual) +
+                               Math.abs(adminScore.after_int - s.after_int) + Math.abs(adminScore.after_qual - s.after_qual);
+                    
+                    let numMatch = 100 - ((diff / 100) * 100); 
+
+                    let aTags = adminScore.flavorTags || [];
+                    let sTags = s.flavorTags || [];
+                    let tagMatch = 0;
+                    
+                    if (aTags.length === 0 && sTags.length === 0) {
+                        tagMatch = 100;
+                    } else if (aTags.length > 0 || sTags.length > 0) {
+                        let intersection = aTags.filter(t => sTags.includes(t)).length;
+                        let union = new Set([...aTags, ...sTags]).size;
+                        tagMatch = (intersection / union) * 100;
+                    }
+
+                    let totalMatch = (numMatch * 0.7) + (tagMatch * 0.3);
+                    
+                    if(totalMatch > highestScore) {
+                        highestScore = totalMatch;
+                        bestMatch = s;
+                    }
+                });
+
+                if(bestMatch) {
+                    let email = bestMatch.userEmail.split('@')[0];
+                    wins[email] = (wins[email] || 0) + 1;
+                }
+            }
+
+            let sortedWins = Object.entries(wins).sort((a,b) => b[1] - a[1]).slice(0, 3);
+            const lbContainer = document.getElementById('leaderboardContainer');
+            const lbList = document.getElementById('leaderboardList');
+            
+            if(sortedWins.length === 0) {
+                lbContainer.classList.add('hidden');
+                return;
+            }
+            
+            lbContainer.classList.remove('hidden');
+            
+            const medals = ['🥇', '🥈', '🥉'];
+            const borders = ['border-yellow-500', 'border-slate-400', 'border-amber-700'];
+            const bgColors = ['bg-yellow-500/10', 'bg-slate-400/10', 'bg-amber-700/10'];
+
+            lbList.innerHTML = sortedWins.map((w, i) => `
+                <div class="${bgColors[i]} border-theme ${borders[i]} p-5 rounded-theme flex items-center gap-4 shadow-sm">
+                    <div class="text-4xl drop-shadow-sm">${medals[i]}</div>
+                    <div>
+                        <div class="font-extrabold text-theme-text uppercase tracking-widest text-lg">${w[0]}</div>
+                        <div class="text-xs font-bold text-theme-muted uppercase tracking-widest mt-1">Počet výher: ${w[1]}</div>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        window.setRecipeFilter = (method) => {
+            window.currentRecipeFilter = method;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-secondary');
+            });
+            const activeId = method === '' ? 'filter-all' : 'filter-' + method.toLowerCase();
+            const activeBtn = document.getElementById(activeId);
+            if(activeBtn) {
+                activeBtn.classList.remove('btn-secondary');
+                activeBtn.classList.add('btn-primary');
+            }
+            window.renderRecipesList();
+        };
+
+        window.renderRecipesList = () => {
+            const list = document.getElementById('recipeList');
+            if(!list) return;
+            list.innerHTML = '';
+            
+            let recipesArr = window.globalRecipes.filter(r => r.branch === currentBranch || currentBranch === "Osobní účet");
+            
+            if (window.currentRecipeFilter !== '') {
+                recipesArr = recipesArr.filter(r => r.method === window.currentRecipeFilter);
+            }
+
+            const searchTerm = document.getElementById('searchRecipeInput')?.value.toLowerCase() || '';
+            if (searchTerm !== '') {
+                recipesArr = recipesArr.filter(r => 
+                    (r.bean && r.bean.toLowerCase().includes(searchTerm)) ||
+                    (r.author && r.author.toLowerCase().includes(searchTerm)) ||
+                    (r.steps && r.steps.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            recipesArr.sort((a, b) => (b.isCurrent ? 1 : 0) - (a.isCurrent ? 1 : 0));
+
+            recipesArr.forEach(data => {
+                const card = document.createElement('div');
+                const isCurrent = data.isCurrent === true;
+                
+                card.className = `glass-card p-8 rounded-theme transition-transform hover:-translate-y-1 shadow-theme ${isCurrent ? 'border-theme-w border-theme-accent ring-1 ring-theme-accent' : 'border-theme border-theme-border'}`;
+                
+                const currentBadge = isCurrent ? `<span class="bg-theme-accent text-white text-[9px] px-2 py-1 rounded-full uppercase tracking-widest font-bold ml-2">☕ Na mlýnku</span>` : '';
+                
+                const adminControls = isAdmin ? `
+                    <div class="mt-5 flex justify-between border-t border-theme-border pt-4 items-center">
+                        <button onclick="toggleRecipeStatus('${data.id}', ${!isCurrent})" class="text-[10px] uppercase font-bold text-theme-text hover:text-theme-accent transition">${isCurrent ? '✕ Sundat z mlýnku' : '⚡ Dát na mlýnek'}</button>
+                        <div class="flex gap-4">
+                            <button onclick="editRecipe('${data.id}')" class="text-[10px] uppercase font-bold text-blue-500 hover:underline">Upravit</button>
+                            <button onclick="deleteDocById('recipes', '${data.id}')" class="text-[10px] uppercase font-bold text-red-500 hover:underline">Smazat</button>
+                        </div>
+                    </div>
+                ` : '';
+
+                card.innerHTML = `
+                    <div class="flex justify-between mb-5 items-center">
+                        <div class="flex items-center">
+                            <span class="text-[10px] font-bold bg-theme-accent text-white px-3 py-1 rounded-theme uppercase tracking-widest">${data.method}</span>
+                            ${currentBadge}
+                        </div>
+                        <span class="text-[10px] text-theme-muted uppercase font-bold tracking-widest">${data.author.split('@')[0]}</span>
+                    </div>
+                    <h3 class="text-xl font-extrabold uppercase mb-2 tracking-tight text-theme-text">${data.bean}</h3>
+                    <div class="flex justify-between items-center mb-5 border-b border-theme-border pb-3">
+                        <span class="text-sm font-bold text-theme-text uppercase tracking-wider">${data.ratio}</span>
+                        ${data.method === 'V60' ? `
+                        <button onclick="window.toggleBrewTimer('${data.id}', '${data.method.replace(/'/g, "\\'")}')" class="text-[10px] uppercase font-extrabold tracking-widest text-theme-accent hover:underline flex items-center gap-1">
+                            ⏱️ Časovač receptu
+                        </button>
+                        ` : ''}
+                    </div>
+                    <div class="text-xs text-theme-text bg-theme-bg p-5 rounded-theme border-theme border-theme-border font-medium leading-relaxed whitespace-pre-wrap mb-4">"${data.steps}"</div>
+                    
+                    ${data.method === 'V60' ? `
+                    <!-- DYNAMICKÝ BREW TIMER -->
+                    <div id="timer-container-${data.id}" class="hidden p-4 bg-theme-bg/80 border border-theme-border rounded-theme space-y-3 mb-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[9px] font-bold text-theme-muted uppercase tracking-wider">Příprava: ${data.method}</span>
+                            <span id="timer-step-${data.id}" class="text-[9px] font-extrabold bg-theme-accent text-white px-2 py-0.5 rounded-full uppercase tracking-wider">Ready</span>
+                        </div>
+                        <div class="flex items-center justify-center gap-6 py-1">
+                            <div id="timer-display-${data.id}" class="text-3xl font-mono font-extrabold tracking-tight text-theme-text">00:00</div>
+                            <div class="flex flex-col text-[10px] text-theme-text font-medium leading-tight">
+                                <span id="timer-inst-${data.id}" class="italic text-theme-muted">Připrav bar a stiskni Start</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button id="timer-btn-start-${data.id}" onclick="window.startBrewTimer('${data.id}', '${data.method.replace(/'/g, "\\'")}')" class="flex-1 btn-primary py-2 text-[9px] font-bold uppercase tracking-widest">Start</button>
+                            <button onclick="window.resetBrewTimer('${data.id}')" class="flex-1 btn-secondary py-2 text-[9px] font-bold uppercase tracking-widest">Reset</button>
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    ${adminControls}
+                `;
+                list.appendChild(card);
+            });
+        };
+
+        window.toggleRecipeStatus = async (id, status) => {
+            try {
+                await updateDoc(doc(db, "recipes", id), { isCurrent: status });
+            } catch (error) {
+                console.error(error);
+                alert("Chyba při aktualizaci receptu.");
+            }
+        };
+
+        window.editRecipe = (id) => {
+            const recipe = window.globalRecipes.find(r => r.id === id);
+            if(!recipe) return;
+            
+            document.getElementById('recipeFormTitle').innerText = "Úprava receptu";
+            document.getElementById('edit_recipe_id').value = id;
+            document.getElementById('rec_bean').value = recipe.bean;
+            document.getElementById('rec_method').value = recipe.method;
+            document.getElementById('rec_ratio').value = recipe.ratio;
+            document.getElementById('rec_steps').value = recipe.steps;
+            
+            document.getElementById('submitRecipeBtn').innerText = 'Uložit změny';
+            document.getElementById('cancelEditRecipeBtn').classList.remove('hidden');
+            
+            window.scrollTo({ top: document.getElementById('admin-recipe-form').offsetTop - 20, behavior: 'smooth' });
+        };
+
+        window.cancelEditRecipe = () => {
+            document.getElementById('recipeFormTitle').innerText = "Sdílet nový recept";
+            document.getElementById('edit_recipe_id').value = '';
+            document.getElementById('recipeForm').reset();
+            document.getElementById('submitRecipeBtn').innerText = 'Přidat';
+            document.getElementById('cancelEditRecipeBtn').classList.add('hidden');
+        };
+
+        const getBranch = (email) => {
+            if(email === "krok@poppybeans.cz") return "Krok";
+            if(email === "poppy@poppybeans.cz") return "Poppy Beans";
+            return "Osobní účet";
+        };
+
+        const applyTheme = (branch) => {
+            if (branch === "Krok") {
+                document.body.classList.add('theme-krok');
+            } else {
+                document.body.classList.remove('theme-krok');
+            }
+        };
+
+        document.getElementById('adminBranchSelect').addEventListener('change', (e) => {
+            currentBranch = e.target.value;
+            applyTheme(currentBranch);
+            loadMaintenance();
+            loadChecklists();
+            if(typeof window.renderRecipesList === 'function') window.renderRecipesList();
+        });
+
+        const updateNavVisibility = () => {
+            const btns = {
+                cupping: document.getElementById('btn-tab-cupping'),
+                kavy: document.getElementById('btn-tab-kavy'),
+                recepty: document.getElementById('btn-tab-recepty'),
+                advisor: document.getElementById('btn-tab-advisor'),
+                maintenance: document.getElementById('btn-tab-maintenance'),
+                checklists: document.getElementById('btn-tab-checklists')
+            };
+
+            if (isAdmin) {
+                Object.values(btns).forEach(b => b.classList.remove('hidden'));
+                window.switchTab('tab-checklists');
+            } else if (currentBranch !== "Osobní účet") {
+                btns.cupping.classList.add('hidden');
+                btns.kavy.classList.add('hidden');
+                btns.recepty.classList.remove('hidden');
+                btns.advisor.classList.remove('hidden');
+                btns.maintenance.classList.remove('hidden');
+                btns.checklists.classList.remove('hidden');
+                window.switchTab('tab-checklists');
+            } else {
+                btns.cupping.classList.remove('hidden');
+                btns.kavy.classList.remove('hidden');
+                btns.recepty.classList.remove('hidden');
+                btns.advisor.classList.remove('hidden');
+                btns.maintenance.classList.add('hidden');
+                btns.checklists.classList.add('hidden');
+                window.switchTab('tab-cupping');
+            }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                // Zde se ověřuje více adminů
+                isAdmin = ADMIN_EMAILS.includes(user.email);
+                
+                // Pre-fill and lock signatures
+                const userPrefix = user.email.split('@')[0];
+                document.getElementById('open_signature').value = userPrefix;
+                document.getElementById('close_signature').value = userPrefix;
+                document.getElementById('maint_signature').value = userPrefix;
+                
+                if(isAdmin) {
+                    currentBranch = document.getElementById('adminBranchSelect').value;
+                    document.getElementById('adminBranchSelect').classList.remove('hidden');
+                    document.getElementById('userGreeting').classList.add('hidden');
+                    
+                    document.getElementById('admin-cupping-form').classList.remove('hidden');
+                    document.getElementById('admin-coffee-form').classList.remove('hidden');
+                    document.getElementById('admin-recipe-form').classList.remove('hidden');
+                    document.getElementById('admin-maintenance-form').classList.remove('hidden');
+                } else {
+                    currentBranch = getBranch(user.email);
+                    document.getElementById('adminBranchSelect').classList.add('hidden');
+                    document.getElementById('userGreeting').classList.remove('hidden');
+                    
+                    document.getElementById('userGreeting').innerText = currentBranch !== "Osobní účet" ? `📍 Pobočka ${currentBranch}` : user.email;
+                    
+                    document.getElementById('admin-cupping-form').classList.add('hidden');
+                    document.getElementById('admin-coffee-form').classList.add('hidden');
+                    document.getElementById('admin-recipe-form').classList.add('hidden');
+                    document.getElementById('admin-maintenance-form').classList.add('hidden'); 
+                }
+
+                applyTheme(currentBranch);
+                updateNavVisibility();
+
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                
+                loadData(); 
+                loadMaintenance(); 
+                loadChecklists(); 
+            } else {
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('mainApp').classList.add('hidden');
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            signInWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passwordInput').value)
+                .catch(() => document.getElementById('loginError').classList.remove('hidden'));
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+
+        window.addSampleField = () => {
+            const container = document.getElementById('dynamicSamples');
+            const count = container.children.length + 1;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'input-minimal sample-input text-sm mt-3';
+            input.placeholder = `Název kávy ${count} (můžeš doplnit až na místě)`;
+            container.appendChild(input);
+        };
+
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            
+            document.querySelectorAll('#mainNav button').forEach(btn => {
+                btn.classList.remove('tab-active');
+                btn.classList.add('tab-inactive');
+            });
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if(activeBtn) {
+                activeBtn.classList.remove('tab-inactive');
+                activeBtn.classList.add('tab-active');
+            }
+        };
+
+        function loadData() {
+            onSnapshot(collection(db, "cuppingScores"), (sn) => {
+                globalAllScores = [];
+                sn.forEach(d => globalAllScores.push(normalizeScore(d.data())));
+                if(typeof window.renderLeaderboard === 'function') window.renderLeaderboard();
+            });
+
+            onSnapshot(collection(db, "cuppings"), (sn) => {
+                const list = document.getElementById('cuppingList');
+                list.innerHTML = '';
+                sn.forEach(d => {
+                    const data = d.data();
+                    window.globalCuppings[d.id] = data; 
+                    
+                    const isAttending = data.attendees?.includes(currentUser.email);
+                    const isDeclined = data.declined?.includes(currentUser.email);
+                    const sampleCount = data.samples ? data.samples.length : 0;
+
+                    const card = document.createElement('div');
+                    card.className = "bg-theme-surface border-theme border-theme-border rounded-theme shadow-theme p-8 mb-6";
+                    
+                    const samplesListHtml = sampleCount > 0 
+                        ? `<div class="mt-5 p-4 bg-theme-bg border-theme border-theme-border rounded-theme"><h4 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-3">Na stole bude:</h4><ul class="text-sm text-theme-text space-y-2">${data.samples.map((s, i) => `<li class="flex justify-between items-center group"><span><strong>${i+1}.</strong> ${s}</span>${isAdmin ? `<button onclick="removeSampleFromCupping('${d.id}', '${s.replace(/'/g, "\\'")}')" class="text-red-500 opacity-0 group-hover:opacity-100 transition px-2 hover:bg-white rounded">✕</button>` : ''}</li>`).join('')}</ul></div>`
+                        : `<div class="mt-5 p-4 bg-theme-bg border-theme border-theme-border rounded-theme text-xs text-theme-muted italic">Vzorky budou doplněny později...</div>`;
+
+                    const adminAddSample = isAdmin ? `
+                        <div class="mt-4 flex gap-3 items-center">
+                            <input type="text" id="add_sample_${d.id}" class="input-minimal text-xs" placeholder="Přidat kávu na stůl...">
+                            <button onclick="addSampleToCupping('${d.id}')" class="btn-secondary px-4 py-2 font-bold text-xs uppercase tracking-widest whitespace-nowrap">+ Přidat</button>
+                        </div>
+                    ` : '';
+
+                    const adminReport = isAdmin ? `
+                        <div class="mt-8 pt-6 border-t border-theme-border grid grid-cols-2 gap-6">
+                            <div><div class="text-[10px] font-bold uppercase text-green-600 mb-2">✅ Potvrzeno (${data.attendees?.length || 0})</div><div class="text-xs space-y-1">${data.attendees?.join('<br>') || 'nikdo'}</div></div>
+                            <div><div class="text-[10px] font-bold uppercase text-red-600 mb-2">❌ Omluveno (${data.declined?.length || 0})</div><div class="text-xs space-y-1">${data.declined?.join('<br>') || 'nikdo'}</div></div>
+                        </div>
+                    ` : '';
+
+                    const evaluateButton = isAttending && sampleCount > 0 ? `
+                        <div class="mt-6 pt-6 border-t border-theme-border">
+                            <button onclick="openEvalModal('${d.id}')" class="w-full btn-primary p-4 text-xs uppercase tracking-widest">📝 Ohodnotit vzorky</button>
+                        </div>
+                    ` : '';
+
+                    const resultsButton = `
+                        <div class="mt-4 pt-4 border-t border-theme-border">
+                            <button onclick="openResultsModal('${d.id}')" class="w-full btn-secondary p-4 font-bold text-xs uppercase tracking-widest text-theme-text">📊 Zobrazit výsledky a záznamy</button>
+                        </div>
+                    `;
+
+                    card.innerHTML = `
+                        <div class="flex flex-col md:flex-row justify-between items-start gap-6">
+                            <div class="w-full">
+                                <div class="text-xs font-bold text-theme-accent uppercase mb-2 tracking-widest">${data.date} | ${data.time} | Vzorků: ${sampleCount}</div>
+                                <h3 class="text-2xl font-extrabold uppercase tracking-tight text-theme-text">${data.title}</h3>
+                                ${samplesListHtml}
+                                ${adminAddSample}
+                            </div>
+                            <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto mt-2">
+                                <button onclick="updateAttendance('${d.id}', 'yes')" class="flex-1 md:flex-none px-8 py-3 text-xs font-bold uppercase transition ${isAttending ? 'btn-primary' : 'btn-secondary'}">Příjdu</button>
+                                <button onclick="updateAttendance('${d.id}', 'no')" class="flex-1 md:flex-none px-8 py-3 text-xs font-bold uppercase transition ${isDeclined ? 'bg-theme-text text-white border-theme border-theme-text rounded-theme' : 'btn-secondary'}">Nepříjdu</button>
+                                ${isAdmin ? `<button onclick="deleteDocById('cuppings', '${d.id}')" class="p-3 text-red-500 font-bold hover:underline transition uppercase text-xs tracking-widest text-center mt-2 md:mt-0">Smazat</button>` : ''}
+                            </div>
+                        </div>
+                        ${evaluateButton}
+                        ${resultsButton}
+                        ${adminReport}
+                    `;
+                    list.appendChild(card);
+                });
+            });
+
+            onSnapshot(collection(db, "roasterySets"), (sn) => {
+                const list = document.getElementById('roasteryList');
+                list.innerHTML = '';
+                sn.forEach(d => {
+                    const block = d.data();
+                    const hasVoted = block.votedBy?.includes(currentUser.uid);
+                    const card = document.createElement('div');
+                    card.className = "bg-theme-surface border-theme border-theme-border rounded-theme shadow-theme p-8 mb-8";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-center mb-8 border-b border-theme-border pb-6">
+                            <h3 class="text-2xl font-extrabold uppercase tracking-tight text-theme-text">${block.roasteryName}</h3>
+                            ${isAdmin ? `<button onclick="deleteDocById('roasterySets', '${d.id}')" class="text-xs uppercase font-bold text-red-500 hover:underline">Smazat</button>` : ''}
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            ${block.coffees.map((c, i) => `
+                                <div class="border-theme border-theme-border rounded-theme p-6 bg-theme-bg relative group transition-colors hover:border-theme-accent">
+                                    <div class="text-[10px] font-bold text-theme-accent mb-3 uppercase tracking-widest">Vzorek 0${i+1} | ${c.price} Kč/g</div>
+                                    <div class="font-extrabold text-base mb-1 uppercase text-theme-text">${c.name}</div>
+                                    <div class="text-[10px] text-theme-muted uppercase font-bold tracking-wider">${c.origin} • ${c.variety}</div>
+                                    <div class="mt-4 text-[11px] italic text-theme-text leading-relaxed">"${c.notes}"</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="flex gap-4 items-center bg-theme-bg p-5 border-theme border-theme-border rounded-theme">
+                            <span class="text-[10px] font-bold uppercase tracking-widest mr-auto text-theme-text">${hasVoted ? 'Zahlasováno' : 'Vaše volba:'}</span>
+                            <button ${hasVoted ? 'disabled' : `onclick="vote('${d.id}', 'up')"`} class="px-8 py-3 btn-secondary font-bold text-xs uppercase tracking-widest">👍 ${block.votesUp || 0}</button>
+                            <button ${hasVoted ? 'disabled' : `onclick="vote('${d.id}', 'down')"`} class="px-8 py-3 btn-secondary font-bold text-xs uppercase tracking-widest">👎 ${block.votesDown || 0}</button>
+                        </div>
+                    `;
+                    list.appendChild(card);
+                });
+            });
+
+            onSnapshot(collection(db, "recipes"), (sn) => {
+                window.globalRecipes = [];
+                sn.forEach(d => window.globalRecipes.push({ id: d.id, ...d.data() }));
+                if(typeof window.renderRecipesList === 'function') window.renderRecipesList();
+            });
+        }
+
+        window.addSampleToCupping = async (id) => {
+            const input = document.getElementById(`add_sample_${id}`);
+            if (!input || !input.value.trim()) return;
+            try {
+                await updateDoc(doc(db, "cuppings", id), {
+                    samples: arrayUnion(input.value.trim())
+                });
+                input.value = '';
+            } catch (error) {
+                console.error(error);
+                alert("Chyba při ukládání vzorku.");
+            }
+        };
+
+        window.removeSampleFromCupping = async (id, sampleName) => {
+            if(!confirm(`Opravdu smazat vzorek "${sampleName}"?`)) return;
+            try {
+                await updateDoc(doc(db, "cuppings", id), {
+                    samples: arrayRemove(sampleName)
+                });
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        window.updateAttendance = async (id, status) => {
+            const ref = doc(db, "cuppings", id);
+            if(status === 'yes') await updateDoc(ref, { attendees: arrayUnion(currentUser.email), declined: arrayRemove(currentUser.email) });
+            else await updateDoc(ref, { declined: arrayUnion(currentUser.email), attendees: arrayRemove(currentUser.email) });
+        };
+        window.vote = async (id, type) => {
+            const ref = doc(db, "roasterySets", id);
+            await updateDoc(ref, { [type === 'up' ? 'votesUp' : 'votesDown']: increment(1), votedBy: arrayUnion(currentUser.uid) });
+        };
+        window.deleteDocById = async (coll, id) => { if(confirm('Tuto položku opravdu smazat?')) await deleteDoc(doc(db, coll, id)); };
+
+        window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); };
+        
+        window.openEvalModal = (cuppingId) => {
+            document.getElementById('eval_cuppingId').value = cuppingId;
+            const samples = window.globalCuppings[cuppingId].samples || [];
+            const select = document.getElementById('eval_sample');
+            select.innerHTML = samples.map(s => `<option value="${s}">${s}</option>`).join('');
+
+            // Load any saved draft for the first sample in this cupping
+            window.loadCuppingDraft();
+            
+            document.getElementById('evalModal').classList.remove('hidden');
+        };
+        
+        window.openResultsModal = async (cuppingId) => {
+            document.getElementById('resultsModal').classList.remove('hidden');
+            const samples = window.globalCuppings[cuppingId].samples || [];
+            const select = document.getElementById('res_sample_select');
+            select.innerHTML = samples.map(s => `<option value="${s}">${s}</option>`).join('');
+
+            const indResultsDiv = document.getElementById('individualResults');
+            indResultsDiv.innerHTML = '<div class="text-sm italic text-theme-muted">Stahuji data ze serveru...</div>';
+            document.getElementById('topTagsContainer').innerHTML = '';
+
+            const q = query(collection(db, "cuppingScores"), where("cuppingId", "==", cuppingId));
+            const querySnapshot = await getDocs(q);
+            
+            window.currentResultsScores = [];
+            querySnapshot.forEach((doc) => {
+                window.currentResultsScores.push(normalizeScore(doc.data()));
+            });
+
+            if(samples.length > 0) {
+                renderChartAndList(samples[0]);
+            } else {
+                indResultsDiv.innerHTML = '<div class="text-xs font-bold text-theme-accent uppercase">Tento cupping nemá žádné vzorky.</div>';
+            }
+        };
+
+        window.renderChartAndList = (sampleName) => {
+            const indResultsDiv = document.getElementById('individualResults');
+            const topTagsContainer = document.getElementById('topTagsContainer');
+            const filteredScores = window.currentResultsScores.filter(s => s.sample === sampleName);
+
+            if (filteredScores.length === 0) {
+                indResultsDiv.innerHTML = '<div class="text-[10px] font-bold text-theme-text uppercase tracking-widest border-theme border-theme-border bg-theme-bg p-6 rounded-theme">Tuto kávu zatím nikdo nehodnotil.</div>';
+                topTagsContainer.innerHTML = '';
+                if(myChartInstance) myChartInstance.destroy();
+                return;
+            }
+
+            let totals = { 
+                a_i: 0, a_q: 0, ac_i: 0, ac_q: 0, 
+                sw_i: 0, sw_q: 0, b_i: 0, b_q: 0, 
+                af_i: 0, af_q: 0 
+            };
+            let tagCounts = {};
+            
+            const adminScore = filteredScores.find(s => s.userEmail === MASTER_CUPPING_ADMIN);
+            let winnerHtml = '';
+
+            if (adminScore && filteredScores.length > 1) {
+                let bestMatch = null;
+                let highestScore = -1;
+
+                filteredScores.forEach(s => {
+                    if (s.userEmail === MASTER_CUPPING_ADMIN) return; 
+
+                    let diff = Math.abs(adminScore.aroma_int - s.aroma_int) + Math.abs(adminScore.aroma_qual - s.aroma_qual) +
+                               Math.abs(adminScore.acid_int - s.acid_int) + Math.abs(adminScore.acid_qual - s.acid_qual) +
+                               Math.abs(adminScore.sweet_int - s.sweet_int) + Math.abs(adminScore.sweet_qual - s.sweet_qual) +
+                               Math.abs(adminScore.body_int - s.body_int) + Math.abs(adminScore.body_qual - s.body_qual) +
+                               Math.abs(adminScore.after_int - s.after_int) + Math.abs(adminScore.after_qual - s.after_qual);
+                    
+                    let numMatch = 100 - ((diff / 100) * 100); 
+
+                    let aTags = adminScore.flavorTags || [];
+                    let sTags = s.flavorTags || [];
+                    let tagMatch = 0;
+                    
+                    if (aTags.length === 0 && sTags.length === 0) {
+                        tagMatch = 100;
+                    } else if (aTags.length > 0 || sTags.length > 0) {
+                        let intersection = aTags.filter(t => sTags.includes(t)).length;
+                        let union = new Set([...aTags, ...sTags]).size;
+                        tagMatch = (intersection / union) * 100;
+                    }
+
+                    let totalMatch = (numMatch * 0.7) + (tagMatch * 0.3);
+
+                    if (totalMatch > highestScore) {
+                        highestScore = totalMatch;
+                        bestMatch = s;
+                    }
+                });
+
+                if (bestMatch) {
+                    winnerHtml = `
+                        <div class="bg-yellow-500/10 border-2 border-yellow-500 p-5 rounded-theme mb-6 shadow-sm flex flex-col md:flex-row items-center gap-4">
+                            <div class="text-4xl drop-shadow-sm">🏆</div>
+                            <div class="text-center md:text-left">
+                                <div class="text-[10px] font-bold uppercase tracking-widest text-yellow-600 mb-1">Nejpřesnější kalibrace</div>
+                                <div class="font-extrabold text-theme-text uppercase text-lg">${bestMatch.userEmail.split('@')[0]} <span class="text-xs font-bold bg-yellow-500 text-white px-2 py-1 rounded-full ml-2">Shoda: ${Math.round(highestScore)} %</span></div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            let resultsHtml = filteredScores.map(s => {
+                totals.a_i += s.aroma_int; totals.a_q += s.aroma_qual;
+                totals.ac_i += s.acid_int; totals.ac_q += s.acid_qual;
+                totals.sw_i += s.sweet_int; totals.sw_q += s.sweet_qual;
+                totals.b_i += s.body_int; totals.b_q += s.body_qual;
+                totals.af_i += s.after_int; totals.af_q += s.after_qual;
+                
+                if (s.flavorTags && Array.isArray(s.flavorTags)) {
+                    s.flavorTags.forEach(tag => { tagCounts[tag] = (tagCounts[tag] || 0) + 1; });
+                }
+
+                const tagsHtml = s.flavorTags && s.flavorTags.length > 0 
+                    ? `<div class="mt-3 flex flex-wrap gap-1">${s.flavorTags.map(t => `<span class="bg-theme-surface border border-theme-border text-theme-text px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider">${t}</span>`).join('')}</div>`
+                    : '';
+
+                const isAdminBadge = s.userEmail === MASTER_CUPPING_ADMIN 
+                    ? `<span class="bg-theme-accent text-white text-[9px] px-2 py-1 rounded-full ml-2">Referenční vzorek (David)</span>` 
+                    : '';
+
+                return `
+                    <div class="bg-theme-bg p-5 border-theme border-theme-border rounded-theme ${s.userEmail === MASTER_CUPPING_ADMIN ? 'border-theme-accent' : ''}">
+                        <div class="flex justify-between items-center mb-4 border-b border-theme-border pb-3"><span class="text-xs font-bold text-theme-accent">Barista</span><span class="text-[10px] font-extrabold text-theme-text uppercase tracking-widest">${s.userEmail.split('@')[0]} ${isAdminBadge}</span></div>
+                        <div class="text-[10px] font-bold text-theme-muted grid grid-cols-5 gap-2 text-center">
+                            <div>Aroma<br><span class="text-theme-text text-sm">I: ${s.aroma_int}</span><br><span class="text-theme-text text-sm">K: ${s.aroma_qual}</span></div>
+                            <div>Acidita<br><span class="text-theme-text text-sm">I: ${s.acid_int}</span><br><span class="text-theme-text text-sm">K: ${s.acid_qual}</span></div>
+                            <div>Sladk.<br><span class="text-theme-text text-sm">I: ${s.sweet_int}</span><br><span class="text-theme-text text-sm">K: ${s.sweet_qual}</span></div>
+                            <div>Tělo<br><span class="text-theme-text text-sm">I: ${s.body_int}</span><br><span class="text-theme-text text-sm">K: ${s.body_qual}</span></div>
+                            <div>Dochůť<br><span class="text-theme-text text-sm">D: ${s.after_int}</span><br><span class="text-theme-text text-sm">K: ${s.after_qual}</span></div>
+                        </div>
+                        ${tagsHtml}
+                        ${s.note ? `<div class="mt-4 text-xs italic bg-theme-surface p-3 border-theme border-theme-border rounded-theme text-theme-text">"${s.note}"</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            indResultsDiv.innerHTML = winnerHtml + resultsHtml;
+
+            const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 4); 
+            if (sortedTags.length > 0) {
+                topTagsContainer.innerHTML = `
+                    <div class="mt-2 border-t border-theme-border pt-4 w-full">
+                        <h4 class="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-3 text-center">Nejčastější chutě</h4>
+                        <div class="flex flex-wrap justify-center gap-2">
+                            ${sortedTags.map(t => `<span class="bg-theme-accent text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">${t[0]} <span class="opacity-70 ml-1">(${t[1]}x)</span></span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                topTagsContainer.innerHTML = '';
+            }
+
+            const count = filteredScores.length;
+            const avgIntData = [ totals.a_i/count, totals.ac_i/count, totals.sw_i/count, totals.b_i/count, totals.af_i/count ];
+            const avgQualData = [ totals.a_q/count, totals.ac_q/count, totals.sw_q/count, totals.b_q/count, totals.af_q/count ];
+            
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            if(myChartInstance) myChartInstance.destroy(); 
+            
+            const accentHex = currentBranch === "Krok" ? '#000000' : '#b91c1c';
+            const accentRgba = currentBranch === "Krok" ? 'rgba(0, 0, 0, 0.2)' : 'rgba(185, 28, 28, 0.2)';
+
+            myChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Aroma', 'Acidita', 'Sladkost', 'Tělo', 'Dochůť'],
+                    datasets: [
+                        { label: 'Kvalita', data: avgQualData, backgroundColor: accentRgba, borderColor: accentHex, pointBackgroundColor: accentHex, borderWidth: currentBranch === "Krok" ? 3 : 2 },
+                        { label: 'Intenzita', data: avgIntData, backgroundColor: 'transparent', borderColor: '#71717a', pointBackgroundColor: '#71717a', borderDash: [5, 5], borderWidth: 2 }
+                    ]
+                },
+                options: { scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } }, plugins: { legend: { display: false } } }
+            });
+        };
+
+        window.diagnoseEspresso = () => { 
+            const flow = document.getElementById('adv_flow').value; const taste = document.getElementById('adv_taste').value; const resBox = document.getElementById('advisorResult'); const diag = document.getElementById('adv_diagnosis'); const sol = document.getElementById('adv_solution');
+            let dt = ""; let st = "";
+            if (flow === 'fast' && taste === 'sour') { dt = "Extrémní podextrakce."; st = "<strong>ZJEMNI MLETÍ.</strong> Potřebujeme vodu zpomalit."; } 
+            else if (flow === 'slow' && taste === 'bitter') { dt = "Přeextrahováno."; st = "<strong>ZHRUBNI MLETÍ.</strong> Potřebujeme, aby voda prošla pukem rychleji."; }
+            else if (flow === 'ideal' && taste === 'sour') { dt = "Strukturální podextrakce."; st = "Neměň mletí! <strong>ZVÝŠ VÝSTUPNÍ VÁHU (YIELD).</strong>"; }
+            else if (flow === 'ideal' && taste === 'bitter') { dt = "Extrahujeme až moc."; st = "Neměň mletí! <strong>SNIŽ VÝSTUPNÍ VÁHU (YIELD).</strong>"; }
+            else if (flow === 'fast' && taste === 'bitter') { dt = "🚨 Kanálkování (Channeling)."; st = "Zkontroluj svou přípravu puku! Děláš správně <strong>WDT</strong>?"; }
+            else if (flow === 'slow' && taste === 'sour') { dt = "Zablokované sítko (Baking)."; st = "Zkus <strong>SNÍŽIT DÁVKU</strong> in, abys nechal puku prostor k expanzi."; }
+            else if (taste === 'watery') { dt = "Nízká koncentrace chuti."; st = "<strong>ZVYŠ DÁVKU KÁVY IN</strong>, abys zvýšil tělo."; }
+            else if (taste === 'good') { dt = "Perfektní shot! ☕"; st = "<strong>NIC NEMĚŇ!</strong> Zapiš si přesný recept do deníku."; }
+            else { dt = "Zvláštní kombinace."; st = "Zkus kávu udělat ještě jednou, ujisti se, že máš dokonale čistou páku a pečlivě utempováno."; }
+            diag.innerText = dt; sol.innerHTML = st; resBox.classList.remove('hidden');
+        };
+
+        document.getElementById('cuppingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const sampleInputs = document.querySelectorAll('.sample-input');
+            const samplesArray = Array.from(sampleInputs).map(input => input.value).filter(val => val.trim() !== '');
+
+            await addDoc(collection(db, "cuppings"), { 
+                title: document.getElementById('cup_title').value, 
+                date: document.getElementById('cup_date').value, 
+                time: document.getElementById('cup_time').value, 
+                samples: samplesArray, 
+                attendees: [], 
+                declined: [] 
+            });
+            
+            e.target.reset();
+            const dynamicContainer = document.getElementById('dynamicSamples');
+            while (dynamicContainer.children.length > 2) {
+                dynamicContainer.removeChild(dynamicContainer.lastChild);
+            }
+        });
+
+        document.getElementById('maintenanceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await addDoc(collection(db, "maintenance"), {
+                    task: document.getElementById('maint_task').value,
+                    signature: document.getElementById('maint_signature').value,
+                    branch: currentBranch,
+                    date: new Date().toLocaleDateString('cs-CZ'),
+                    performedBy: currentUser.email,
+                    createdAt: serverTimestamp() 
+                });
+                e.target.reset();
+                alert("Záznam o údržbě uložen!");
+                loadMaintenance();
+            } catch (error) {
+                alert("Chyba při zápisu údržby.");
+            }
+        });
+
+        async function loadMaintenance() {
+            const q = query(collection(db, "maintenance"), orderBy("createdAt", "desc"), limit(50));
+            const querySnapshot = await getDocs(q);
+            const container = document.getElementById('maintenanceList');
+            container.innerHTML = "";
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.branch !== currentBranch && currentBranch !== "Osobní účet") return;
+
+                container.innerHTML += `
+                    <div class="p-4 bg-white/5 border-theme border-white/10 rounded-theme text-sm mb-3">
+                        <div class="flex justify-between items-center border-b border-white/10 pb-2 mb-2">
+                            <div class="font-bold text-white">${data.date}</div>
+                            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${data.signature}</div>
+                        </div>
+                        <div class="text-white">${data.task}</div>
+                    </div>
+                `;
+            });
+        }
+
+        document.getElementById('roasteryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const set = { roasteryName: document.getElementById('roasteryName').value, votesUp: 0, votesDown: 0, votedBy: [], coffees: [ { name: document.getElementById('c1_name').value, origin: document.getElementById('c1_origin').value, variety: document.getElementById('c1_variety').value, price: document.getElementById('c1_price').value, notes: document.getElementById('c1_notes').value }, { name: document.getElementById('c2_name').value, origin: document.getElementById('c2_origin').value, variety: document.getElementById('c2_variety').value, price: document.getElementById('c2_price').value, notes: document.getElementById('c2_notes').value }, { name: document.getElementById('c3_name').value, origin: document.getElementById('c3_origin').value, variety: document.getElementById('c3_variety').value, price: document.getElementById('c3_price').value, notes: document.getElementById('c3_notes').value } ] };
+            await addDoc(collection(db, "roasterySets"), set); e.target.reset();
+        });
+
+        document.getElementById('recipeForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+            const editId = document.getElementById('edit_recipe_id').value;
+            const recipeData = {
+                bean: document.getElementById('rec_bean').value, 
+                method: document.getElementById('rec_method').value, 
+                ratio: document.getElementById('rec_ratio').value, 
+                steps: document.getElementById('rec_steps').value
+            };
+
+            try {
+                if (editId) {
+                    await updateDoc(doc(db, "recipes", editId), recipeData);
+                    window.cancelEditRecipe(); 
+                } else {
+                    await addDoc(collection(db, "recipes"), { 
+                        ...recipeData,
+                        author: currentUser.email,
+                        isCurrent: false,
+                        branch: currentBranch 
+                    }); 
+                    e.target.reset();
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Chyba při ukládání receptu.");
+            }
+        });
+
+        document.getElementById('evalForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitEvalBtn');
+            const originalBtnText = submitBtn.innerText;
+            
+            const selectedTags = Array.from(document.querySelectorAll('#flavorTagsContainer .tag-btn.selected')).map(btn => btn.innerText);
+
+            const scoreData = { 
+                cuppingId: document.getElementById('eval_cuppingId').value, 
+                userEmail: currentUser.email, 
+                sample: document.getElementById('eval_sample').value, 
+                
+                aroma_int: parseFloat(document.getElementById('sl_aroma_int').value), 
+                aroma_qual: parseFloat(document.getElementById('sl_aroma_qual').value), 
+                
+                acid_int: parseFloat(document.getElementById('sl_acid_int').value), 
+                acid_qual: parseFloat(document.getElementById('sl_acid_qual').value), 
+                
+                sweet_int: parseFloat(document.getElementById('sl_sweet_int').value), 
+                sweet_qual: parseFloat(document.getElementById('sl_sweet_qual').value), 
+                
+                body_int: parseFloat(document.getElementById('sl_body_int').value), 
+                body_qual: parseFloat(document.getElementById('sl_body_qual').value), 
+                
+                after_int: parseFloat(document.getElementById('sl_after_int').value), 
+                after_qual: parseFloat(document.getElementById('sl_after_qual').value), 
+                
+                flavorTags: selectedTags,
+                note: document.getElementById('eval_note').value, 
+                timestamp: new Date() 
+            };
+            
+            try { 
+                submitBtn.innerText = "Ukládám...";
+                await addDoc(collection(db, "cuppingScores"), scoreData); 
+                
+                // Clear localStorage draft on successful submission
+                window.clearCuppingDraft(scoreData.cuppingId, scoreData.sample);
+                
+                submitBtn.innerText = "✅ Uloženo! Vyber další vzorek";
+                submitBtn.classList.replace('btn-primary', 'bg-green-600');
+                submitBtn.classList.add('text-white', 'border-green-600');
+                
+                ['aroma_int', 'aroma_qual', 'acid_int', 'acid_qual', 'sweet_int', 'sweet_qual', 'body_int', 'body_qual', 'after_int', 'after_qual'].forEach(i => {
+                    document.getElementById(`sl_${i}`).value = 5;
+                });
+                document.getElementById('val_ar_i').innerText = "5"; document.getElementById('val_ar_q').innerText = "5";
+                document.getElementById('val_ac_i').innerText = "5"; document.getElementById('val_ac_q').innerText = "5";
+                document.getElementById('val_sw_i').innerText = "5"; document.getElementById('val_sw_q').innerText = "5";
+                document.getElementById('val_bd_i').innerText = "5"; document.getElementById('val_bd_q').innerText = "5";
+                document.getElementById('val_af_i').innerText = "5"; document.getElementById('val_af_q').innerText = "5";
+
+                document.querySelectorAll('#flavorTagsContainer .tag-btn.selected').forEach(btn => btn.classList.remove('selected'));
+                document.getElementById('eval_note').value = "";
+                
+                const select = document.getElementById('eval_sample');
+                if (select.selectedIndex < select.options.length - 1) {
+                    select.selectedIndex += 1;
+                    // Load draft for the next sample
+                    window.loadCuppingDraft();
+                }
+
+                setTimeout(() => {
+                    submitBtn.innerText = originalBtnText;
+                    submitBtn.classList.replace('bg-green-600', 'btn-primary');
+                    submitBtn.classList.remove('border-green-600');
+                }, 2000);
+                
+            } catch (error) { 
+                console.error(error); 
+                submitBtn.innerText = "Chyba při ukládání!";
+                setTimeout(() => submitBtn.innerText = originalBtnText, 2000);
+            }
+        });
+
+        const handleChecklist = async (e, type, signatureId) => {
+            e.preventDefault();
+            try {
+                await addDoc(collection(db, "checklists"), {
+                    type: type,
+                    signature: document.getElementById(signatureId).value,
+                    branch: currentBranch,
+                    date: new Date().toLocaleDateString('cs-CZ'),
+                    time: new Date().toLocaleTimeString('cs-CZ'),
+                    user: currentUser.email,
+                    createdAt: serverTimestamp()
+                });
+                e.target.reset();
+                alert(`${type} byla úspěšně zapsána do systému!`);
+                loadChecklists();
+            } catch (error) {
+                console.error(error);
+                alert("Chyba při zápisu do databáze.");
+            }
+        };
+
+        document.getElementById('openShiftForm').addEventListener('submit', (e) => handleChecklist(e, '☀️ Otevíračka', 'open_signature'));
+        document.getElementById('closeShiftForm').addEventListener('submit', (e) => handleChecklist(e, '🌙 Zavíračka', 'close_signature'));
+
+        async function loadChecklists() {
+            const q = query(collection(db, "checklists"), orderBy("createdAt", "desc"), limit(50));
+            const querySnapshot = await getDocs(q);
+            const container = document.getElementById('checklistHistory');
+            container.innerHTML = "";
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                
+                if (data.branch !== currentBranch && currentBranch !== "Osobní účet") return;
+
+                container.innerHTML += `
+                    <div class="flex justify-between items-center p-4 bg-white/5 border-theme border-white/10 rounded-theme text-xs mb-3">
+                        <div>
+                            <div class="text-white font-bold text-sm">${data.type}</div>
+                            <div class="text-gray-400 font-normal mt-1">${data.date} | ${data.time}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-white font-bold tracking-widest uppercase">${data.signature}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- DRAFT AUTOSAVE FOR CUPPING ---
+        window.saveCuppingDraft = () => {
+            const cuppingId = document.getElementById('eval_cuppingId').value;
+            const sample = document.getElementById('eval_sample').value;
+            if (!cuppingId || !sample || !currentUser) return;
+            
+            const draftKey = `cupping_draft_${cuppingId}_${sample}_${currentUser.uid}`;
+            const selectedTags = Array.from(document.querySelectorAll('#flavorTagsContainer .tag-btn.selected')).map(btn => btn.innerText);
+            
+            const draftData = {
+                aroma_int: parseFloat(document.getElementById('sl_aroma_int').value),
+                aroma_qual: parseFloat(document.getElementById('sl_aroma_qual').value),
+                acid_int: parseFloat(document.getElementById('sl_acid_int').value),
+                acid_qual: parseFloat(document.getElementById('sl_acid_qual').value),
+                sweet_int: parseFloat(document.getElementById('sl_sweet_int').value),
+                sweet_qual: parseFloat(document.getElementById('sl_sweet_qual').value),
+                body_int: parseFloat(document.getElementById('sl_body_int').value),
+                body_qual: parseFloat(document.getElementById('sl_body_qual').value),
+                after_int: parseFloat(document.getElementById('sl_after_int').value),
+                after_qual: parseFloat(document.getElementById('sl_after_qual').value),
+                flavorTags: selectedTags,
+                note: document.getElementById('eval_note').value
+            };
+            localStorage.setItem(draftKey, JSON.stringify(draftData));
+        };
+
+        window.loadCuppingDraft = () => {
+            const cuppingId = document.getElementById('eval_cuppingId').value;
+            const sample = document.getElementById('eval_sample').value;
+            if (!cuppingId || !sample || !currentUser) return;
+            
+            const draftKey = `cupping_draft_${cuppingId}_${sample}_${currentUser.uid}`;
+            const rawDraft = localStorage.getItem(draftKey);
+            
+            // Set defaults first
+            ['aroma_int', 'aroma_qual', 'acid_int', 'acid_qual', 'sweet_int', 'sweet_qual', 'body_int', 'body_qual', 'after_int', 'after_qual'].forEach(i => {
+                document.getElementById(`sl_${i}`).value = 5;
+            });
+            document.getElementById('val_ar_i').innerText = "5"; document.getElementById('val_ar_q').innerText = "5";
+            document.getElementById('val_ac_i').innerText = "5"; document.getElementById('val_ac_q').innerText = "5";
+            document.getElementById('val_sw_i').innerText = "5"; document.getElementById('val_sw_q').innerText = "5";
+            document.getElementById('val_bd_i').innerText = "5"; document.getElementById('val_bd_q').innerText = "5";
+            document.getElementById('val_af_i').innerText = "5"; document.getElementById('val_af_q').innerText = "5";
+            document.querySelectorAll('#flavorTagsContainer .tag-btn.selected').forEach(btn => btn.classList.remove('selected'));
+            document.getElementById('eval_note').value = "";
+
+            if (rawDraft) {
+                try {
+                    const draft = JSON.parse(rawDraft);
+                    ['aroma_int', 'aroma_qual', 'acid_int', 'acid_qual', 'sweet_int', 'sweet_qual', 'body_int', 'body_qual', 'after_int', 'after_qual'].forEach(i => {
+                        if (draft[i] !== undefined) {
+                            document.getElementById(`sl_${i}`).value = draft[i];
+                        }
+                    });
+                    
+                    document.getElementById('val_ar_i').innerText = document.getElementById('sl_aroma_int').value;
+                    document.getElementById('val_ar_q').innerText = document.getElementById('sl_aroma_qual').value;
+                    document.getElementById('val_ac_i').innerText = document.getElementById('sl_acid_int').value;
+                    document.getElementById('val_ac_q').innerText = document.getElementById('sl_acid_qual').value;
+                    document.getElementById('val_sw_i').innerText = document.getElementById('sl_sweet_int').value;
+                    document.getElementById('val_sw_q').innerText = document.getElementById('sl_sweet_qual').value;
+                    document.getElementById('val_bd_i').innerText = document.getElementById('sl_body_int').value;
+                    document.getElementById('val_bd_q').innerText = document.getElementById('sl_body_qual').value;
+                    document.getElementById('val_af_i').innerText = document.getElementById('sl_after_int').value;
+                    document.getElementById('val_af_q').innerText = document.getElementById('sl_after_qual').value;
+                    
+                    if (draft.flavorTags && Array.isArray(draft.flavorTags)) {
+                        document.querySelectorAll('#flavorTagsContainer .tag-btn').forEach(btn => {
+                            if (draft.flavorTags.includes(btn.innerText)) {
+                                btn.classList.add('selected');
+                            }
+                        });
+                    }
+                    if (draft.note) {
+                        document.getElementById('eval_note').value = draft.note;
+                    }
+                } catch (e) {
+                    console.error("Chyba při načítání konceptu:", e);
+                }
+            }
+        };
+
+        window.clearCuppingDraft = (cuppingId, sample) => {
+            if (!cuppingId || !sample || !currentUser) return;
+            const draftKey = `cupping_draft_${cuppingId}_${sample}_${currentUser.uid}`;
+            localStorage.removeItem(draftKey);
+        };
+
+        // --- INTERAKTIVNÍ ČASOVAČ EXTRAKCE ---
+        let activeBrewTimers = {};
+
+        // Pomocná funkce pro vytažení chuťového profilu přímo z poznámek receptu
+        const extractFlavorProfilesFromNotes = (stepsText) => {
+            if (!stepsText) return "";
+            const lines = stepsText.split('\n');
+            const keywords = ['chuť', 'chutě', 'chut', 'profil', 'tóny', 'tony', 'notes', 'flavor', 'taste'];
+            const timeRegex = /(\d+):(\d+)/;
+            const excludeKeywords = ['mletí', 'mleti', 'ratio', 'teplota', 'temp', 'voda', 'recept', 'recipe', 'gram'];
+            
+            for (let line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed) continue;
+                if (timeRegex.test(trimmed)) continue; // Přeskočit řádky s časy přípravy
+                
+                // Přeskočit řádky s parametry (např. "Mletí: 15")
+                const lower = trimmed.toLowerCase();
+                const isParam = excludeKeywords.some(kw => lower.includes(kw));
+                if (isParam) continue;
+                
+                // Pokud řádek přežije filtry, jedná se o chuťový profil (např. "Růže, hrozny, melasa, mandarinka")
+                const cleanContent = trimmed.replace(/^(?:chuť|chutě|profil|tóny|notes|chut|tony)\s*[:\-_\s]+/i, '').trim();
+                return cleanContent;
+            }
+            return "";
+        };
+
+        // Pomocná funkce pro parsování fází z poznámek receptu
+        const parseRecipeSteps = (stepsText) => {
+            if (!stepsText) return [];
+            const lines = stepsText.split('\n');
+            const phases = [];
+            const timeRegex = /(\d+):(\d+)/; // Hledá formát jako 0:30, 1:15, atd.
+            
+            lines.forEach(line => {
+                const match = line.match(timeRegex);
+                if (match) {
+                    const minutes = parseInt(match[1], 10);
+                    const seconds = parseInt(match[2], 10);
+                    const timeInSeconds = (minutes * 60) + seconds;
+                    
+                    // Odstraní časovou značku a oseká oddělovače (např. "- ", ": ")
+                    const instruction = line.replace(match[0], '').replace(/^[\s\-_:=]+/, '').trim();
+                    phases.push({ time: timeInSeconds, text: instruction, originalTimeStr: match[0] });
+                }
+            });
+            
+            phases.sort((a, b) => a.time - b.time);
+            return phases;
+        };
+
+        window.toggleBrewTimer = (recipeId, method) => {
+            const container = document.getElementById(`timer-container-${recipeId}`);
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+                window.resetBrewTimer(recipeId);
+            }
+        };
+
+        window.resetBrewTimer = (recipeId) => {
+            if (activeBrewTimers[recipeId]) {
+                clearInterval(activeBrewTimers[recipeId].interval);
+                delete activeBrewTimers[recipeId];
+            }
+            const display = document.getElementById(`timer-display-${recipeId}`);
+            const stepBadge = document.getElementById(`timer-step-${recipeId}`);
+            const inst = document.getElementById(`timer-inst-${recipeId}`);
+            const startBtn = document.getElementById(`timer-btn-start-${recipeId}`);
+            
+            if (display) display.innerText = "00:00";
+            if (stepBadge) {
+                stepBadge.innerText = "Ready";
+                stepBadge.className = "text-[9px] font-extrabold bg-theme-accent text-white px-2 py-0.5 rounded-full uppercase tracking-wider";
+            }
+            if (inst) inst.innerText = "Připrav bar a stiskni Start";
+            if (startBtn) {
+                startBtn.innerText = "Start";
+                startBtn.classList.replace('bg-amber-600', 'btn-primary');
+            }
+        };
+
+        window.startBrewTimer = (recipeId, method) => {
+            const startBtn = document.getElementById(`timer-btn-start-${recipeId}`);
+            const display = document.getElementById(`timer-display-${recipeId}`);
+            const stepBadge = document.getElementById(`timer-step-${recipeId}`);
+            const inst = document.getElementById(`timer-inst-${recipeId}`);
+            
+            if (activeBrewTimers[recipeId] && activeBrewTimers[recipeId].running) {
+                // Pause the timer
+                clearInterval(activeBrewTimers[recipeId].interval);
+                activeBrewTimers[recipeId].running = false;
+                startBtn.innerText = "Pokračovat";
+                startBtn.classList.replace('btn-primary', 'bg-amber-600');
+                return;
+            }
+            
+            // Vyhledat recept z lokálního úložiště pro načtení fází z popisu
+            const recipe = window.globalRecipes.find(r => r.id === recipeId);
+            const stepsText = recipe ? recipe.steps : "";
+            const customPhases = parseRecipeSteps(stepsText);
+            
+            let seconds = activeBrewTimers[recipeId] ? activeBrewTimers[recipeId].seconds : 0;
+            
+            activeBrewTimers[recipeId] = {
+                running: true,
+                seconds: seconds,
+                interval: setInterval(() => {
+                    seconds++;
+                    activeBrewTimers[recipeId].seconds = seconds;
+                    
+                    const min = String(Math.floor(seconds / 60)).padStart(2, '0');
+                    const sec = String(seconds % 60).padStart(2, '0');
+                    display.innerText = `${min}:${sec}`;
+                    
+                    let instructionText = "";
+                    let stepName = "Extrakce";
+                    let badgeColor = "bg-green-600";
+                    
+                    if (customPhases.length > 0) {
+                        // Vyhledání aktuálně běžící fáze
+                        const activePhases = customPhases.filter(p => p.time <= seconds);
+                        if (activePhases.length > 0) {
+                            const currentPhase = activePhases[activePhases.length - 1];
+                            stepName = `Fáze ${currentPhase.originalTimeStr}`;
+                            instructionText = currentPhase.text;
+                            badgeColor = "bg-theme-accent";
+                            
+                            // Pokud je dosaženo konce (např. fáze obsahuje slovo "konec" nebo "hotovo")
+                            const isEndPhrase = /konec|hotovo|stop|finish/i.test(currentPhase.text);
+                            if (isEndPhrase) {
+                                stepName = "Dokončeno";
+                                badgeColor = "bg-emerald-600";
+                                if (activeBrewTimers[recipeId] && activeBrewTimers[recipeId].running) {
+                                    clearInterval(activeBrewTimers[recipeId].interval);
+                                    activeBrewTimers[recipeId].running = false;
+                                    if (startBtn) startBtn.innerText = "Hotovo";
+                                }
+                            }
+                            
+                            // Náhled na nadcházející fázi nebo zobrazení chuťového profilu na konci
+                            const nextPhase = customPhases.find(p => p.time > seconds);
+                            if (nextPhase) {
+                                const waitSecs = nextPhase.time - seconds;
+                                instructionText += `<br><span class="text-[9px] text-theme-muted uppercase font-bold block mt-2">Následuje v ${nextPhase.originalTimeStr} (za ${waitSecs}s): ${nextPhase.text}</span>`;
+                            } else {
+                                // Poslední fáze - zobrazíme chuťový profil z poznámek
+                                const flavorNotes = extractFlavorProfilesFromNotes(stepsText);
+                                if (flavorNotes) {
+                                    instructionText += `<br><div class="mt-4 pt-3 border-t border-theme-border/40"><span class="text-[9px] text-theme-muted uppercase font-bold block">Chuťový profil:</span><span class="text-xs font-bold text-theme-accent block mt-1">${flavorNotes}</span></div>`;
+                                }
+                            }
+                        } else {
+                            // Před první časovou značkou v popisu
+                            stepName = "Příprava";
+                            const nextPhase = customPhases[0];
+                            instructionText = `Čekej na spuštění. První fáze začíná v ${nextPhase.originalTimeStr}: ${nextPhase.text}`;
+                            badgeColor = "bg-amber-600";
+                        }
+                    } else {
+                        // Fallback na výchozí kroky, pokud nejsou v poznámkách žádné časové značky
+                        if (method === 'V60') {
+                            if (seconds <= 45) {
+                                stepName = "Blooming (Předspaření)";
+                                instructionText = "Zalej kávu 50g-60g horké vody a krouživým pohybem promíchej.";
+                                badgeColor = "bg-amber-600";
+                            } else if (seconds <= 90) {
+                                stepName = "1. Nalévání";
+                                instructionText = "Pomalým kroužením dolívej vodu do 150g.";
+                                badgeColor = "bg-blue-600";
+                            } else if (seconds <= 150) {
+                                stepName = "2. Nalévání";
+                                instructionText = "Plynule dolévej do finální váhy (např. 250g).";
+                                badgeColor = "bg-blue-700";
+                            } else {
+                                stepName = "Filtrace";
+                                instructionText = "Nech vodu zcela protéct kávovým lůžkem.";
+                                badgeColor = "bg-emerald-600";
+                                
+                                // Na konci V60 filtrace vypíšeme chuťový profil z poznámek
+                                const flavorNotes = extractFlavorProfilesFromNotes(stepsText);
+                                if (flavorNotes) {
+                                    instructionText += `<br><div class="mt-4 pt-3 border-t border-theme-border/40"><span class="text-[9px] text-theme-muted uppercase font-bold block">Chuťový profil:</span><span class="text-xs font-bold text-theme-accent block mt-1">${flavorNotes}</span></div>`;
+                                }
+                            }
+                        } else if (method === 'Espresso') {
+                            if (seconds <= 8) {
+                                stepName = "Preinfuze";
+                                instructionText = "Předspaření puku při nízkém tlaku.";
+                                badgeColor = "bg-amber-600";
+                            } else if (seconds <= 30) {
+                                stepName = "Extrakce";
+                                instructionText = "Shot protéká. Měl bys dosáhnout cílové váhy za 25-30s.";
+                                badgeColor = "bg-emerald-600";
+                            } else {
+                                stepName = "Ukončit shot";
+                                instructionText = "Vypni extrakci a zkontroluj výslednou váhu.";
+                                badgeColor = "bg-red-600";
+                            }
+                        } else {
+                            stepName = "Extrakce";
+                            instructionText = "Příprava kávy probíhá...";
+                            badgeColor = "bg-indigo-600";
+                        }
+                    }
+                    
+                    stepBadge.innerText = stepName;
+                    stepBadge.className = `text-[9px] font-extrabold ${badgeColor} text-white px-2 py-0.5 rounded-full uppercase tracking-wider`;
+                    inst.innerHTML = instructionText;
+                    
+                }, 1000)
+            };
+            
+            startBtn.innerText = "Pauza";
+            startBtn.classList.replace('bg-amber-600', 'btn-primary');
+        };
+
+        // Hook up change listeners to save cupping draft automatically
+        document.getElementById('eval_sample').addEventListener('change', window.loadCuppingDraft);
+        document.getElementById('evalForm').querySelectorAll('input, textarea').forEach(el => {
+            el.addEventListener('input', window.saveCuppingDraft);
+        });
+    </script>
+</body>
+</html>

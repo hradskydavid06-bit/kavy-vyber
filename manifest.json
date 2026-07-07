@@ -1,0 +1,18 @@
+{
+  "short_name": "PoppyOS",
+  "name": "Poppy Beans Barista Guide",
+  "description": "Internal system and brewing guide for Poppy Beans and Krok baristas.",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/924/924514.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#b91c1c",
+  "background_color": "#fafafa"
+}
