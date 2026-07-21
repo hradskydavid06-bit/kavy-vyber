@@ -962,7 +962,7 @@
             localStorage.setItem('olfaktor_sotd_history', JSON.stringify(sotdHistory));
             if (isFirebaseConnected && db && sotdHistory.length > 0 && sotdHistory[0]) {
                 try {
-                    db.collection('sotd_logs').doc(sotdHistory[0].id).set(sotdHistory[0]);
+                    db.collection('sotd_logs').doc(sotdHistory[0].id).set(sotdHistory[0], { merge: true });
                 } catch(err) {
                     console.error("Firestore Save Error:", err);
                 }
@@ -1000,7 +1000,20 @@
                 loadSOTDFromLocalStorage();
                 return;
             }
-            db.collection('sotd_logs').get().then(snapshot => {
+
+            // 1. Automatické nahrání lokálních záznamů z počítače do cloudu
+            if (sotdHistory && sotdHistory.length > 0) {
+                sotdHistory.forEach(item => {
+                    if (item && item.id) {
+                        try {
+                            db.collection('sotd_logs').doc(item.id).set(item, { merge: true });
+                        } catch(e){}
+                    }
+                });
+            }
+
+            // 2. Živá obousměrná synchronizace v reálném čase mezi počítačem a telefonem
+            db.collection('sotd_logs').onSnapshot(snapshot => {
                 const logs = [];
                 snapshot.forEach(doc => logs.push(doc.data()));
                 if (logs.length > 0) {
@@ -1008,11 +1021,17 @@
                     sotdHistory = logs;
                     localStorage.setItem('olfaktor_sotd_history', JSON.stringify(sotdHistory));
                     renderSOTDHistory();
-                } else {
-                    loadSOTDFromLocalStorage();
+                } else if (sotdHistory && sotdHistory.length > 0) {
+                    sotdHistory.forEach(item => {
+                        if (item && item.id) {
+                            try {
+                                db.collection('sotd_logs').doc(item.id).set(item, { merge: true });
+                            } catch(e){}
+                        }
+                    });
                 }
-            }).catch(err => {
-                console.warn("Firestore fetch error, falling back to local:", err);
+            }, err => {
+                console.warn("Firestore listener error, using local storage:", err);
                 loadSOTDFromLocalStorage();
             });
         }
