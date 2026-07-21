@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Olfaktorní Deník | Luxusní Správce Parfémů</title>
+    <title>Olfaktorní Deník | Luxusní Správce Parfémů & Analytika</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,6 +43,9 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <!-- Firebase App & Firestore SDK (Compat) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -56,7 +59,7 @@
 
         /* Custom Gold Glows & Card Styles */
         .gold-border-glow {
-            box-shadow: 0 0 15px -3px rgba(212, 175, 55, 0.12);
+            box-shadow: 0 0 18px -3px rgba(212, 175, 55, 0.15);
         }
         .gold-text-gradient {
             background: linear-gradient(135deg, #F3EDDF 0%, #D4AF37 50%, #C5A059 100%);
@@ -84,23 +87,27 @@
                     </div>
                     <div>
                         <h1 class="font-serif text-xl sm:text-2xl font-bold tracking-wide gold-text-gradient">Olfaktorní Deník</h1>
-                        <p class="text-[10px] uppercase tracking-widest text-zinc-400 font-medium">Luxusní Správce Parfémů</p>
+                        <p class="text-[10px] uppercase tracking-widest text-zinc-400 font-medium">Luxusní Správce & Analytika Parfémů</p>
                     </div>
                 </div>
 
                 <!-- Desktop Navigation Tabs -->
                 <nav class="hidden md:flex space-x-1 bg-zinc-900/90 p-1.5 rounded-2xl border border-zinc-800">
-                    <button onclick="switchTab('sotd')" id="tab-btn-sotd" class="nav-tab flex items-center space-x-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 text-amber-300 bg-zinc-800/90 shadow-sm border border-amber-500/20">
+                    <button onclick="switchTab('sotd')" id="tab-btn-sotd" class="nav-tab flex items-center space-x-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 text-amber-300 bg-zinc-800/90 shadow-sm border border-amber-500/20">
                         <i data-lucide="calendar" class="w-4 h-4"></i>
                         <span>SOTD Log</span>
                     </button>
-                    <button onclick="switchTab('inventory')" id="tab-btn-inventory" class="nav-tab flex items-center space-x-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50">
+                    <button onclick="switchTab('inventory')" id="tab-btn-inventory" class="nav-tab flex items-center space-x-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50">
                         <i data-lucide="layers" class="w-4 h-4"></i>
-                        <span>Sbírka & Listy</span>
+                        <span>Sbírka & Flakóny</span>
                     </button>
-                    <button onclick="switchTab('advisor')" id="tab-btn-advisor" class="nav-tab flex items-center space-x-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50">
+                    <button onclick="switchTab('advisor')" id="tab-btn-advisor" class="nav-tab flex items-center space-x-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50">
                         <i data-lucide="compass" class="w-4 h-4"></i>
-                        <span>Inteligentní Rádce</span>
+                        <span>Rádce & Layering</span>
+                    </button>
+                    <button onclick="switchTab('analytics')" id="tab-btn-analytics" class="nav-tab flex items-center space-x-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50">
+                        <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                        <span>Analytika & Grafy</span>
                     </button>
                 </nav>
 
@@ -113,18 +120,22 @@
         </div>
 
         <!-- Mobile Navigation Tabs -->
-        <div class="md:hidden border-t border-zinc-800/60 bg-zinc-900/90 px-4 py-2 flex justify-around">
-            <button onclick="switchTab('sotd')" id="mobile-tab-sotd" class="mobile-nav-tab flex flex-col items-center py-1 px-3 rounded-lg text-xs font-medium text-amber-300">
-                <i data-lucide="calendar" class="w-5 h-5 mb-0.5"></i>
+        <div class="md:hidden border-t border-zinc-800/60 bg-zinc-900/90 px-2 py-2 flex justify-around">
+            <button onclick="switchTab('sotd')" id="mobile-tab-sotd" class="mobile-nav-tab flex flex-col items-center py-1 px-2 rounded-lg text-[11px] font-medium text-amber-300">
+                <i data-lucide="calendar" class="w-4 h-4 mb-0.5"></i>
                 <span>SOTD</span>
             </button>
-            <button onclick="switchTab('inventory')" id="mobile-tab-inventory" class="mobile-nav-tab flex flex-col items-center py-1 px-3 rounded-lg text-xs font-medium text-zinc-400">
-                <i data-lucide="layers" class="w-5 h-5 mb-0.5"></i>
+            <button onclick="switchTab('inventory')" id="mobile-tab-inventory" class="mobile-nav-tab flex flex-col items-center py-1 px-2 rounded-lg text-[11px] font-medium text-zinc-400">
+                <i data-lucide="layers" class="w-4 h-4 mb-0.5"></i>
                 <span>Sbírka</span>
             </button>
-            <button onclick="switchTab('advisor')" id="mobile-tab-advisor" class="mobile-nav-tab flex flex-col items-center py-1 px-3 rounded-lg text-xs font-medium text-zinc-400">
-                <i data-lucide="compass" class="w-5 h-5 mb-0.5"></i>
+            <button onclick="switchTab('advisor')" id="mobile-tab-advisor" class="mobile-nav-tab flex flex-col items-center py-1 px-2 rounded-lg text-[11px] font-medium text-zinc-400">
+                <i data-lucide="compass" class="w-4 h-4 mb-0.5"></i>
                 <span>Rádce</span>
+            </button>
+            <button onclick="switchTab('analytics')" id="mobile-tab-analytics" class="mobile-nav-tab flex flex-col items-center py-1 px-2 rounded-lg text-[11px] font-medium text-zinc-400">
+                <i data-lucide="bar-chart-3" class="w-4 h-4 mb-0.5"></i>
+                <span>Grafy</span>
             </button>
         </div>
     </header>
@@ -142,7 +153,7 @@
                         <i data-lucide="bookmark" class="w-6 h-6 text-amber-400"></i>
                         Scent of the Day (SOTD) Log
                     </h2>
-                    <p class="text-sm text-zinc-400 mt-1">Zaznamenejte svou dnešní vůni, reakci okolí a meteorologické podmínky v Brně.</p>
+                    <p class="text-sm text-zinc-400 mt-1">Zaznamenejte svou dnešní vůni, počty střiků, reakci okolí a meteorologické podmínky v Brně.</p>
                 </div>
                 
                 <!-- Weather Widget Preview -->
@@ -154,7 +165,7 @@
                         <div class="text-xs text-zinc-400 flex items-center gap-1">
                             <i data-lucide="map-pin" class="w-3 h-3 text-amber-400"></i> Brno, CZ
                         </div>
-                        <div class="text-sm font-semibold text-zinc-200" id="weather-display">Načítání počasí...</div>
+                        <div class="text-sm font-semibold text-zinc-200" id="weather-display">19.5°C, Polojasno</div>
                     </div>
                     <button onclick="fetchBrnoWeather()" title="Obnovit počasí" class="p-1.5 text-zinc-400 hover:text-amber-300 transition-colors">
                         <i data-lucide="rotate-cw" class="w-4 h-4"></i>
@@ -203,8 +214,15 @@
                             </select>
                         </div>
 
-                        <!-- Weather & Temperature (Auto Filled) -->
-                        <div class="grid grid-cols-2 gap-4 bg-zinc-950/60 p-4 rounded-xl border border-zinc-800/60">
+                        <!-- Sprays Counter & Weather Info -->
+                        <div class="grid grid-cols-3 gap-4 bg-zinc-950/60 p-4 rounded-xl border border-zinc-800/60">
+                            <div>
+                                <label class="block text-[11px] uppercase tracking-wider text-zinc-500 font-medium">Počet Střiků</label>
+                                <div class="flex items-center space-x-2 mt-1">
+                                    <input type="number" id="sotd-sprays" min="1" max="20" value="4" class="w-16 bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1 text-sm text-center text-amber-300 font-bold focus:outline-none">
+                                    <span class="text-xs text-zinc-500">střiky (~0.4 ml)</span>
+                                </div>
+                            </div>
                             <div>
                                 <label class="block text-[11px] uppercase tracking-wider text-zinc-500 font-medium">Teplota (°C)</label>
                                 <input type="text" id="sotd-temp" readonly class="w-full bg-transparent border-0 text-sm font-semibold text-amber-300 p-0 mt-1 focus:ring-0" value="19.5 °C">
@@ -276,7 +294,7 @@
                         <!-- Submit Button -->
                         <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-zinc-950 font-semibold py-3.5 px-6 rounded-xl shadow-lg shadow-amber-500/10 transition-all duration-200 flex items-center justify-center space-x-2">
                             <i data-lucide="check-circle" class="w-5 h-5"></i>
-                            <span>Uložit Dnešní SOTD</span>
+                            <span>Uložit Dnešní SOTD & Odečíst z Flakónu</span>
                         </button>
                     </form>
                 </div>
@@ -313,24 +331,32 @@
             </div>
         </section>
 
-        <!-- ==================== TAB 2: INVENTÁŘ & BLACKLIST/WISHLIST ==================== -->
+        <!-- ==================== TAB 2: INVENTÁŘ & FLAKÓNY ==================== -->
         <section id="tab-content-inventory" class="tab-page hidden space-y-8">
             
-            <!-- Filter Bar & Collection Header -->
+            <!-- Filter Bar & Search -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-zinc-900/80 p-6 rounded-2xl border border-zinc-800/80">
                 <div>
                     <h2 class="text-2xl font-serif font-bold text-zinc-100 flex items-center gap-2">
                         <i data-lucide="box" class="w-6 h-6 text-amber-400"></i>
-                        Moje Parfémová Sbírka
+                        Moje Parfémová Sbírka & Správa Flakónů
                     </h2>
-                    <p class="text-sm text-zinc-400 mt-1">Kompletní přehled vašich Niche a Designer vůní.</p>
+                    <p class="text-sm text-zinc-400 mt-1">Sledujte zbývající mililitry (ml) ve flakónech a spravujte svou kolekci.</p>
                 </div>
 
-                <!-- Collection Category Filter -->
-                <div class="flex items-center space-x-2 bg-zinc-950 p-1.5 rounded-xl border border-zinc-800">
-                    <button onclick="filterInventory('all')" id="inv-filter-all" class="inv-filter-btn px-4 py-1.5 rounded-lg text-xs font-medium bg-zinc-800 text-amber-300 border border-amber-500/20">Všechny</button>
-                    <button onclick="filterInventory('niche')" id="inv-filter-niche" class="inv-filter-btn px-4 py-1.5 rounded-lg text-xs font-medium text-zinc-400 hover:text-zinc-200">Niche</button>
-                    <button onclick="filterInventory('designer')" id="inv-filter-designer" class="inv-filter-btn px-4 py-1.5 rounded-lg text-xs font-medium text-zinc-400 hover:text-zinc-200">Designer</button>
+                <div class="flex flex-wrap items-center gap-3">
+                    <!-- Search Input -->
+                    <div class="relative">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-zinc-500"></i>
+                        <input type="text" id="inventory-search" oninput="renderInventoryGrid()" placeholder="Hledat vůni nebo složku..." class="bg-zinc-950 border border-zinc-800 rounded-xl pl-9 pr-4 py-2 text-xs text-zinc-100 focus:outline-none focus:border-amber-500/50 w-48 sm:w-64">
+                    </div>
+
+                    <!-- Collection Category Filter -->
+                    <div class="flex items-center space-x-1 bg-zinc-950 p-1 rounded-xl border border-zinc-800">
+                        <button onclick="filterInventory('all')" id="inv-filter-all" class="inv-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-800 text-amber-300 border border-amber-500/20">Všechny</button>
+                        <button onclick="filterInventory('niche')" id="inv-filter-niche" class="inv-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-400 hover:text-zinc-200">Niche</button>
+                        <button onclick="filterInventory('designer')" id="inv-filter-designer" class="inv-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-400 hover:text-zinc-200">Designer</button>
+                    </div>
                 </div>
             </div>
 
@@ -382,15 +408,15 @@
             </div>
         </section>
 
-        <!-- ==================== TAB 3: INTELIGENTNÍ RÁDCE (ESPRESSO KOMPAS) ==================== -->
+        <!-- ==================== TAB 3: INTELIGENTNÍ RÁDCE & LAYERING ==================== -->
         <section id="tab-content-advisor" class="tab-page hidden space-y-8">
             
             <div class="bg-gradient-to-r from-zinc-900 via-zinc-900/90 to-zinc-950 p-6 rounded-2xl border border-zinc-800/80 shadow-xl">
                 <h2 class="text-2xl font-serif font-bold text-zinc-100 flex items-center gap-2">
                     <i data-lucide="compass" class="w-6 h-6 text-amber-400"></i>
-                    Inteligentní Olfaktorní Rádce
+                    Inteligentní Olfaktorní Rádce & Layering Studio
                 </h2>
-                <p class="text-sm text-zinc-400 mt-1">Odpovězte na 3 rychlé otázky a náš algoritmus vám vybere ideální vůni z vaší sbírky pro dnešní příležitost.</p>
+                <p class="text-sm text-zinc-400 mt-1">Doporučení pro vaši příležitost i generátor dokonalých kombinací dvou parfémů (Layering).</p>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -446,10 +472,96 @@
                     </form>
                 </div>
 
-                <!-- Recommendation Output Display (7 cols) -->
+                <!-- Recommendation & Layering Display (7 cols) -->
                 <div class="lg:col-span-7 space-y-6">
                     <div id="advisor-results" class="space-y-6">
                         <!-- Populated dynamically by JS -->
+                    </div>
+
+                    <!-- LAYERING STUDIO SECTION -->
+                    <div class="bg-zinc-900/80 rounded-2xl p-6 border border-zinc-800 space-y-4">
+                        <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+                            <h3 class="text-lg font-serif font-bold text-amber-300 flex items-center gap-2">
+                                <i data-lucide="layers" class="w-5 h-5 text-amber-400"></i> Scent Layering Combo Studio
+                            </h3>
+                            <button onclick="generateLayeringCombo()" class="px-3 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-medium transition-all">
+                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5 inline mr-1"></i> Nové Kombinování
+                            </button>
+                        </div>
+
+                        <div id="layering-combo-container" class="space-y-3">
+                            <!-- Populated dynamically by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 4: ANALYTIKA & GRAFY (NEW!) ==================== -->
+        <section id="tab-content-analytics" class="tab-page hidden space-y-8">
+            
+            <div class="bg-gradient-to-r from-zinc-900 via-zinc-900/90 to-zinc-950 p-6 rounded-2xl border border-zinc-800/80 shadow-xl">
+                <h2 class="text-2xl font-serif font-bold text-zinc-100 flex items-center gap-2">
+                    <i data-lucide="bar-chart-3" class="w-6 h-6 text-amber-400"></i>
+                    Olfaktorní Analytika & Statistiky Sbírky
+                </h2>
+                <p class="text-sm text-zinc-400 mt-1">Interaktivní grafy výkonu, poměru Niche vs. Designer a rozložení olfaktorních akordů.</p>
+            </div>
+
+            <!-- Analytics Key Indicators -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-zinc-900/80 rounded-xl p-4 border border-zinc-800">
+                    <div class="text-xs text-zinc-400 font-medium">Celkem ve Sbírce</div>
+                    <div class="text-2xl font-serif font-bold text-amber-300 mt-1">17 Parfémů</div>
+                    <div class="text-[10px] text-zinc-500 mt-0.5">11 Niche / 6 Designer</div>
+                </div>
+                <div class="bg-zinc-900/80 rounded-xl p-4 border border-zinc-800">
+                    <div class="text-xs text-zinc-400 font-medium">Průměrná Výdrž</div>
+                    <div class="text-2xl font-serif font-bold text-amber-300 mt-1" id="an-avg-longevity">8.3 / 10</div>
+                    <div class="text-[10px] text-zinc-500 mt-0.5">Vysoká trvanlivost</div>
+                </div>
+                <div class="bg-zinc-900/80 rounded-xl p-4 border border-zinc-800">
+                    <div class="text-xs text-zinc-400 font-medium">Nejlépe Hodnocený</div>
+                    <div class="text-base font-serif font-bold text-zinc-200 mt-1 truncate">Vanille Havane</div>
+                    <div class="text-[10px] text-amber-400 mt-0.5">10/10 Longevity</div>
+                </div>
+                <div class="bg-zinc-900/80 rounded-xl p-4 border border-zinc-800">
+                    <div class="text-xs text-zinc-400 font-medium">Celkem Flakónů ml</div>
+                    <div class="text-2xl font-serif font-bold text-amber-300 mt-1" id="an-total-ml">1240 ml</div>
+                    <div class="text-[10px] text-zinc-500 mt-0.5">Zbývá ~12,400 střiků</div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <!-- Chart 1: Performance Bar Chart -->
+                <div class="bg-zinc-900/80 rounded-2xl p-6 border border-zinc-800 space-y-4">
+                    <h3 class="text-base font-semibold text-zinc-200 flex items-center gap-2 border-b border-zinc-800 pb-3">
+                        <i data-lucide="trending-up" class="w-4 h-4 text-amber-400"></i> Porovnání Výdrže (Longevity) & Projekce (Sillage)
+                    </h3>
+                    <div class="h-64 relative">
+                        <canvas id="chart-performance"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 2: Niche vs Designer Pie Chart -->
+                <div class="bg-zinc-900/80 rounded-2xl p-6 border border-zinc-800 space-y-4">
+                    <h3 class="text-base font-semibold text-zinc-200 flex items-center gap-2 border-b border-zinc-800 pb-3">
+                        <i data-lucide="pie-chart" class="w-4 h-4 text-amber-400"></i> Podíl Niche vs. Designer
+                    </h3>
+                    <div class="h-64 relative flex items-center justify-center">
+                        <canvas id="chart-category"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 3: Main Accord Distribution -->
+                <div class="bg-zinc-900/80 rounded-2xl p-6 border border-zinc-800 space-y-4 lg:col-span-2">
+                    <h3 class="text-base font-semibold text-zinc-200 flex items-center gap-2 border-b border-zinc-800 pb-3">
+                        <i data-lucide="sparkle" class="w-4 h-4 text-amber-400"></i> Zastoupení Hlavních Olfaktorních Složek
+                    </h3>
+                    <div class="h-64 relative">
+                        <canvas id="chart-notes"></canvas>
                     </div>
                 </div>
             </div>
@@ -511,14 +623,14 @@
                 <span class="font-serif font-bold text-amber-500/80">Olfaktorní Deník</span>
                 <span>&copy; 2026</span>
             </div>
-            <p>Osobní Niche & Designer Fragrance Curator & SOTD Companion</p>
+            <p>Osobní Niche & Designer Fragrance Curator & Analytics Suite</p>
         </div>
     </footer>
 
     <!-- JAVASCRIPT APPLICATION LOGIC -->
     <script>
         /* ==========================================================================
-           1. HARDCODED PERFUME COLLECTION DATASET
+           1. HARDCODED PERFUME COLLECTION DATASET WITH BOTTLE VOLUME TRACKING
            ========================================================================== */
         const PERFUMES_DATA = [
             // --- NICHE (11) ---
@@ -532,6 +644,8 @@
                 vibes: ['clean', 'professional', 'formal', 'office'],
                 longevity: 9,
                 sillage: 8,
+                totalMl: 100,
+                remainingMl: 82.5,
                 desc: 'Sofistikovaná, květinově-dřevitá ikona čistoty a elegance.',
                 favOccasion: 'Kancelář & Formální schůzky'
             },
@@ -545,6 +659,8 @@
                 vibes: ['professional', 'clean', 'office', 'leisure'],
                 longevity: 8,
                 sillage: 7,
+                totalMl: 100,
+                remainingMl: 90.0,
                 desc: 'Moderní molekulární elegance s řízným dřevitým akordem.',
                 favOccasion: 'Kancelář & Všední den'
             },
@@ -558,6 +674,8 @@
                 vibes: ['dark', 'sweet', 'date', 'evening'],
                 longevity: 10,
                 sillage: 9,
+                totalMl: 50,
+                remainingMl: 41.0,
                 desc: 'Opulentní gurmánský tabák s rumem a temnou vanilkou.',
                 favOccasion: 'Rande & Chladné večery'
             },
@@ -571,6 +689,8 @@
                 vibes: ['clean', 'sweet', 'leisure', 'date'],
                 longevity: 8,
                 sillage: 7,
+                totalMl: 100,
+                remainingMl: 74.0,
                 desc: 'Snová, romantická citrusově-rezinózní kompozice.',
                 favOccasion: 'Slunečné dny & Procházky'
             },
@@ -584,6 +704,8 @@
                 vibes: ['dark', 'sweet', 'leisure'],
                 longevity: 8,
                 sillage: 8,
+                totalMl: 75,
+                remainingMl: 62.0,
                 desc: 'Hřejivá symfonie červeného čaje, citrusů a ambry.',
                 favOccasion: 'Odpolední relaxace & Chladnější dny'
             },
@@ -597,6 +719,8 @@
                 vibes: ['dark', 'sweet', 'evening', 'formal'],
                 longevity: 9,
                 sillage: 8,
+                totalMl: 75,
+                remainingMl: 68.0,
                 desc: 'Luxusní orientální růže se sladkými datlemi a kořením.',
                 favOccasion: 'Večerní události & Divadlo'
             },
@@ -610,6 +734,8 @@
                 vibes: ['clean', 'gym', 'leisure'],
                 longevity: 7,
                 sillage: 7,
+                totalMl: 100,
+                remainingMl: 85.0,
                 desc: 'Jiskřivý, osvěžující australský zázvor s citrusovým náběhem.',
                 favOccasion: 'Horké léto & Sport'
             },
@@ -623,6 +749,8 @@
                 vibes: ['sweet', 'dark', 'date'],
                 longevity: 9,
                 sillage: 8,
+                totalMl: 50,
+                remainingMl: 44.0,
                 desc: 'Sametově sladká kůže s karamelem a hřejivým kořením.',
                 favOccasion: 'Zimní večery & Romantika'
             },
@@ -636,6 +764,8 @@
                 vibes: ['dark', 'dominant', 'evening', 'date'],
                 longevity: 10,
                 sillage: 9,
+                totalMl: 30,
+                remainingMl: 26.5,
                 desc: 'Mystická nálož drahého single malt whiskey a sudového dřeva.',
                 favOccasion: 'Klub, Bar & Vyzývavé večery'
             },
@@ -649,6 +779,8 @@
                 vibes: ['clean', 'office', 'leisure'],
                 longevity: 7,
                 sillage: 6,
+                totalMl: 100,
+                remainingMl: 92.0,
                 desc: 'Krémově jemné pižmo s medovým dotekem a levandulí.',
                 favOccasion: 'Denní nošení & Kancelář'
             },
@@ -662,6 +794,8 @@
                 vibes: ['clean', 'professional', 'formal', 'dominant'],
                 longevity: 9,
                 sillage: 8,
+                totalMl: 50,
+                remainingMl: 43.0,
                 desc: 'Královská aristo-citrusová klasika s neuvěřitelnou hloubkou.',
                 favOccasion: 'Exkluzivní obchodní jednání'
             },
@@ -677,6 +811,8 @@
                 vibes: ['sweet', 'leisure'],
                 longevity: 8,
                 sillage: 8,
+                totalMl: 100,
+                remainingMl: 88.0,
                 desc: 'Šťavnaté jablko a hrozny na sladkém semišovém základu.',
                 favOccasion: 'Pohodový volný čas'
             },
@@ -690,6 +826,8 @@
                 vibes: ['clean', 'gym', 'leisure'],
                 longevity: 7,
                 sillage: 7,
+                totalMl: 90,
+                remainingMl: 78.0,
                 desc: 'Energický citrusovo-akvatický náboj pro aktivní dny.',
                 favOccasion: 'Posilovna & Léto'
             },
@@ -703,6 +841,8 @@
                 vibes: ['sweet', 'leisure', 'date'],
                 longevity: 8,
                 sillage: 7,
+                totalMl: 100,
+                remainingMl: 81.0,
                 desc: 'Hravý ananas s perníkovým kořením a svěžím nádechem.',
                 favOccasion: 'Rande & Letní večery'
             },
@@ -717,6 +857,8 @@
                 vibes: ['dominant', 'professional', 'office'],
                 longevity: 9,
                 sillage: 9,
+                totalMl: 100,
+                remainingMl: 91.0,
                 desc: 'Výrazný ovocně-kouřový profil s obrovskou projekcí.',
                 favOccasion: 'Zanechání silného dojmu'
             },
@@ -730,6 +872,8 @@
                 vibes: ['sweet', 'date', 'evening'],
                 longevity: 9,
                 sillage: 9,
+                totalMl: 100,
+                remainingMl: 86.0,
                 desc: 'Neodolatelná skořicovo-vanilková gourmand bomba.',
                 favOccasion: 'Chladné večery & Párty'
             },
@@ -743,6 +887,8 @@
                 vibes: ['clean', 'gym', 'leisure'],
                 longevity: 6,
                 sillage: 6,
+                totalMl: 100,
+                remainingMl: 94.0,
                 desc: 'Svěží mořský vánek s minerálním dřevitým tónem.',
                 favOccasion: 'Horké plážové dny'
             }
@@ -765,11 +911,11 @@
 
         let sotdHistory = [];
         let activeInventoryFilter = 'all';
+        let chartsInitialized = false;
 
         /* ==========================================================================
-           3. FIREBASE SETUP & INITIALIZATION TEMPLATE
+           3. FIREBASE SETUP & INITIALIZATION
            ========================================================================== */
-        // SEM VLOŽTE VAŠE FIREBASE KONFIGURAČNÍ KLÍČE (POKUDA CHCETE POUŽÍVAT CLOUD FIRESTORE)
         const firebaseConfig = {
             apiKey: "AIzaSyDMYlablJox9g01gG5ugvjFTj_X3VmQhWo",
             authDomain: "olfaktorni-denik.firebaseapp.com",
@@ -784,7 +930,6 @@
         let isFirebaseConnected = false;
 
         function initFirebase() {
-            // Okamžité načtení lokálních dat, aby rozhraní nikdy nečekalo
             loadSOTDFromLocalStorage();
 
             try {
@@ -817,13 +962,11 @@
             const weatherInput = document.getElementById('sotd-weather');
             const displayEl = document.getElementById('weather-display');
 
-            // Výchozí okamžité hodnoty
             if (tempInput) tempInput.value = "19.5 °C";
             if (weatherInput) weatherInput.value = "Polojasno";
             if (displayEl) displayEl.innerText = "19.5°C, Brno";
 
             try {
-                // Coordinates for Brno: Lat 49.1951, Lon 16.6068
                 const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=49.1951&longitude=16.6068&current_weather=true');
                 const data = await res.json();
                 
@@ -858,39 +1001,36 @@
            5. TAB SWITCHING LOGIC
            ========================================================================== */
         function switchTab(tabName) {
-            // Hide all pages
             document.querySelectorAll('.tab-page').forEach(page => page.classList.add('hidden'));
             
-            // Reset nav styles
             document.querySelectorAll('.nav-tab').forEach(btn => {
-                btn.className = "nav-tab flex items-center space-x-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50";
+                btn.className = "nav-tab flex items-center space-x-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50";
             });
             document.querySelectorAll('.mobile-nav-tab').forEach(btn => {
-                btn.className = "mobile-nav-tab flex flex-col items-center py-1 px-3 rounded-lg text-xs font-medium text-zinc-400";
+                btn.className = "mobile-nav-tab flex flex-col items-center py-1 px-2 rounded-lg text-[11px] font-medium text-zinc-400";
             });
 
-            // Show selected page
             const activePage = document.getElementById(`tab-content-${tabName}`);
             if (activePage) activePage.classList.remove('hidden');
 
-            // Highlight selected tab
             const desktopBtn = document.getElementById(`tab-btn-${tabName}`);
             if (desktopBtn) {
-                desktopBtn.className = "nav-tab flex items-center space-x-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 text-amber-300 bg-zinc-800/90 shadow-sm border border-amber-500/20";
+                desktopBtn.className = "nav-tab flex items-center space-x-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 text-amber-300 bg-zinc-800/90 shadow-sm border border-amber-500/20";
             }
             const mobileBtn = document.getElementById(`mobile-tab-${tabName}`);
             if (mobileBtn) {
-                mobileBtn.className = "mobile-nav-tab flex flex-col items-center py-1 px-3 rounded-lg text-xs font-medium text-amber-300";
+                mobileBtn.className = "mobile-nav-tab flex flex-col items-center py-1 px-2 rounded-lg text-[11px] font-medium text-amber-300";
             }
 
-            if (tabName === 'sotd') {
-                renderSOTDSelectOptions();
-            } else if (tabName === 'inventory') {
+            if (tabName === 'inventory') {
                 renderInventoryGrid();
                 renderWishlist();
                 renderBlacklist();
             } else if (tabName === 'advisor') {
                 liveAdvisorCalculate();
+                generateLayeringCombo();
+            } else if (tabName === 'analytics') {
+                renderAnalyticsCharts();
             }
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -913,11 +1053,11 @@
 
             let html = '<optgroup label="Niche Parfémy">';
             PERFUMES_DATA.filter(p => p.type === 'Niche').forEach(p => {
-                html += `<option value="${p.id}">${p.brand} - ${p.name}</option>`;
+                html += `<option value="${p.id}">${p.brand} - ${p.name} (zbývá ${p.remainingMl} ml)</option>`;
             });
             html += '</optgroup><optgroup label="Designer Parfémy">';
             PERFUMES_DATA.filter(p => p.type === 'Designer').forEach(p => {
-                html += `<option value="${p.id}">${p.brand} - ${p.name}</option>`;
+                html += `<option value="${p.id}">${p.brand} - ${p.name} (zbývá ${p.remainingMl} ml)</option>`;
             });
             html += '</optgroup>';
 
@@ -931,6 +1071,12 @@
 
             if (!perfume) return;
 
+            const sprays = parseInt(document.getElementById('sotd-sprays').value) || 4;
+            const mlDeducted = parseFloat((sprays * 0.1).toFixed(1));
+
+            // Deduct volume from bottle
+            perfume.remainingMl = Math.max(0, parseFloat((perfume.remainingMl - mlDeducted).toFixed(1)));
+
             const entry = {
                 id: 'sotd-' + Date.now(),
                 timestamp: new Date().toISOString(),
@@ -939,6 +1085,8 @@
                 brand: perfume.brand,
                 name: perfume.name,
                 type: perfume.type,
+                sprays: sprays,
+                mlDeducted: mlDeducted,
                 temp: document.getElementById('sotd-temp').value,
                 weather: document.getElementById('sotd-weather').value,
                 longevity: document.getElementById('slider-longevity').value,
@@ -950,12 +1098,10 @@
             sotdHistory.unshift(entry);
             saveSOTDData();
             renderSOTDHistory();
+            renderSOTDSelectOptions();
             
-            // Reset form notes
             document.getElementById('sotd-notes').value = '';
-            
-            // Toast feedback
-            showToast(`Uloženo! Dnešní Vůně: ${perfume.name}`);
+            showToast(`Uloženo! Dnešní Vůně: ${perfume.name} (-${mlDeducted} ml)`);
         }
 
         function saveSOTDData() {
@@ -983,6 +1129,8 @@
                     brand: 'Amouage',
                     name: 'Reflection Man',
                     type: 'Niche',
+                    sprays: 4,
+                    mlDeducted: 0.4,
                     temp: '21.5 °C',
                     weather: 'Slunečno',
                     longevity: '9',
@@ -1001,7 +1149,6 @@
                 return;
             }
 
-            // 1. Automatické nahrání lokálních záznamů z počítače do cloudu
             if (sotdHistory && sotdHistory.length > 0) {
                 sotdHistory.forEach(item => {
                     if (item && item.id) {
@@ -1012,7 +1159,6 @@
                 });
             }
 
-            // 2. Živá obousměrná synchronizace v reálném čase mezi počítačem a telefonem
             db.collection('sotd_logs').onSnapshot(snapshot => {
                 const logs = [];
                 snapshot.forEach(doc => logs.push(doc.data()));
@@ -1021,14 +1167,6 @@
                     sotdHistory = logs;
                     localStorage.setItem('olfaktor_sotd_history', JSON.stringify(sotdHistory));
                     renderSOTDHistory();
-                } else if (sotdHistory && sotdHistory.length > 0) {
-                    sotdHistory.forEach(item => {
-                        if (item && item.id) {
-                            try {
-                                db.collection('sotd_logs').doc(item.id).set(item, { merge: true });
-                            } catch(e){}
-                        }
-                    });
                 }
             }, err => {
                 console.warn("Firestore listener error, using local storage:", err);
@@ -1045,7 +1183,6 @@
 
             if (totalEl) totalEl.innerText = sotdHistory.length;
 
-            // Calculate favorite perfume
             if (sotdHistory.length > 0) {
                 const counts = {};
                 sotdHistory.forEach(item => {
@@ -1084,10 +1221,13 @@
                             </button>
                         </div>
 
-                        <div class="flex items-center gap-3 text-xs text-zinc-400 bg-zinc-900/60 px-3 py-1.5 rounded-lg border border-zinc-800/50">
-                            <span class="flex items-center gap-1 text-amber-300"><i data-lucide="thermometer" class="w-3.5 h-3.5"></i> ${item.temp}</span>
-                            <span>•</span>
-                            <span>${item.weather}</span>
+                        <div class="flex items-center justify-between text-xs text-zinc-400 bg-zinc-900/60 px-3 py-1.5 rounded-lg border border-zinc-800/50">
+                            <div class="flex items-center gap-2">
+                                <span class="flex items-center gap-1 text-amber-300"><i data-lucide="thermometer" class="w-3.5 h-3.5"></i> ${item.temp}</span>
+                                <span>•</span>
+                                <span>${item.weather}</span>
+                            </div>
+                            <span class="text-[11px] text-amber-400/90 font-medium">${item.sprays || 4} střiky (-${item.mlDeducted || 0.4} ml)</span>
                         </div>
 
                         <div class="grid grid-cols-3 gap-2 text-center text-[11px]">
@@ -1130,30 +1270,41 @@
         }
 
         /* ==========================================================================
-           7. INVENTORY & COLLECTION RENDER
+           7. INVENTORY & BOTTLE VOLUME TRACKER
            ========================================================================== */
         function filterInventory(category) {
             activeInventoryFilter = category;
             document.querySelectorAll('.inv-filter-btn').forEach(b => {
-                b.className = 'inv-filter-btn px-4 py-1.5 rounded-lg text-xs font-medium text-zinc-400 hover:text-zinc-200';
+                b.className = 'inv-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-400 hover:text-zinc-200';
             });
             const activeBtn = document.getElementById(`inv-filter-${category}`);
             if (activeBtn) {
-                activeBtn.className = 'inv-filter-btn px-4 py-1.5 rounded-lg text-xs font-medium bg-zinc-800 text-amber-300 border border-amber-500/20';
+                activeBtn.className = 'inv-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-800 text-amber-300 border border-amber-500/20';
             }
             renderInventoryGrid();
         }
 
         function renderInventoryGrid() {
             const grid = document.getElementById('inventory-grid');
+            const searchVal = (document.getElementById('inventory-search')?.value || '').toLowerCase().trim();
+
             if (!grid) return;
 
             let filtered = PERFUMES_DATA;
             if (activeInventoryFilter === 'niche') filtered = PERFUMES_DATA.filter(p => p.type === 'Niche');
             if (activeInventoryFilter === 'designer') filtered = PERFUMES_DATA.filter(p => p.type === 'Designer');
 
+            if (searchVal) {
+                filtered = filtered.filter(p => 
+                    p.name.toLowerCase().includes(searchVal) ||
+                    p.brand.toLowerCase().includes(searchVal) ||
+                    p.notes.some(n => n.toLowerCase().includes(searchVal))
+                );
+            }
+
             let html = '';
             filtered.forEach(p => {
+                const pct = Math.round((p.remainingMl / p.totalMl) * 100);
                 const notesTags = p.notes.map(n => `<span class="px-2 py-0.5 bg-zinc-800 text-zinc-300 text-[10px] rounded border border-zinc-700/50">${n}</span>`).join(' ');
                 
                 html += `
@@ -1172,7 +1323,18 @@
                                 <h3 class="text-lg font-serif font-bold text-zinc-100 mt-0.5 group-hover:text-amber-300 transition-colors">${p.name}</h3>
                             </div>
 
-                            <p class="text-xs text-zinc-400 mt-2 line-clamp-2">${p.desc}</p>
+                            <!-- Liquid Volume Level Meter -->
+                            <div class="mt-3 space-y-1">
+                                <div class="flex justify-between text-[11px]">
+                                    <span class="text-zinc-400">Stav flakónu</span>
+                                    <span class="text-amber-300 font-bold">${p.remainingMl} ml / ${p.totalMl} ml (${pct}%)</span>
+                                </div>
+                                <div class="w-full h-2 bg-zinc-950 rounded-full overflow-hidden border border-zinc-800">
+                                    <div class="h-full bg-gradient-to-r from-amber-600 to-amber-400 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+                                </div>
+                            </div>
+
+                            <p class="text-xs text-zinc-400 mt-3 line-clamp-2">${p.desc}</p>
 
                             <div class="mt-4 flex flex-wrap gap-1.5">
                                 ${notesTags}
@@ -1313,7 +1475,7 @@
         }
 
         /* ==========================================================================
-           9. INTELLIGENT ADVISOR ALGORITHM ("Espresso Compass")
+           9. INTELLIGENT ADVISOR & LAYERING COMBO STUDIO
            ========================================================================== */
         function liveAdvisorCalculate() {
             const q1 = document.getElementById('adv-q1')?.value || 'office';
@@ -1321,9 +1483,8 @@
             const q3 = document.getElementById('adv-q3')?.value || 'clean';
 
             const scores = PERFUMES_DATA.map(perfume => {
-                let score = 50; // Base score
+                let score = 50;
 
-                // 1. OCCASION MATCHING
                 if (q1 === 'office') {
                     if (['reflection-man', 'clive-1872', 'the-hedonist', 'the-musc'].includes(perfume.id)) score += 45;
                     if (['vanille-havane', 'baraonda', 'liquid-brun'].includes(perfume.id)) score -= 25;
@@ -1336,7 +1497,6 @@
                     if (['baraonda', 'odeon', 'clive-1872', 'vanille-havane', 'reflection-man'].includes(perfume.id)) score += 40;
                 }
 
-                // 2. WEATHER MATCHING
                 if (q2 === 'summer') {
                     if (perfume.seasons.includes('Summer')) score += 30;
                     if (['vanille-havane', 'baraonda', 'liquid-brun'].includes(perfume.id)) score -= 35;
@@ -1345,7 +1505,6 @@
                     if (['rare-reef', 'turathi-electric'].includes(perfume.id)) score -= 20;
                 }
 
-                // 3. VIBE / IMPRESSION MATCHING
                 if (q3 === 'clean' && perfume.vibes.includes('clean')) score += 35;
                 if (q3 === 'dark' && perfume.vibes.includes('dark')) score += 40;
                 if (q3 === 'sweet' && perfume.vibes.includes('sweet')) score += 35;
@@ -1355,7 +1514,6 @@
                 return { perfume, score };
             });
 
-            // Sort by score descending
             scores.sort((a, b) => b.score - a.score);
 
             const primary = scores[0].perfume;
@@ -1445,8 +1603,177 @@
             lucide.createIcons();
         }
 
+        function generateLayeringCombo() {
+            const container = document.getElementById('layering-combo-container');
+            if (!container) return;
+
+            const combos = [
+                {
+                    base: PERFUMES_DATA.find(p => p.id === 'the-musc'),
+                    top: PERFUMES_DATA.find(p => p.id === 'vanille-havane'),
+                    vibe: 'Gourmand Velvet',
+                    desc: 'Jemný medovo-pižmový základ zjemňuje temný gurmánský tabák a vanilku, vytvářející úchvatnou sametovou auru.'
+                },
+                {
+                    base: PERFUMES_DATA.find(p => p.id === 'the-hedonist'),
+                    top: PERFUMES_DATA.find(p => p.id === 'reflection-man'),
+                    vibe: 'Modern Executive',
+                    desc: 'Molekulární Akigalawood dává Reflection Man novou moderní dřevitou projekci a prodlužuje jeho výdrž o 3 hodiny.'
+                },
+                {
+                    base: PERFUMES_DATA.find(p => p.id === 'ingenious-ginger'),
+                    top: PERFUMES_DATA.find(p => p.id === 'midsummer-dream'),
+                    vibe: 'Solar Citrus Spark',
+                    desc: 'Jiskřivý australský zázvor rozněcuje snové citrusy a reziny pro absolutní letní svěžest.'
+                }
+            ];
+
+            const randomCombo = combos[Math.floor(Math.random() * combos.length)];
+
+            container.innerHTML = `
+                <div class="bg-zinc-950 p-4 rounded-xl border border-amber-500/20 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs uppercase font-bold text-amber-400 tracking-wider">${randomCombo.vibe} Combo</span>
+                        <span class="text-[10px] text-zinc-500 bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800">Synergie 98%</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div class="bg-zinc-900 p-2.5 rounded-lg border border-zinc-800">
+                            <span class="text-[10px] text-zinc-500 uppercase block">1. Základní Vrstva (Základ)</span>
+                            <span class="font-bold text-zinc-200">${randomCombo.base.brand} - ${randomCombo.base.name}</span>
+                            <span class="text-[10px] text-amber-300 block mt-0.5">2 střiky na krk</span>
+                        </div>
+                        <div class="bg-zinc-900 p-2.5 rounded-lg border border-zinc-800">
+                            <span class="text-[10px] text-zinc-500 uppercase block">2. Vrchní Vrstva (Akcent)</span>
+                            <span class="font-bold text-amber-300">${randomCombo.top.brand} - ${randomCombo.top.name}</span>
+                            <span class="text-[10px] text-zinc-400 block mt-0.5">2 střiky na zápěstí</span>
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-zinc-400 italic bg-zinc-900/50 p-2 rounded">
+                        "${randomCombo.desc}"
+                    </p>
+                </div>`;
+            lucide.createIcons();
+        }
+
         /* ==========================================================================
-           10. UTILITY TOAST NOTIFICATIONS
+           10. CHART.JS ANALYTICS DASHBOARD
+           ========================================================================== */
+        function renderAnalyticsCharts() {
+            if (typeof Chart === 'undefined') return;
+
+            // 1. Performance Chart (Longevity & Sillage)
+            const perfCtx = document.getElementById('chart-performance');
+            if (perfCtx && !perfCtx.chartInstance) {
+                const labels = PERFUMES_DATA.slice(0, 8).map(p => p.name);
+                const longevityData = PERFUMES_DATA.slice(0, 8).map(p => p.longevity);
+                const sillageData = PERFUMES_DATA.slice(0, 8).map(p => p.sillage);
+
+                perfCtx.chartInstance = new Chart(perfCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Výdrž (Longevity 0-10)',
+                                data: longevityData,
+                                backgroundColor: 'rgba(212, 175, 55, 0.7)',
+                                borderColor: '#D4AF37',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Projekce (Sillage 0-10)',
+                                data: sillageData,
+                                backgroundColor: 'rgba(63, 63, 70, 0.7)',
+                                borderColor: '#71717a',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#a1a1aa', font: { family: 'Inter', size: 11 } } }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#71717a', font: { size: 10 } }, grid: { color: '#27272a' } },
+                            y: { ticks: { color: '#71717a' }, grid: { color: '#27272a' }, min: 0, max: 10 }
+                        }
+                    }
+                });
+            }
+
+            // 2. Category Pie Chart (Niche vs Designer)
+            const catCtx = document.getElementById('chart-category');
+            if (catCtx && !catCtx.chartInstance) {
+                const nicheCount = PERFUMES_DATA.filter(p => p.type === 'Niche').length;
+                const designerCount = PERFUMES_DATA.filter(p => p.type === 'Designer').length;
+
+                catCtx.chartInstance = new Chart(catCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Niche Kolekce (11)', 'Designer Kolekce (6)'],
+                        datasets: [{
+                            data: [nicheCount, designerCount],
+                            backgroundColor: ['rgba(212, 175, 55, 0.8)', 'rgba(59, 130, 246, 0.8)'],
+                            borderColor: '#09090b',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#a1a1aa', font: { family: 'Inter', size: 11 } } }
+                        }
+                    }
+                });
+            }
+
+            // 3. Notes Bar Chart
+            const notesCtx = document.getElementById('chart-notes');
+            if (notesCtx && !notesCtx.chartInstance) {
+                const noteCounts = {};
+                PERFUMES_DATA.forEach(p => {
+                    p.notes.forEach(n => {
+                        noteCounts[n] = (noteCounts[n] || 0) + 1;
+                    });
+                });
+
+                const sortedNotes = Object.keys(noteCounts).sort((a,b) => noteCounts[b] - noteCounts[a]).slice(0, 10);
+                const noteData = sortedNotes.map(n => noteCounts[n]);
+
+                notesCtx.chartInstance = new Chart(notesCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: sortedNotes,
+                        datasets: [{
+                            label: 'Počet Parfémů s touto složkou',
+                            data: noteData,
+                            backgroundColor: 'rgba(197, 160, 89, 0.6)',
+                            borderColor: '#C5A059',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#a1a1aa', font: { family: 'Inter', size: 11 } } }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#71717a', font: { size: 10 } }, grid: { color: '#27272a' } },
+                            y: { ticks: { color: '#71717a', stepSize: 1 }, grid: { color: '#27272a' } }
+                        }
+                    }
+                });
+            }
+        }
+
+        /* ==========================================================================
+           11. UTILITY TOAST NOTIFICATIONS
            ========================================================================== */
         function showToast(message) {
             const toast = document.createElement('div');
@@ -1466,7 +1793,7 @@
         }
 
         /* ==========================================================================
-           11. APP INITIALIZATION ON LOAD
+           12. APP INITIALIZATION ON LOAD
            ========================================================================== */
         function initApp() {
             try { if (window.lucide) lucide.createIcons(); } catch(e){}
