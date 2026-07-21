@@ -1429,12 +1429,18 @@
         /* ==========================================================================
            11. APP INITIALIZATION ON LOAD
            ========================================================================== */
-        document.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
+        function initApp() {
+            try { if (window.lucide) lucide.createIcons(); } catch(e){}
             initFirebase();
             fetchBrnoWeather();
             renderSOTDSelectOptions();
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
     </script>
 </body>
 </html>
