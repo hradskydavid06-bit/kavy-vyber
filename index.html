@@ -1118,27 +1118,14 @@
         function loadSOTDFromLocalStorage() {
             const saved = localStorage.getItem('olfaktor_sotd_history');
             if (saved) {
-                try { sotdHistory = JSON.parse(saved); } catch(e){ sotdHistory = []; }
-            }
-            if (!sotdHistory || sotdHistory.length === 0) {
-                sotdHistory = [{
-                    id: 'sotd-init',
-                    timestamp: new Date().toISOString(),
-                    dateStr: 'Dnes',
-                    perfumeId: 'reflection-man',
-                    brand: 'Amouage',
-                    name: 'Reflection Man',
-                    type: 'Niche',
-                    sprays: 4,
-                    mlDeducted: 0.4,
-                    temp: '21.5 °C',
-                    weather: 'Slunečno',
-                    longevity: '9',
-                    sillage: '8',
-                    reaction: '9',
-                    notes: 'Skvělá projekce v kanceláři, pozitivní ohlasy kolegů.'
-                }];
-                localStorage.setItem('olfaktor_sotd_history', JSON.stringify(sotdHistory));
+                try { 
+                    sotdHistory = JSON.parse(saved); 
+                    sotdHistory = sotdHistory.filter(i => i.id !== 'sotd-init');
+                } catch(e){ 
+                    sotdHistory = []; 
+                }
+            } else {
+                sotdHistory = [];
             }
             renderSOTDHistory();
         }
@@ -1149,9 +1136,10 @@
                 return;
             }
 
+            // Sync only real user entries
             if (sotdHistory && sotdHistory.length > 0) {
                 sotdHistory.forEach(item => {
-                    if (item && item.id) {
+                    if (item && item.id && item.id !== 'sotd-init') {
                         try {
                             db.collection('sotd_logs').doc(item.id).set(item, { merge: true });
                         } catch(e){}
@@ -1159,15 +1147,23 @@
                 });
             }
 
+            // Smazání starého ukázkového záznamu z Firestore
+            try {
+                db.collection('sotd_logs').doc('sotd-init').delete();
+            } catch(e){}
+
             db.collection('sotd_logs').onSnapshot(snapshot => {
                 const logs = [];
-                snapshot.forEach(doc => logs.push(doc.data()));
-                if (logs.length > 0) {
-                    logs.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
-                    sotdHistory = logs;
-                    localStorage.setItem('olfaktor_sotd_history', JSON.stringify(sotdHistory));
-                    renderSOTDHistory();
-                }
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (doc.id !== 'sotd-init' && data && data.id !== 'sotd-init') {
+                        logs.push(data);
+                    }
+                });
+                logs.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+                sotdHistory = logs;
+                localStorage.setItem('olfaktor_sotd_history', JSON.stringify(sotdHistory));
+                renderSOTDHistory();
             }, err => {
                 console.warn("Firestore listener error, using local storage:", err);
                 loadSOTDFromLocalStorage();
