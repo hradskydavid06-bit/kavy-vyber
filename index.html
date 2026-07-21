@@ -761,23 +761,26 @@
         let isFirebaseConnected = false;
 
         function initFirebase() {
+            // Okamžité načtení lokálních dat, aby rozhraní nikdy nečekalo
+            loadSOTDFromLocalStorage();
+
             try {
                 if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
                     firebase.initializeApp(firebaseConfig);
                     db = firebase.firestore();
                     isFirebaseConnected = true;
-                    document.getElementById('sync-status-text').innerText = 'Firebase Connected';
-                    document.getElementById('sync-status').classList.remove('border-zinc-800');
-                    document.getElementById('sync-status').classList.add('border-emerald-500/40', 'text-emerald-300');
+                    const statusText = document.getElementById('sync-status-text');
+                    const statusBadge = document.getElementById('sync-status');
+                    if (statusText) statusText.innerText = 'Firebase Connected';
+                    if (statusBadge) {
+                        statusBadge.classList.remove('border-zinc-800');
+                        statusBadge.classList.add('border-emerald-500/40', 'text-emerald-300');
+                    }
                     console.log("Firebase Firestore initialized successfully.");
                     loadSOTDFromFirestore();
-                } else {
-                    console.log("Using LocalStorage mode (Firebase keys not provided).");
-                    loadSOTDFromLocalStorage();
                 }
             } catch (err) {
-                console.warn("Firebase initialization skipped, defaulting to LocalStorage:", err);
-                loadSOTDFromLocalStorage();
+                console.warn("Firebase initialization skipped:", err);
             }
         }
 
@@ -791,9 +794,10 @@
             const weatherInput = document.getElementById('sotd-weather');
             const displayEl = document.getElementById('weather-display');
 
-            if (tempInput) tempInput.value = "Načítání...";
-            if (weatherInput) weatherInput.value = "Načítání...";
-            if (displayEl) displayEl.innerText = "Aktualizace...";
+            // Výchozí okamžité hodnoty
+            if (tempInput) tempInput.value = "19.5 °C";
+            if (weatherInput) weatherInput.value = "Polojasno";
+            if (displayEl) displayEl.innerText = "19.5°C, Brno";
 
             try {
                 // Coordinates for Brno: Lat 49.1951, Lon 16.6068
@@ -813,10 +817,6 @@
                 }
             } catch (e) {
                 console.warn("Meteo API fallback activated:", e);
-                currentWeatherData = { temp: '18.0', condition: 'Příjemně' };
-                if (tempInput) tempInput.value = "18.0 °C";
-                if (weatherInput) weatherInput.value = "Příjemně";
-                if (displayEl) displayEl.innerText = "18.0°C, Brno";
             }
         }
 
