@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Olfaktorní Deník | Luxusní Správce Parfémů</title>
     
     <!-- Google Fonts -->
@@ -176,7 +179,27 @@
                         <div>
                             <label class="block text-xs uppercase tracking-wider text-zinc-400 mb-2 font-medium">Vyberte Parfém ze Sbírky</label>
                             <select id="sotd-perfume-select" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-zinc-100 text-sm focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 transition-all">
-                                <!-- Populated dynamically by JS -->
+                                <optgroup label="Niche Parfémy">
+                                    <option value="reflection-man">Amouage - Reflection Man</option>
+                                    <option value="the-hedonist">Ex Nihilo - The Hedonist</option>
+                                    <option value="vanille-havane">Anatole Lebreton - Vanille Havane</option>
+                                    <option value="midsummer-dream">Roja Parfums - The Midsummer Dream</option>
+                                    <option value="winter-palace">Memo Paris - Winter Palace</option>
+                                    <option value="odeon">Memo Paris - Odéon</option>
+                                    <option value="ingenious-ginger">Goldfield & Banks - Ingenious Ginger</option>
+                                    <option value="sugar-leather">Une Nuit Nomade - Sugar Leather</option>
+                                    <option value="baraonda">Nasomatto - Baraonda</option>
+                                    <option value="the-musc">Essential Parfums - The Musc</option>
+                                    <option value="clive-1872">Clive Christian - 1872 Masculine</option>
+                                </optgroup>
+                                <optgroup label="Designer Parfémy">
+                                    <option value="casablanca">Swiss Arabian - Essence of Casablanca</option>
+                                    <option value="turathi-electric">Afnan - Turathi Electric</option>
+                                    <option value="yellow-dream">Valentino - Born in Roma Yellow Dream</option>
+                                    <option value="supremacy-collectors">Afnan - Supremacy Collector's Edition</option>
+                                    <option value="liquid-brun">French Avenue - Liquid Brun</option>
+                                    <option value="rare-reef">Afnan - Rare Reef</option>
+                                </optgroup>
                             </select>
                         </div>
 
@@ -184,11 +207,11 @@
                         <div class="grid grid-cols-2 gap-4 bg-zinc-950/60 p-4 rounded-xl border border-zinc-800/60">
                             <div>
                                 <label class="block text-[11px] uppercase tracking-wider text-zinc-500 font-medium">Teplota (°C)</label>
-                                <input type="text" id="sotd-temp" readonly class="w-full bg-transparent border-0 text-sm font-semibold text-amber-300 p-0 mt-1 focus:ring-0" value="Načítání...">
+                                <input type="text" id="sotd-temp" readonly class="w-full bg-transparent border-0 text-sm font-semibold text-amber-300 p-0 mt-1 focus:ring-0" value="19.5 °C">
                             </div>
                             <div>
                                 <label class="block text-[11px] uppercase tracking-wider text-zinc-500 font-medium">Stav Počasí</label>
-                                <input type="text" id="sotd-weather" readonly class="w-full bg-transparent border-0 text-sm font-semibold text-zinc-300 p-0 mt-1 focus:ring-0" value="Načítání...">
+                                <input type="text" id="sotd-weather" readonly class="w-full bg-transparent border-0 text-sm font-semibold text-zinc-300 p-0 mt-1 focus:ring-0" value="Polojasno">
                             </div>
                         </div>
 
