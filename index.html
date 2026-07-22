@@ -53,23 +53,138 @@
     <style>
         /* Modern Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #09090b; }
-        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 9999px; }
-        ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+        ::-webkit-scrollbar-track { background: #0c0c0e; }
+        ::-webkit-scrollbar-thumb { background: #222226; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #33333b; }
 
         /* Custom Gold Glows & Card Styles */
         .gold-border-glow {
-            box-shadow: 0 0 18px -3px rgba(212, 175, 55, 0.15);
+            box-shadow: none !important;
         }
         .gold-text-gradient {
-            background: linear-gradient(135deg, #F3EDDF 0%, #D4AF37 50%, #C5A059 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            background: none !important;
+            -webkit-background-clip: initial !important;
+            -webkit-text-fill-color: initial !important;
+            color: #f4f4f5 !important;
         }
         .glass-panel {
-            background: rgba(24, 24, 27, 0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(12, 12, 14, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        /* Luxury Monochromatic Minimalist Overrides */
+        body {
+            background-color: #09090b !important;
+            color: #d4d4d8 !important;
+        }
+        header {
+            background-color: rgba(9, 9, 11, 0.9) !important;
+            border-bottom: 1px solid #1f1f23 !important;
+        }
+        nav.hidden.md\:flex {
+            background-color: #121214 !important;
+            border: 1px solid #1f1f23 !important;
+            border-radius: 12px !important;
+        }
+        .nav-tab {
+            color: #71717a !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            transition: all 0.2s ease !important;
+        }
+        .nav-tab:hover {
+            color: #f4f4f5 !important;
+        }
+        .nav-tab.text-amber-300 {
+            color: #ffffff !important;
+            background-color: #1c1c1f !important;
+            border-radius: 8px !important;
+            border: 1px solid #27272a !important;
+        }
+        /* Card Panel Overrides */
+        .bg-zinc-900\/80, .bg-zinc-900, .bg-zinc-950\/80, .bg-gradient-to-r.from-zinc-900 {
+            background-color: #121214 !important;
+            background-image: none !important;
+            border: 1px solid #1f1f23 !important;
+            box-shadow: none !important;
+        }
+        .border-zinc-800\/80, .border-zinc-800, .border-zinc-700\/60, .border-zinc-700\/50, .border-zinc-900 {
+            border-color: #1f1f23 !important;
+        }
+        /* Buttons overrides */
+        button.bg-amber-500, button.bg-gradient-to-r.from-amber-500 {
+            background-image: none !important;
+            background-color: #f4f4f5 !important;
+            color: #09090b !important;
+            font-weight: 600 !important;
+            border: 1px solid #f4f4f5 !important;
+            transition: all 0.2s ease !important;
+        }
+        button.bg-amber-500:hover, button.bg-gradient-to-r.from-amber-500:hover {
+            background-color: #ffffff !important;
+            color: #09090b !important;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.15) !important;
+        }
+        button.bg-amber-500\/10, button.bg-amber-500\/10\/hover {
+            background-color: rgba(255, 255, 255, 0.04) !important;
+            border-color: #27272a !important;
+            color: #f4f4f5 !important;
+        }
+        button.bg-zinc-800 {
+            background-color: #18181b !important;
+            border-color: #27272a !important;
+            color: #d4d4d8 !important;
+        }
+        button.bg-zinc-800:hover {
+            background-color: #27272a !important;
+            color: #ffffff !important;
+        }
+        /* Inputs */
+        input, select, textarea {
+            background-color: #09090b !important;
+            border-color: #1f1f23 !important;
+            color: #f4f4f5 !important;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #3f3f46 !important;
+        }
+        /* Text Accents & Badges */
+        .text-amber-400, .text-amber-300, .text-amber-200, .text-amber-300\/80, .text-amber-400\/90 {
+            color: #e4e4e7 !important;
+        }
+        .bg-amber-500\/10 {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+            border-color: #1f1f23 !important;
+            color: #e4e4e7 !important;
+        }
+        .fill-amber-400 {
+            fill: #d4d4d8 !important;
+        }
+        /* Header signature */
+        #header-signature {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+            border-color: #1f1f23 !important;
+            color: #d4d4d8 !important;
+        }
+        #header-signature i {
+            color: #d4d4d8 !important;
+        }
+        /* Liquid progress bar */
+        .bg-gradient-to-r.from-amber-600.to-amber-400 {
+            background-image: linear-gradient(to right, #3f3f46, #e4e4e7) !important;
+        }
+        /* Mobile Nav */
+        .md\:hidden.border-t.border-zinc-800\/60 {
+            background-color: #09090b !important;
+            border-top: 1px solid #1f1f23 !important;
+        }
+        .mobile-nav-tab {
+            color: #52525b !important;
+        }
+        .mobile-nav-tab.text-amber-300 {
+            color: #ffffff !important;
         }
     </style>
 </head>
@@ -614,6 +729,26 @@
                     </h3>
                     <div class="h-64 relative">
                         <canvas id="chart-notes"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 4: Season Suitability Radar Chart -->
+                <div class="bg-zinc-900/80 rounded-2xl p-6 border border-zinc-800 space-y-4">
+                    <h3 class="text-base font-semibold text-zinc-200 flex items-center gap-2 border-b border-zinc-800 pb-3">
+                        <i data-lucide="sun-moon" class="w-4 h-4 text-amber-400"></i> Sezónní Zastoupení ve Sbírce
+                    </h3>
+                    <div class="h-64 relative flex items-center justify-center">
+                        <canvas id="chart-seasons"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 5: Most Worn Perfumes Tracker -->
+                <div class="bg-zinc-900/80 rounded-2xl p-6 border border-zinc-800 space-y-4">
+                    <h3 class="text-base font-semibold text-zinc-200 flex items-center gap-2 border-b border-zinc-800 pb-3">
+                        <i data-lucide="award" class="w-4 h-4 text-amber-400"></i> Nejnošenější Vůně (Počet zápisů)
+                    </h3>
+                    <div class="h-64 relative">
+                        <canvas id="chart-wear-tracker"></canvas>
                     </div>
                 </div>
             </div>
@@ -1932,12 +2067,23 @@
         function renderAnalyticsCharts() {
             if (typeof Chart === 'undefined') return;
 
+            // Zničíme předchozí instance, aby se grafy překreslovaly s aktuálními daty (např. po přidání flakónu či zápisu SOTD)
+            const chartIds = ['chart-performance', 'chart-category', 'chart-notes', 'chart-seasons', 'chart-wear-tracker'];
+            chartIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.chartInstance) {
+                    el.chartInstance.destroy();
+                    el.chartInstance = null;
+                }
+            });
+
             // 1. Performance Chart (Longevity & Sillage)
             const perfCtx = document.getElementById('chart-performance');
-            if (perfCtx && !perfCtx.chartInstance) {
-                const labels = PERFUMES_DATA.slice(0, 8).map(p => p.name);
-                const longevityData = PERFUMES_DATA.slice(0, 8).map(p => p.longevity);
-                const sillageData = PERFUMES_DATA.slice(0, 8).map(p => p.sillage);
+            if (perfCtx) {
+                const sortedByLongevity = [...PERFUMES_DATA].sort((a, b) => b.longevity - a.longevity).slice(0, 8);
+                const labels = sortedByLongevity.map(p => p.name);
+                const longevityData = sortedByLongevity.map(p => p.longevity);
+                const sillageData = sortedByLongevity.map(p => p.sillage);
 
                 perfCtx.chartInstance = new Chart(perfCtx, {
                     type: 'bar',
@@ -1947,14 +2093,14 @@
                             {
                                 label: 'Výdrž (Longevity 0-10)',
                                 data: longevityData,
-                                backgroundColor: 'rgba(212, 175, 55, 0.7)',
-                                borderColor: '#D4AF37',
+                                backgroundColor: 'rgba(244, 244, 245, 0.75)',
+                                borderColor: '#f4f4f5',
                                 borderWidth: 1
                             },
                             {
                                 label: 'Projekce (Sillage 0-10)',
                                 data: sillageData,
-                                backgroundColor: 'rgba(63, 63, 70, 0.7)',
+                                backgroundColor: 'rgba(113, 113, 122, 0.5)',
                                 borderColor: '#71717a',
                                 borderWidth: 1
                             }
@@ -1967,8 +2113,8 @@
                             legend: { labels: { color: '#a1a1aa', font: { family: 'Inter', size: 11 } } }
                         },
                         scales: {
-                            x: { ticks: { color: '#71717a', font: { size: 10 } }, grid: { color: '#27272a' } },
-                            y: { ticks: { color: '#71717a' }, grid: { color: '#27272a' }, min: 0, max: 10 }
+                            x: { ticks: { color: '#71717a', font: { size: 10 } }, grid: { color: '#1f1f23' } },
+                            y: { ticks: { color: '#71717a' }, grid: { color: '#1f1f23' }, min: 0, max: 10 }
                         }
                     }
                 });
@@ -1976,18 +2122,18 @@
 
             // 2. Category Pie Chart (Niche vs Designer)
             const catCtx = document.getElementById('chart-category');
-            if (catCtx && !catCtx.chartInstance) {
+            if (catCtx) {
                 const nicheCount = PERFUMES_DATA.filter(p => p.type === 'Niche').length;
                 const designerCount = PERFUMES_DATA.filter(p => p.type === 'Designer').length;
 
                 catCtx.chartInstance = new Chart(catCtx, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Niche Kolekce (11)', 'Designer Kolekce (6)'],
+                        labels: [`Niche (${nicheCount})`, `Designer (${designerCount})`],
                         datasets: [{
                             data: [nicheCount, designerCount],
-                            backgroundColor: ['rgba(212, 175, 55, 0.8)', 'rgba(59, 130, 246, 0.8)'],
-                            borderColor: '#09090b',
+                            backgroundColor: ['rgba(244, 244, 245, 0.85)', 'rgba(82, 82, 91, 0.7)'],
+                            borderColor: '#121214',
                             borderWidth: 2
                         }]
                     },
@@ -2003,7 +2149,7 @@
 
             // 3. Notes Bar Chart
             const notesCtx = document.getElementById('chart-notes');
-            if (notesCtx && !notesCtx.chartInstance) {
+            if (notesCtx) {
                 const noteCounts = {};
                 PERFUMES_DATA.forEach(p => {
                     p.notes.forEach(n => {
@@ -2021,8 +2167,8 @@
                         datasets: [{
                             label: 'Počet Parfémů s touto složkou',
                             data: noteData,
-                            backgroundColor: 'rgba(197, 160, 89, 0.6)',
-                            borderColor: '#C5A059',
+                            backgroundColor: 'rgba(244, 244, 245, 0.6)',
+                            borderColor: '#e4e4e7',
                             borderWidth: 1
                         }]
                     },
@@ -2033,8 +2179,91 @@
                             legend: { labels: { color: '#a1a1aa', font: { family: 'Inter', size: 11 } } }
                         },
                         scales: {
-                            x: { ticks: { color: '#71717a', font: { size: 10 } }, grid: { color: '#27272a' } },
-                            y: { ticks: { color: '#71717a', stepSize: 1 }, grid: { color: '#27272a' } }
+                            x: { ticks: { color: '#71717a', font: { size: 10 } }, grid: { color: '#1f1f23' } },
+                            y: { ticks: { color: '#71717a', stepSize: 1 }, grid: { color: '#1f1f23' } }
+                        }
+                    }
+                });
+            }
+
+            // 4. Season Radar Chart
+            const seasonCtx = document.getElementById('chart-seasons');
+            if (seasonCtx) {
+                const seasonsCount = { Spring: 0, Summer: 0, Autumn: 0, Winter: 0 };
+                PERFUMES_DATA.forEach(p => {
+                    if (p.seasons) {
+                        p.seasons.forEach(s => {
+                            if (seasonsCount[s] !== undefined) seasonsCount[s]++;
+                        });
+                    }
+                });
+
+                seasonCtx.chartInstance = new Chart(seasonCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Jaro 🌸', 'Léto ☀️', 'Podzim 🍂', 'Zima ❄️'],
+                        datasets: [{
+                            label: 'Počet parfémů',
+                            data: [seasonsCount.Spring, seasonsCount.Summer, seasonsCount.Autumn, seasonsCount.Winter],
+                            backgroundColor: 'rgba(244, 244, 245, 0.12)',
+                            borderColor: '#e4e4e7',
+                            borderWidth: 1.5,
+                            pointBackgroundColor: '#e4e4e7'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            r: {
+                                angleLines: { color: '#1f1f23' },
+                                grid: { color: '#1f1f23' },
+                                pointLabels: { color: '#a1a1aa', font: { family: 'Inter', size: 11 } },
+                                ticks: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 5. Wear Tracker Chart
+            const wearCtx = document.getElementById('chart-wear-tracker');
+            if (wearCtx) {
+                const wearCounts = {};
+                sotdHistory.forEach(item => {
+                    wearCounts[item.name] = (wearCounts[item.name] || 0) + 1;
+                    if (item.name2) {
+                        wearCounts[item.name2] = (wearCounts[item.name2] || 0) + 1;
+                    }
+                });
+
+                const sortedWear = Object.keys(wearCounts).sort((a,b) => wearCounts[b] - wearCounts[a]).slice(0, 8);
+                const wearData = sortedWear.map(name => wearCounts[name]);
+
+                wearCtx.chartInstance = new Chart(wearCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: sortedWear.length > 0 ? sortedWear : ['Žádné záznamy'],
+                        datasets: [{
+                            label: 'Počet použití',
+                            data: wearData.length > 0 ? wearData : [0],
+                            backgroundColor: 'rgba(161, 161, 170, 0.6)',
+                            borderColor: '#a1a1aa',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#71717a', font: { size: 10 } }, grid: { color: '#1f1f23' } },
+                            y: { ticks: { color: '#71717a', stepSize: 1 }, grid: { color: '#1f1f23' }, min: 0 }
                         }
                     }
                 });
