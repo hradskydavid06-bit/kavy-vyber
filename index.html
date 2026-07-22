@@ -220,6 +220,20 @@
                                     <option value="rare-reef">Afnan - Rare Reef</option>
                                 </optgroup>
                             </select>
+
+                            <!-- Layering checkbox -->
+                            <div class="flex items-center space-x-2 mt-2.5">
+                                <input type="checkbox" id="sotd-layer-toggle" onchange="toggleLayeringDropdown()" class="w-4 h-4 accent-amber-400 rounded cursor-pointer">
+                                <label for="sotd-layer-toggle" class="text-xs text-zinc-400 font-medium cursor-pointer select-none">Vrstvit (kombinovat) s dalším parfémem</label>
+                            </div>
+
+                            <!-- Layering second select -->
+                            <div id="sotd-layer-container" class="mt-3.5 hidden">
+                                <label class="block text-xs uppercase tracking-wider text-zinc-500 mb-1.5 font-medium">Vyberte 2. vrstvu parfému</label>
+                                <select id="sotd-perfume-select2" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-zinc-100 text-sm focus:outline-none focus:border-amber-500/50 transition-all">
+                                    <!-- Populated dynamically by JS -->
+                                </select>
+                            </div>
                         </div>
 
                         <!-- Sprays Counter & Weather Info -->
@@ -476,6 +490,30 @@
                                 <option value="sweet">Sladký & Lákavý</option>
                                 <option value="professional">Profesionální & Elegantní</option>
                                 <option value="dominant">Výrazný & Dominantní</option>
+                            </select>
+                        </div>
+
+                        <!-- Question 4 (Style of Clothing) -->
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-amber-300/90 font-medium mb-2">4. Jaký styl oblečení dnes volíš?</label>
+                            <select id="adv-q4" onchange="liveAdvisorCalculate()" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-zinc-100 text-sm focus:outline-none focus:border-amber-500/50">
+                                <option value="casual">Casual (Tričko, džíny, volný čas)</option>
+                                <option value="smart">Smart Casual (Sako bez kravaty, košile)</option>
+                                <option value="suit">Formální oblek / Smoking</option>
+                                <option value="sporty">Sportovní / Pohodlné</option>
+                            </select>
+                        </div>
+
+                        <!-- Question 5 (Preferred Accord) -->
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-amber-300/90 font-medium mb-2">5. Na jakou vonnou složku máš dnes chuť?</label>
+                            <select id="adv-q5" onchange="liveAdvisorCalculate()" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-zinc-100 text-sm focus:outline-none focus:border-amber-500/50">
+                                <option value="any">Na tom nesejde (Komplexní doporučení)</option>
+                                <option value="citrus">Svěží citrusy, bergamot & zázvor</option>
+                                <option value="wood">Vzácné dřevo, cedr & oud</option>
+                                <option value="sweet">Sladká vanilka, karamel & pralinky</option>
+                                <option value="spicy">Hřejivé koření, kardamom, rum & tabák</option>
+                                <option value="leather">Luxusní kůže & semiš</option>
                             </select>
                         </div>
 
@@ -1173,8 +1211,21 @@
             }
         }
 
+        function toggleLayeringDropdown() {
+            const toggle = document.getElementById('sotd-layer-toggle');
+            const container = document.getElementById('sotd-layer-container');
+            if (toggle && container) {
+                if (toggle.checked) {
+                    container.classList.remove('hidden');
+                } else {
+                    container.classList.add('hidden');
+                }
+            }
+        }
+
         function renderSOTDSelectOptions() {
             const select = document.getElementById('sotd-perfume-select');
+            const select2 = document.getElementById('sotd-perfume-select2');
             if (!select) return;
 
             let html = '<optgroup label="Niche Parfémy">';
@@ -1188,6 +1239,7 @@
             html += '</optgroup>';
 
             select.innerHTML = html;
+            if (select2) select2.innerHTML = html;
         }
 
         function handleSaveSOTD(e) {
@@ -1197,11 +1249,22 @@
 
             if (!perfume) return;
 
+            const isLayered = document.getElementById('sotd-layer-toggle').checked;
+            const perfumeId2 = isLayered ? document.getElementById('sotd-perfume-select2').value : null;
+            const perfume2 = perfumeId2 ? PERFUMES_DATA.find(p => p.id === perfumeId2) : null;
+
             const sprays = parseInt(document.getElementById('sotd-sprays').value) || 4;
             const mlDeducted = parseFloat((sprays * 0.1).toFixed(1));
 
-            // Deduct volume from bottle
-            perfume.remainingMl = Math.max(0, parseFloat((perfume.remainingMl - mlDeducted).toFixed(1)));
+            // Odečet ml z flakónů
+            if (isLayered && perfume2) {
+                const spraysEach = Math.max(1, Math.round(sprays / 2));
+                const mlEach = parseFloat((spraysEach * 0.1).toFixed(1));
+                perfume.remainingMl = Math.max(0, parseFloat((perfume.remainingMl - mlEach).toFixed(1)));
+                perfume2.remainingMl = Math.max(0, parseFloat((perfume2.remainingMl - mlEach).toFixed(1)));
+            } else {
+                perfume.remainingMl = Math.max(0, parseFloat((perfume.remainingMl - mlDeducted).toFixed(1)));
+            }
 
             const entry = {
                 id: 'sotd-' + Date.now(),
@@ -1211,6 +1274,13 @@
                 brand: perfume.brand,
                 name: perfume.name,
                 type: perfume.type,
+                // Layering
+                isLayered: isLayered,
+                perfumeId2: perfume2 ? perfume2.id : null,
+                brand2: perfume2 ? perfume2.brand : null,
+                name2: perfume2 ? perfume2.name : null,
+                type2: perfume2 ? perfume2.type : null,
+
                 sprays: sprays,
                 mlDeducted: mlDeducted,
                 temp: document.getElementById('sotd-temp').value,
@@ -1227,7 +1297,14 @@
             renderSOTDSelectOptions();
             
             document.getElementById('sotd-notes').value = '';
-            showToast(`Uloženo! Dnešní Vůně: ${perfume.name} (-${mlDeducted} ml)`);
+            document.getElementById('sotd-layer-toggle').checked = false;
+            toggleLayeringDropdown();
+
+            if (isLayered && perfume2) {
+                showToast(`Uloženo vrstvení: ${perfume.name} + ${perfume2.name}`);
+            } else {
+                showToast(`Uloženo! Dnešní Vůně: ${perfume.name} (-${mlDeducted} ml)`);
+            }
         }
 
         function saveSOTDData() {
@@ -1328,15 +1405,28 @@
 
             let html = '';
             sotdHistory.forEach((item) => {
+                let titleHtml = '';
+                if (item.isLayered && item.name2) {
+                    titleHtml = `
+                        <h4 class="text-base font-serif font-bold text-zinc-100 mt-1 flex flex-wrap items-center gap-1.5">
+                            <span class="gold-text-gradient">${item.brand} - ${item.name}</span>
+                            <span class="text-zinc-500 text-[10px] uppercase font-bold px-1.5 py-0.5 bg-zinc-900 border border-zinc-800 rounded-md">Vrstvící combo</span>
+                            <span class="text-amber-300/90">${item.brand2} - ${item.name2}</span>
+                        </h4>`;
+                } else {
+                    titleHtml = `<h4 class="text-base font-serif font-bold text-zinc-100 mt-1">${item.brand} - ${item.name}</h4>`;
+                }
+
                 html += `
                     <div class="bg-zinc-950/80 p-4 rounded-xl border border-zinc-800/80 space-y-3 relative group hover:border-amber-500/30 transition-all">
                         <div class="flex items-start justify-between">
                             <div>
                                 <div class="flex items-center space-x-2">
                                     <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded ${item.type === 'Niche' ? 'bg-amber-500/10 text-amber-300 border border-amber-500/30' : 'bg-blue-500/10 text-blue-300 border border-blue-500/30'}">${item.type}</span>
+                                    ${item.isLayered ? `<span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30">Combo</span>` : ''}
                                     <span class="text-xs text-zinc-500">${item.dateStr}</span>
                                 </div>
-                                <h4 class="text-base font-serif font-bold text-zinc-100 mt-1">${item.brand} - ${item.name}</h4>
+                                ${titleHtml}
                             </div>
                             <button onclick="deleteSOTDEntry('${item.id}')" class="text-zinc-600 hover:text-red-400 transition-colors p-1" title="Smazat">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -1611,35 +1701,83 @@
             const q1 = document.getElementById('adv-q1')?.value || 'office';
             const q2 = document.getElementById('adv-q2')?.value || 'spring';
             const q3 = document.getElementById('adv-q3')?.value || 'clean';
+            const q4 = document.getElementById('adv-q4')?.value || 'casual';
+            const q5 = document.getElementById('adv-q5')?.value || 'any';
 
             const scores = PERFUMES_DATA.map(perfume => {
-                let score = 50;
+                let score = 50; // Výchozí neutrální skóre
 
+                // 1. Kam se chystáš (Příležitost)
                 if (q1 === 'office') {
-                    if (['reflection-man', 'clive-1872', 'the-hedonist', 'the-musc'].includes(perfume.id)) score += 45;
-                    if (['vanille-havane', 'baraonda', 'liquid-brun'].includes(perfume.id)) score -= 25;
+                    if (perfume.vibes.includes('office') || perfume.vibes.includes('professional')) score += 30;
+                    if (perfume.favOccasion.toLowerCase().includes('kancelář') || perfume.favOccasion.toLowerCase().includes('schůzk') || perfume.favOccasion.toLowerCase().includes('prác')) score += 20;
+                    if (perfume.vibes.includes('dark') || perfume.vibes.includes('dominant')) score -= 20; // příliš těžké do kanclu
                 } else if (q1 === 'date') {
-                    if (['vanille-havane', 'baraonda', 'sugar-leather', 'liquid-brun', 'yellow-dream'].includes(perfume.id)) score += 50;
+                    if (perfume.vibes.includes('date') || perfume.vibes.includes('sweet') || perfume.vibes.includes('dark')) score += 35;
+                    if (perfume.favOccasion.toLowerCase().includes('rande') || perfume.favOccasion.toLowerCase().includes('večeř')) score += 20;
                 } else if (q1 === 'gym') {
-                    if (['ingenious-ginger', 'turathi-electric', 'rare-reef'].includes(perfume.id)) score += 60;
-                    if (['vanille-havane', 'baraonda', 'sugar-leather', 'odeon'].includes(perfume.id)) score -= 40;
-                } else if (q1 === 'evening' || q1 === 'formal') {
-                    if (['baraonda', 'odeon', 'clive-1872', 'vanille-havane', 'reflection-man'].includes(perfume.id)) score += 40;
+                    if (perfume.vibes.includes('gym') || perfume.vibes.includes('clean')) score += 50;
+                    if (perfume.vibes.includes('dark') || perfume.vibes.includes('sweet') || perfume.longevity > 9) score -= 40; // těžké orientálky
+                } else if (q1 === 'evening') {
+                    if (perfume.vibes.includes('evening') || perfume.vibes.includes('dominant') || perfume.vibes.includes('dark')) score += 30;
+                    if (perfume.favOccasion.toLowerCase().includes('večer') || perfume.favOccasion.toLowerCase().includes('klub') || perfume.favOccasion.toLowerCase().includes('párty')) score += 20;
+                } else if (q1 === 'formal') {
+                    if (perfume.vibes.includes('formal') || perfume.vibes.includes('professional')) score += 35;
+                    if (perfume.favOccasion.toLowerCase().includes('formál') || perfume.favOccasion.toLowerCase().includes('jednán')) score += 20;
+                } else if (q1 === 'leisure') {
+                    if (perfume.vibes.includes('leisure') || perfume.vibes.includes('clean')) score += 25;
                 }
 
+                // 2. Jaké je počasí (Seasons)
                 if (q2 === 'summer') {
                     if (perfume.seasons.includes('Summer')) score += 30;
-                    if (['vanille-havane', 'baraonda', 'liquid-brun'].includes(perfume.id)) score -= 35;
+                    // Těžké složky v horku strhávají body
+                    const heavyNotes = ['vanilla', 'tobacco', 'oud', 'caramel', 'praline', 'leather', 'cinnamon', 'hřebíček'];
+                    const hasHeavy = perfume.notes.some(n => heavyNotes.includes(n.toLowerCase()));
+                    if (hasHeavy) score -= 35;
                 } else if (q2 === 'winter') {
-                    if (perfume.seasons.includes('Winter')) score += 35;
-                    if (['rare-reef', 'turathi-electric'].includes(perfume.id)) score -= 20;
+                    if (perfume.seasons.includes('Winter')) score += 30;
+                    const winterNotes = ['vanilla', 'tobacco', 'oud', 'cinnamon', 'leather', 'dates', 'cacao', 'rum'];
+                    const hasWinter = perfume.notes.some(n => winterNotes.includes(n.toLowerCase()));
+                    if (hasWinter) score += 20;
+                } else if (q2 === 'spring') {
+                    if (perfume.seasons.includes('Spring') || perfume.seasons.includes('All-year')) score += 25;
+                } else if (q2 === 'rain') {
+                    if (perfume.seasons.includes('Autumn') || perfume.vibes.includes('dark')) score += 20;
                 }
 
-                if (q3 === 'clean' && perfume.vibes.includes('clean')) score += 35;
-                if (q3 === 'dark' && perfume.vibes.includes('dark')) score += 40;
-                if (q3 === 'sweet' && perfume.vibes.includes('sweet')) score += 35;
-                if (q3 === 'professional' && perfume.vibes.includes('professional')) score += 40;
-                if (q3 === 'dominant' && perfume.vibes.includes('dominant')) score += 35;
+                // 3. Dojem (Vibes)
+                if (perfume.vibes.includes(q3)) score += 35;
+
+                // 4. Styl oblečení
+                if (q4 === 'suit') {
+                    if (perfume.vibes.includes('formal') || perfume.vibes.includes('professional')) score += 25;
+                } else if (q4 === 'shirt') {
+                    if (perfume.vibes.includes('professional') || perfume.vibes.includes('clean')) score += 15;
+                } else if (q4 === 'casual') {
+                    if (perfume.vibes.includes('leisure') || perfume.vibes.includes('clean')) score += 15;
+                } else if (q4 === 'sporty') {
+                    if (perfume.vibes.includes('gym') || perfume.vibes.includes('clean')) score += 20;
+                }
+
+                // 5. Preferovaná složka (Accord)
+                if (q5 !== 'any') {
+                    let noteMatched = false;
+                    const notesLower = perfume.notes.map(n => n.toLowerCase());
+                    if (q5 === 'citrus') {
+                        noteMatched = notesLower.some(n => ['citrus', 'bergamot', 'grapefruit', 'mandarin', 'petitgrain', 'neroli', 'ginger', 'zázvor'].includes(n));
+                    } else if (q5 === 'wood') {
+                        noteMatched = notesLower.some(n => ['wood', 'oud', 'cedarwood', 'sandalwood', 'guaiac wood', 'birch', 'driftwood', 'akigalawood', 'cedr', 'dřevo'].includes(n));
+                    } else if (q5 === 'sweet') {
+                        noteMatched = notesLower.some(n => ['vanilla', 'vanilka', 'caramel', 'karamel', 'praline', 'pralinky', 'dates', 'datle', 'sugar', 'cacao', 'kakao'].includes(n));
+                    } else if (q5 === 'spicy') {
+                        noteMatched = notesLower.some(n => ['cardamom', 'kardamom', 'clove', 'hřebíček', 'cinnamon', 'skořice', 'tobacco', 'tabák', 'rum', 'ginger', 'zázvor'].includes(n));
+                    } else if (q5 === 'leather') {
+                        noteMatched = notesLower.some(n => ['leather', 'kůže', 'suede', 'semiš', 'labdanum'].includes(n));
+                    }
+
+                    if (noteMatched) score += 55; // Silná váha pro složku!
+                }
 
                 return { perfume, score };
             });
