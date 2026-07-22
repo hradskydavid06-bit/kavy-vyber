@@ -660,6 +660,25 @@
                             </div>
                         </div>
 
+                        <!-- Matchmaker Search Tool (Dynamic Layering Finder) -->
+                        <div class="p-4 bg-zinc-950/40 rounded-xl border border-zinc-900 space-y-3">
+                            <label class="block text-xs uppercase tracking-wider text-zinc-400 font-medium">Hledat nejlepší kombinace pro konkrétní parfém:</label>
+                            <div class="flex gap-2">
+                                <select id="matchmaker-perfume-select" onchange="runLayeringMatchmaker()" class="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-zinc-100 focus:outline-none focus:border-amber-500/50 flex-1">
+                                    <option value="">-- Vyberte vůni --</option>
+                                    <!-- Populed dynamically by JS -->
+                                </select>
+                                <button type="button" onclick="clearMatchmaker()" class="px-4 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 border border-zinc-800 rounded-xl text-xs transition-all">Vyčistit</button>
+                            </div>
+                            <div id="matchmaker-results" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 hidden">
+                                <!-- Populated dynamically by JS -->
+                            </div>
+                        </div>
+
+                        <div class="border-t border-zinc-900 my-4"></div>
+
+                        <div class="text-xs uppercase tracking-widest text-zinc-500 font-semibold mb-2">Doporučené kombinace od kurátora</div>
+
                         <div id="layering-combo-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <!-- Populated dynamically by JS -->
                         </div>
@@ -2154,6 +2173,133 @@
             }
         }
 
+        function populateMatchmakerSelect() {
+            const select = document.getElementById('matchmaker-perfume-select');
+            if (!select) return;
+
+            let html = '<option value="">-- Vyberte vůni --</option>';
+            html += '<optgroup label="Niche Parfémy">';
+            PERFUMES_DATA.filter(p => p.type === 'Niche').forEach(p => {
+                html += `<option value="${p.id}">${p.brand} - ${p.name}</option>`;
+            });
+            html += '</optgroup><optgroup label="Designer Parfémy">';
+            PERFUMES_DATA.filter(p => p.type === 'Designer').forEach(p => {
+                html += `<option value="${p.id}">${p.brand} - ${p.name}</option>`;
+            });
+            html += '</optgroup>';
+
+            select.innerHTML = html;
+        }
+
+        function runLayeringMatchmaker() {
+            const perfumeId = document.getElementById('matchmaker-perfume-select').value;
+            const resultsContainer = document.getElementById('matchmaker-results');
+            if (!perfumeId) {
+                if (resultsContainer) resultsContainer.classList.add('hidden');
+                return;
+            }
+
+            const p1 = PERFUMES_DATA.find(p => p.id === perfumeId);
+            if (!p1) return;
+
+            // Ohodnotíme všechny ostatní parfémy ve sbírce
+            const matches = PERFUMES_DATA.filter(p => p.id !== p1.id).map(p2 => {
+                let score = 50; // výchozí neutrální skóre
+
+                const p1Notes = p1.notes.map(n => n.toLowerCase());
+                const p2Notes = p2.notes.map(n => n.toLowerCase());
+
+                // 1. Fresh vs Heavy kontrast
+                const p1Fresh = p1Notes.some(n => ['citrus', 'bergamot', 'grapefruit', 'mandarin', 'petitgrain', 'neroli', 'ginger', 'mint', 'sea salt', 'aquatic', 'sea notes', 'zázvor'].includes(n));
+                const p1Heavy = p1Notes.some(n => ['wood', 'oud', 'cedarwood', 'sandalwood', 'guaiac wood', 'birch', 'vanilla', 'caramel', 'praline', 'leather', 'suede', 'tobacco', 'rum', 'clove', 'cinnamon', 'hřebíček', 'skořice', 'vanilka', 'kůže', 'semiš', 'dřevo', 'tabák'].includes(n));
+                
+                const p2Fresh = p2Notes.some(n => ['citrus', 'bergamot', 'grapefruit', 'mandarin', 'petitgrain', 'neroli', 'ginger', 'mint', 'sea salt', 'aquatic', 'sea notes', 'zázvor'].includes(n));
+                const p2Heavy = p2Notes.some(n => ['wood', 'oud', 'cedarwood', 'sandalwood', 'guaiac wood', 'birch', 'vanilla', 'caramel', 'praline', 'leather', 'suede', 'tobacco', 'rum', 'clove', 'cinnamon', 'hřebíček', 'skořice', 'vanilka', 'kůže', 'semiš', 'dřevo', 'tabák'].includes(n));
+
+                if (p1Fresh && p2Heavy) score += 35;
+                if (p1Heavy && p2Fresh) score += 35;
+
+                // 2. Zabránění přeslazení / přílišné těžkosti (Sweet + Sweet se tluče)
+                const p1Sweet = p1Notes.some(n => ['vanilla', 'caramel', 'praline', 'dates', 'sugar', 'vanilka', 'karamel', 'pralinky', 'sladký'].includes(n));
+                const p2Sweet = p2Notes.some(n => ['vanilla', 'caramel', 'praline', 'dates', 'sugar', 'vanilka', 'karamel', 'pralinky', 'sladký'].includes(n));
+                if (p1Sweet && p2Sweet) score -= 30;
+
+                // 3. Shoda / kontrast vibu
+                const vibeOverlap = p1.vibes.filter(v => p2.vibes.includes(v));
+                if (vibeOverlap.length > 0) {
+                    score += vibeOverlap.length * 6;
+                }
+                const hasClean = p1.vibes.includes('clean') || p2.vibes.includes('clean');
+                const hasDarkOrSweet = p1.vibes.includes('dark') || p1.vibes.includes('sweet') || p2.vibes.includes('dark') || p2.vibes.includes('sweet');
+                if (hasClean && hasDarkOrSweet) score += 25; // Clean + Dark je skvělé layering combo
+
+                // 4. Chemické klasické akordy (Růže + Oud, Tabák + Vanilka atd.)
+                const hasOud = p1Notes.some(n => n.includes('oud')) || p2Notes.some(n => n.includes('oud'));
+                const hasRose = p1Notes.some(n => n.includes('rose') || n.includes('růže')) || p2Notes.some(n => n.includes('rose') || n.includes('růže'));
+                if (hasOud && hasRose) score += 30;
+
+                const hasTobacco = p1Notes.some(n => n.includes('tobacco') || n.includes('tabák')) || p2Notes.some(n => n.includes('tobacco') || n.includes('tabák'));
+                const hasVanilla = p1Notes.some(n => n.includes('vanilla') || n.includes('vanilka'));
+                if (hasTobacco && hasVanilla) score += 30;
+
+                // 5. Rozdíl ve výdrži (silnější parfém musí jít dolů)
+                const longevityDiff = Math.abs(p1.longevity - p2.longevity);
+                if (longevityDiff >= 2) score += 10;
+
+                return { perfume: p2, score };
+            });
+
+            // Seřadíme a vezmeme nejlepší 2
+            matches.sort((a, b) => b.score - a.score);
+            const topMatches = matches.slice(0, 2);
+
+            let html = '';
+            topMatches.forEach(m => {
+                const companion = m.perfume;
+                const synergyPct = Math.min(99, Math.max(70, Math.round(m.score)));
+
+                // Určení pořadí (těžší jako spodní base vrstva)
+                const baseRole = p1.longevity >= companion.longevity ? p1 : companion;
+                const topRole = baseRole.id === p1.id ? companion : p1;
+
+                html += `
+                    <div class="bg-zinc-900/60 p-4 rounded-xl border border-zinc-800 flex flex-col justify-between hover:border-zinc-700 transition-all space-y-3">
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-zinc-100">${companion.brand} - ${companion.name}</span>
+                                <span class="text-[9px] text-zinc-400 font-bold px-2 py-0.5 bg-zinc-950 border border-zinc-800 rounded">Synergie ${synergyPct}%</span>
+                            </div>
+                            <p class="text-[10px] text-zinc-400 mt-1">Algoritmus doporučuje toto pořadí vrstvení:</p>
+                            
+                            <div class="grid grid-cols-2 gap-2 text-[10px] mt-2">
+                                <div class="bg-zinc-950 p-2 rounded border border-zinc-900">
+                                    <span class="text-zinc-500 block text-[7px] uppercase tracking-wider">1. Spodní vrstva (Základ)</span>
+                                    <span class="font-bold text-zinc-300 truncate block">${baseRole.brand} - ${baseRole.name}</span>
+                                </div>
+                                <div class="bg-zinc-950 p-2 rounded border border-zinc-900">
+                                    <span class="text-zinc-500 block text-[7px] uppercase tracking-wider">2. Svrchní vrstva (Akcent)</span>
+                                    <span class="font-bold text-zinc-300 truncate block">${topRole.brand} - ${topRole.name}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button onclick="wearCombo('${baseRole.id}', '${topRole.id}')" class="w-full mt-1 py-1.5 bg-zinc-950 hover:bg-zinc-900 text-zinc-300 hover:text-white rounded-lg text-xs font-semibold border border-zinc-800 transition-all flex items-center justify-center gap-1.5">
+                            <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                            <span>Zvolit combo jako SOTD</span>
+                        </button>
+                    </div>`;
+            });
+
+            resultsContainer.innerHTML = html;
+            resultsContainer.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function clearMatchmaker() {
+            document.getElementById('matchmaker-perfume-select').value = '';
+            document.getElementById('matchmaker-results').classList.add('hidden');
+        }
+
         /* ==========================================================================
            10. CHART.JS ANALYTICS DASHBOARD
            ========================================================================== */
@@ -2425,6 +2571,7 @@
 
             renderSOTDSelectOptions();
             renderInventoryGrid();
+            populateMatchmakerSelect();
             closeAddBottleModal();
 
             // Vyčištění formuláře
@@ -2479,6 +2626,7 @@
 
                     renderSOTDSelectOptions();
                     renderInventoryGrid();
+                    populateMatchmakerSelect();
                     updateSignatureDisplay();
                 }).catch(e => console.warn("Chyba načítání vlastních parfémů:", e));
             }
@@ -2552,6 +2700,7 @@
             initFirebase();
             fetchBrnoWeather();
             renderSOTDSelectOptions();
+            populateMatchmakerSelect();
         }
 
         if (document.readyState === 'loading') {
