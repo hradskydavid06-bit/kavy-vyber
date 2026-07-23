@@ -1427,16 +1427,16 @@
             const perfume2 = perfumeId2 ? PERFUMES_DATA.find(p => p.id === perfumeId2) : null;
 
             const sprays = parseInt(document.getElementById('sotd-sprays').value) || 4;
-            const mlDeducted = parseFloat((sprays * 0.1).toFixed(1));
+            const mlDeducted = parseFloat((sprays * 0.12).toFixed(2));
 
-            // Odečet ml z flakónů
+            // Odečet ml z flakónů (0.12 ml na střik pro luxusní nikové rozprašovače)
             if (isLayered && perfume2) {
                 const spraysEach = Math.max(1, Math.round(sprays / 2));
-                const mlEach = parseFloat((spraysEach * 0.1).toFixed(1));
-                perfume.remainingMl = Math.max(0, parseFloat((perfume.remainingMl - mlEach).toFixed(1)));
-                perfume2.remainingMl = Math.max(0, parseFloat((perfume2.remainingMl - mlEach).toFixed(1)));
+                const mlEach = parseFloat((spraysEach * 0.12).toFixed(2));
+                perfume.remainingMl = Math.max(0, parseFloat((perfume.remainingMl - mlEach).toFixed(2)));
+                perfume2.remainingMl = Math.max(0, parseFloat((perfume2.remainingMl - mlEach).toFixed(2)));
             } else {
-                perfume.remainingMl = Math.max(0, parseFloat((perfume.remainingMl - mlDeducted).toFixed(1)));
+                perfume.remainingMl = Math.max(0, parseFloat((perfume.remainingMl - mlDeducted).toFixed(2)));
             }
 
             const entry = {
