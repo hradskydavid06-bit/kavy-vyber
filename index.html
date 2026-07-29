@@ -349,6 +349,7 @@
                 <div class="flex gap-2 overflow-x-auto hide-scroll pb-2 lg:pb-0">
                     <button type="button" onclick="setRecipeFilter('')" id="filter-all" class="filter-btn btn-primary px-5 py-3 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap">Vše</button>
                     <button type="button" onclick="setRecipeFilter('Espresso')" id="filter-espresso" class="filter-btn btn-secondary px-5 py-3 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap">Espresso</button>
+                    <button type="button" onclick="setRecipeFilter('Speciální Espresso')" id="filter-specialni-espresso" class="filter-btn btn-secondary px-5 py-3 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap hidden">Speciální Espresso</button>
                     <button type="button" onclick="setRecipeFilter('V60')" id="filter-v60" class="filter-btn btn-secondary px-5 py-3 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap">V60</button>
                     <button type="button" onclick="setRecipeFilter('Batch')" id="filter-batch" class="filter-btn btn-secondary px-5 py-3 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap">Batch</button>
                 </div>
@@ -676,7 +677,8 @@
                 btn.classList.remove('btn-primary');
                 btn.classList.add('btn-secondary');
             });
-            const activeId = method === '' ? 'filter-all' : 'filter-' + method.toLowerCase();
+            let idSuffix = method.toLowerCase().replace(/\s+/g, '-').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const activeId = method === '' ? 'filter-all' : 'filter-' + idSuffix;
             const activeBtn = document.getElementById(activeId);
             if(activeBtn) {
                 activeBtn.classList.remove('btn-secondary');
@@ -810,12 +812,45 @@
             return "Osobní účet";
         };
 
+        const updateRecipeMethodOptions = () => {
+            const select = document.getElementById('rec_method');
+            if (!select) return;
+            let specialOption = Array.from(select.options).find(opt => opt.value === "Speciální Espresso");
+            if (currentBranch === "Krok") {
+                if (!specialOption) {
+                    const opt = document.createElement('option');
+                    opt.value = "Speciální Espresso";
+                    opt.innerText = "Speciální Espresso";
+                    select.appendChild(opt);
+                }
+            } else {
+                if (specialOption) {
+                    select.removeChild(specialOption);
+                }
+            }
+        };
+
+        const updateRecipeFilterVisibility = () => {
+            const specialFilterBtn = document.getElementById('filter-specialni-espresso');
+            if (!specialFilterBtn) return;
+            if (currentBranch === "Krok") {
+                specialFilterBtn.classList.remove('hidden');
+            } else {
+                specialFilterBtn.classList.add('hidden');
+                if (window.currentRecipeFilter === "Speciální Espresso") {
+                    window.setRecipeFilter('');
+                }
+            }
+        };
+
         const applyTheme = (branch) => {
             if (branch === "Krok") {
                 document.body.classList.add('theme-krok');
             } else {
                 document.body.classList.remove('theme-krok');
             }
+            updateRecipeMethodOptions();
+            updateRecipeFilterVisibility();
         };
 
         document.getElementById('adminBranchSelect').addEventListener('change', (e) => {
