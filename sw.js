@@ -1,8 +1,9 @@
-const CACHE_NAME = 'poppy-os-cache-v3';
+const CACHE_NAME = 'poppy-os-cache-v4';
 const STATIC_ASSETS = [
   './index.html',
   './manifest.json',
   './sw.js',
+  './OneSignalSDKWorker.js',
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap',
   'https://cdn.tailwindcss.com',
   'https://cdn.jsdelivr.net/npm/chart.js',
