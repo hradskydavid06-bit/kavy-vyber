@@ -259,6 +259,9 @@
                     <option value="Krok">📍 Krok</option>
                 </select>
                 <span id="userGreeting" class="text-theme-muted uppercase"></span>
+                <button id="onesignalBell" onclick="window.subscribeNotifications()" class="text-zinc-500 hover:text-theme-accent transition text-sm flex items-center gap-1" title="Nastavit upozornění">
+                    <span>🔔</span>
+                </button>
                 <button id="logoutBtn" class="text-theme-accent hover:underline uppercase">Odhlásit</button>
             </div>
         </header>
@@ -577,8 +580,12 @@
         // Initialize OneSignal
         window.OneSignal = window.OneSignal || [];
         OneSignal.push(function() {
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const scopePath = isLocal ? '/' : '/kavy-vyber/';
             OneSignal.init({
                 appId: "6383d18a-bae9-4e58-b577-39e9c58c3fe2",
+                serviceWorkerParam: { scope: scopePath },
+                serviceWorkerPath: 'OneSignalSDKWorker.js',
                 allowLocalhostAsSecureOrigin: true
             });
         });
@@ -956,6 +963,12 @@
                 document.getElementById('mainApp').classList.add('hidden');
             }
         });
+
+        window.subscribeNotifications = () => {
+            OneSignal.push(function() {
+                OneSignal.showSlidedownPrompt();
+            });
+        };
 
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
