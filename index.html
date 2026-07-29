@@ -582,11 +582,38 @@
         OneSignal.push(function() {
             const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             const scopePath = isLocal ? '/' : '/kavy-vyber/';
+            const swPath = isLocal ? 'OneSignalSDKWorker.js' : '/kavy-vyber/OneSignalSDKWorker.js';
             OneSignal.init({
                 appId: "6383d18a-bae9-4e58-b577-39e9c58c3fe2",
                 serviceWorkerParam: { scope: scopePath },
-                serviceWorkerPath: 'OneSignalSDKWorker.js',
+                serviceWorkerPath: swPath,
                 allowLocalhostAsSecureOrigin: true
+            });
+        });
+
+        const updateBellStatus = () => {
+            const bell = document.getElementById('onesignalBell');
+            if (!bell) return;
+            
+            const isGranted = (window.OneSignal && window.OneSignal.Notifications && window.OneSignal.Notifications.permission) || (window.Notification && Notification.permission === 'granted');
+            const isDenied = window.Notification && Notification.permission === 'denied';
+
+            if (isGranted) {
+                bell.className = "text-green-600 hover:text-green-500 transition text-sm flex items-center gap-1";
+                bell.title = "Upozornění aktivní ✅";
+            } else if (isDenied) {
+                bell.className = "text-red-500 hover:text-red-400 transition text-sm flex items-center gap-1";
+                bell.title = "Upozornění zablokována v prohlížeči ❌";
+            } else {
+                bell.className = "text-zinc-500 hover:text-theme-accent transition text-sm flex items-center gap-1";
+                bell.title = "Zapnout push upozornění 🔔";
+            }
+        };
+
+        // Listen for OneSignal events to update status
+        OneSignal.push(function() {
+            OneSignal.Notifications.addEventListener("permissionChange", function(permission) {
+                updateBellStatus();
             });
         });
 
@@ -954,38 +981,11 @@
                 loadMaintenance(); 
                 loadChecklists();
 
-        const updateBellStatus = () => {
-            const bell = document.getElementById('onesignalBell');
-            if (!bell) return;
-            
-            const isGranted = (window.OneSignal && window.OneSignal.Notifications && window.OneSignal.Notifications.permission) || (window.Notification && Notification.permission === 'granted');
-            const isDenied = window.Notification && Notification.permission === 'denied';
-
-            if (isGranted) {
-                bell.className = "text-green-600 hover:text-green-500 transition text-sm flex items-center gap-1";
-                bell.title = "Upozornění aktivní ✅";
-            } else if (isDenied) {
-                bell.className = "text-red-500 hover:text-red-400 transition text-sm flex items-center gap-1";
-                bell.title = "Upozornění zablokována v prohlížeči ❌";
-            } else {
-                bell.className = "text-zinc-500 hover:text-theme-accent transition text-sm flex items-center gap-1";
-                bell.title = "Zapnout push upozornění 🔔";
-            }
-        };
-
-        // Listen for OneSignal events to update status
-        window.OneSignal = window.OneSignal || [];
-        OneSignal.push(function() {
-            OneSignal.Notifications.addEventListener("permissionChange", function(permission) {
+                // Prompt for push notifications and update bell state
                 updateBellStatus();
-            });
-        });
-
-        // Prompt for push notifications and update bell state
-        updateBellStatus();
-        OneSignal.push(function() {
-            OneSignal.Notifications.requestPermission();
-        }); 
+                OneSignal.push(function() {
+                    OneSignal.Notifications.requestPermission();
+                }); 
             } else {
                 document.getElementById('loginScreen').classList.remove('hidden');
                 document.getElementById('mainApp').classList.add('hidden');
@@ -1427,7 +1427,7 @@
 
             // Send push notification to all baristas
             try {
-                fetch("https://onesignal.com/api/v1/notifications", {
+                fetch("https://thingproxy.freeboard.io/fetch/https://onesignal.com/api/v1/notifications", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json; charset=utf-8",
