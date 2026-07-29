@@ -954,10 +954,38 @@
                 loadMaintenance(); 
                 loadChecklists();
 
-                // Prompt for push notifications
-                OneSignal.push(function() {
-                    OneSignal.Notifications.requestPermission();
-                }); 
+        const updateBellStatus = () => {
+            const bell = document.getElementById('onesignalBell');
+            if (!bell) return;
+            
+            const isGranted = (window.OneSignal && window.OneSignal.Notifications && window.OneSignal.Notifications.permission) || (window.Notification && Notification.permission === 'granted');
+            const isDenied = window.Notification && Notification.permission === 'denied';
+
+            if (isGranted) {
+                bell.className = "text-green-600 hover:text-green-500 transition text-sm flex items-center gap-1";
+                bell.title = "Upozornění aktivní ✅";
+            } else if (isDenied) {
+                bell.className = "text-red-500 hover:text-red-400 transition text-sm flex items-center gap-1";
+                bell.title = "Upozornění zablokována v prohlížeči ❌";
+            } else {
+                bell.className = "text-zinc-500 hover:text-theme-accent transition text-sm flex items-center gap-1";
+                bell.title = "Zapnout push upozornění 🔔";
+            }
+        };
+
+        // Listen for OneSignal events to update status
+        window.OneSignal = window.OneSignal || [];
+        OneSignal.push(function() {
+            OneSignal.Notifications.addEventListener("permissionChange", function(permission) {
+                updateBellStatus();
+            });
+        });
+
+        // Prompt for push notifications and update bell state
+        updateBellStatus();
+        OneSignal.push(function() {
+            OneSignal.Notifications.requestPermission();
+        }); 
             } else {
                 document.getElementById('loginScreen').classList.remove('hidden');
                 document.getElementById('mainApp').classList.add('hidden');
@@ -965,8 +993,29 @@
         });
 
         window.subscribeNotifications = () => {
+            const bell = document.getElementById('onesignalBell');
+            if (bell) {
+                bell.classList.add('animate-bounce');
+                setTimeout(() => bell.classList.remove('animate-bounce'), 1200);
+            }
+
             OneSignal.push(function() {
-                OneSignal.Notifications.requestPermission();
+                const isGranted = (window.OneSignal && window.OneSignal.Notifications && window.OneSignal.Notifications.permission) || (window.Notification && Notification.permission === 'granted');
+                if (isGranted) {
+                    alert("🔔 Upozornění na tomto zařízení jsou již zapnutá a plně funkční!");
+                    updateBellStatus();
+                    return;
+                }
+
+                if (window.Notification && Notification.permission === 'denied') {
+                    alert("⚠️ Upozornění jsou zablokována v nastavení vašeho prohlížeče. Klikněte na ikonu zámku 🔒 vedle adresního řádku a povolte je.");
+                    updateBellStatus();
+                    return;
+                }
+
+                OneSignal.Notifications.requestPermission().then(() => {
+                    setTimeout(updateBellStatus, 800);
+                });
             });
         };
 
