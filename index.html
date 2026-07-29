@@ -956,7 +956,7 @@
 
                 // Prompt for push notifications
                 OneSignal.push(function() {
-                    OneSignal.showSlidedownPrompt();
+                    OneSignal.Notifications.requestPermission();
                 }); 
             } else {
                 document.getElementById('loginScreen').classList.remove('hidden');
@@ -966,7 +966,7 @@
 
         window.subscribeNotifications = () => {
             OneSignal.push(function() {
-                OneSignal.showSlidedownPrompt();
+                OneSignal.Notifications.requestPermission();
             });
         };
 
