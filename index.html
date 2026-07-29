@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
     <script>
         tailwind.config = {
@@ -573,6 +574,15 @@
         window.globalRecipes = [];
         window.currentRecipeFilter = '';
 
+        // Initialize OneSignal
+        window.OneSignal = window.OneSignal || [];
+        OneSignal.push(function() {
+            OneSignal.init({
+                appId: "6383d18a-bae9-4e58-b577-39e9c58c3fe2",
+                allowLocalhostAsSecureOrigin: true
+            });
+        });
+
         const normalizeScore = (s) => {
             if (s.aroma_int === undefined && s.aroma !== undefined) {
                 return {
@@ -935,7 +945,12 @@
                 
                 loadData(); 
                 loadMaintenance(); 
-                loadChecklists(); 
+                loadChecklists();
+
+                // Prompt for push notifications
+                OneSignal.push(function() {
+                    OneSignal.showSlidedownPrompt();
+                }); 
             } else {
                 document.getElementById('loginScreen').classList.remove('hidden');
                 document.getElementById('mainApp').classList.add('hidden');
@@ -1336,8 +1351,10 @@
 
             const excludeVal = document.getElementById('cup_exclude_leaderboard').checked;
 
+            const titleVal = document.getElementById('cup_title').value;
+
             await addDoc(collection(db, "cuppings"), { 
-                title: document.getElementById('cup_title').value, 
+                title: titleVal, 
                 date: document.getElementById('cup_date').value, 
                 time: document.getElementById('cup_time').value, 
                 samples: samplesArray, 
@@ -1345,6 +1362,26 @@
                 declined: [],
                 excludeFromLeaderboard: excludeVal
             });
+
+            // Send push notification to all baristas
+            try {
+                fetch("https://onesignal.com/api/v1/notifications", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json; charset=utf-8",
+                        "Authorization": "Basic os_v2_app_mob5dcv25fhfrnlxhhu4ldb74lpyobbw4vju535vz7qkxzoxgrhbijwfaswr33xxlgju6dyci54ghhhwrocvrhn2t5rgn7u64m4zd3a"
+                    },
+                    body: JSON.stringify({
+                        app_id: "6383d18a-bae9-4e58-b577-39e9c58c3fe2",
+                        included_segments: ["Subscribed Users"],
+                        headings: { cs: "Nový Cupping! ☕", en: "Nový Cupping! ☕" },
+                        contents: { cs: `Byl vytvořen nový cupping: ${titleVal}`, en: `Byl vytvořen nový cupping: ${titleVal}` },
+                        url: "https://hradskydavid06-bit.github.io/kavy-vyber/"
+                    })
+                });
+            } catch (err) {
+                console.error("Failed to send push notification:", err);
+            }
             
             e.target.reset();
             document.getElementById('cup_exclude_leaderboard').checked = false;
