@@ -261,7 +261,9 @@
                 </select>
                 <span id="userGreeting" class="text-theme-muted uppercase"></span>
                 <button id="onesignalBell" onclick="window.subscribeNotifications()" class="text-zinc-500 hover:text-theme-accent transition text-sm flex items-center gap-1" title="Nastavit upozornění">
-                    <span>🔔</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 inline-block">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a3 3 0 11-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                    </svg>
                 </button>
                 <button id="logoutBtn" class="text-theme-accent hover:underline uppercase">Odhlásit</button>
             </div>
@@ -604,7 +606,10 @@
             const bell = document.getElementById('onesignalBell');
             if (!bell) return;
             
-            const isGranted = (window.OneSignal && window.OneSignal.Notifications && window.OneSignal.Notifications.permission) || (window.Notification && Notification.permission === 'granted');
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            // Force isGranted to false if on iOS and not in standalone PWA mode (since push notifications are locked out by Apple)
+            const isGranted = !(isIOS && !window.navigator.standalone) && 
+                ((window.OneSignal && window.OneSignal.Notifications && window.OneSignal.Notifications.permission) || (window.Notification && Notification.permission === 'granted'));
             const isDenied = window.Notification && Notification.permission === 'denied';
 
             if (isGranted) {
@@ -996,6 +1001,13 @@
         });
 
         window.subscribeNotifications = () => {
+            // iOS check (notifications require PWA installation)
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            if (isIOS && !window.navigator.standalone) {
+                alert("📲 Pro zapnutí upozornění na iPhone/iPadu musíte tuto aplikaci nejprve přidat na plochu:\n\n1. Klikněte na tlačítko Sdílet 📤 v Safari.\n2. Zvolte 'Přidat na plochu' 📲.\n3. Otevřete aplikaci z plochy a znovu klikněte na zvoneček!");
+                return;
+            }
+
             const bell = document.getElementById('onesignalBell');
             if (bell) {
                 bell.classList.add('animate-bounce');
@@ -1022,13 +1034,6 @@
                     setTimeout(updateBellStatus, 800);
                 });
             } else {
-                // iOS check (notifications require PWA installation)
-                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                if (isIOS && !window.navigator.standalone) {
-                    alert("📲 Pro zapnutí upozornění na iPhone/iPadu musíte tuto aplikaci nejprve přidat na plochu:\n\n1. Klikněte na tlačítko Sdílet 📤 v Safari.\n2. Zvolte 'Přidat na plochu' 📲.\n3. Otevřete aplikaci z plochy a znovu klikněte na zvoneček!");
-                    return;
-                }
-
                 // FALLBACK: Standard Native Browser Notifications
                 if (!window.Notification) {
                     alert("⚠️ Tento prohlížeč nepodporuje push upozornění.");
