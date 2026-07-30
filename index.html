@@ -307,6 +307,17 @@
                     <button type="submit" class="btn-primary p-4 uppercase tracking-wider text-xs md:col-span-2">Vytvořit událost a otevřít přihlašování</button>
                 </form>
             </div>
+
+            <!-- ADMIN ONESIGNAL SETTING (Only visible for admin) -->
+            <div id="admin-onesignal-config" class="bg-theme-surface p-8 border-theme border-theme-border rounded-theme shadow-theme mb-10 hidden">
+                <h2 class="font-bold uppercase mb-4 text-theme-accent">Nastavení OneSignal Push Upozornění</h2>
+                <p class="text-xs text-theme-muted mb-4">Sem vložte aktuální <strong>App REST API Key</strong> z OneSignal, aby se správně odesílala upozornění na cuppingy. Tento klíč se uloží bezpečně do databáze a nikdy se neodešle na GitHub.</p>
+                <div class="flex flex-col md:flex-row gap-4">
+                    <input type="password" id="onesignal_config_key" class="input-minimal flex-1 text-sm" placeholder="os_v2_app_...">
+                    <button type="button" onclick="window.saveOneSignalKey()" class="btn-primary px-6 py-2 uppercase tracking-widest font-bold text-xs">Uložit klíč</button>
+                </div>
+            </div>
+
             <div id="cuppingList" class="grid grid-cols-1 gap-8"></div>
         </section>
 
@@ -978,6 +989,7 @@
                     document.getElementById('userGreeting').classList.add('hidden');
                     
                     document.getElementById('admin-cupping-form').classList.remove('hidden');
+                    document.getElementById('admin-onesignal-config').classList.remove('hidden');
                     document.getElementById('admin-coffee-form').classList.remove('hidden');
                     document.getElementById('admin-recipe-form').classList.remove('hidden');
                     document.getElementById('admin-maintenance-form').classList.remove('hidden');
@@ -989,6 +1001,7 @@
                     document.getElementById('userGreeting').innerText = currentBranch !== "Osobní účet" ? `📍 Pobočka ${currentBranch}` : user.email;
                     
                     document.getElementById('admin-cupping-form').classList.add('hidden');
+                    document.getElementById('admin-onesignal-config').classList.add('hidden');
                     document.getElementById('admin-coffee-form').classList.add('hidden');
                     document.getElementById('admin-recipe-form').classList.add('hidden');
                     document.getElementById('admin-maintenance-form').classList.add('hidden'); 
@@ -1003,6 +1016,22 @@
                 loadData(); 
                 loadMaintenance(); 
                 loadChecklists();
+
+                // Fetch OneSignal API key from Firestore config
+                getDoc(doc(db, "recipes", "config_onesignal")).then(docSnap => {
+                    if (docSnap.exists()) {
+                        window.onesignalApiKey = docSnap.data().key;
+                        const configInput = document.getElementById('onesignal_config_key');
+                        if (configInput) {
+                            configInput.value = window.onesignalApiKey;
+                        }
+                        console.log("OneSignal configuration loaded.");
+                    } else {
+                        console.warn("OneSignal configuration not found in Firestore.");
+                    }
+                }).catch(err => {
+                    console.error("Failed to load OneSignal configuration:", err);
+                });
 
                 // Prompt for push notifications and update bell state
                 updateBellStatus();
@@ -1264,6 +1293,21 @@
             if(status === 'yes') await updateDoc(ref, { attendees: arrayUnion(currentUser.email), declined: arrayRemove(currentUser.email) });
             else await updateDoc(ref, { declined: arrayUnion(currentUser.email), attendees: arrayRemove(currentUser.email) });
         };
+        window.saveOneSignalKey = async () => {
+            const keyVal = document.getElementById('onesignal_config_key').value.trim();
+            if (!keyVal) {
+                alert("⚠️ Zadejte prosím platný API klíč.");
+                return;
+            }
+            try {
+                await setDoc(doc(db, "recipes", "config_onesignal"), { key: keyVal });
+                window.onesignalApiKey = keyVal;
+                alert("✅ OneSignal API klíč byl úspěšně uložen do databáze!");
+            } catch (err) {
+                console.error("Failed to save OneSignal API key to Firestore:", err);
+                alert("❌ Nepodařilo se uložit klíč. Zkontrolujte prosím své připojení a oprávnění.");
+            }
+        };
         window.vote = async (id, type) => {
             const ref = doc(db, "roasterySets", id);
             await updateDoc(ref, { [type === 'up' ? 'votesUp' : 'votesDown']: increment(1), votedBy: arrayUnion(currentUser.uid) });
@@ -1503,11 +1547,17 @@
                 }
 
                 console.log("Sending push notification via Puter...");
+                const restApiKey = window.onesignalApiKey;
+                if (!restApiKey) {
+                    console.warn("Push notification skipped: OneSignal API Key is not configured in database.");
+                    return;
+                }
+
                 const response = await puter.net.fetch("https://onesignal.com/api/v1/notifications", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json; charset=utf-8",
-                        "Authorization": "Basic os_v2_app_mob5dcv25fhfrnlxhhu4ldb74l655etn7eqeoifypfrozcmeuaiq47hjhkdhypwxk2artpbe7bzvd7i5psnrfsstdv5pshsipgkgdby"
+                        "Authorization": `Basic ${restApiKey}`
                     },
                     body: JSON.stringify({
                         app_id: "6383d18a-bae9-4e58-b577-39e9c58c3fe2",
