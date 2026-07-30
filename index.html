@@ -983,9 +983,11 @@
 
                 // Prompt for push notifications and update bell state
                 updateBellStatus();
-                OneSignal.push(function() {
-                    OneSignal.Notifications.requestPermission();
-                }); 
+                if (window.OneSignal && typeof window.OneSignal.Notifications !== 'undefined') {
+                    OneSignal.push(function() {
+                        OneSignal.Notifications.requestPermission();
+                    });
+                }
             } else {
                 document.getElementById('loginScreen').classList.remove('hidden');
                 document.getElementById('mainApp').classList.add('hidden');
@@ -999,24 +1001,57 @@
                 setTimeout(() => bell.classList.remove('animate-bounce'), 1200);
             }
 
-            OneSignal.push(function() {
-                const isGranted = (window.OneSignal && window.OneSignal.Notifications && window.OneSignal.Notifications.permission) || (window.Notification && Notification.permission === 'granted');
-                if (isGranted) {
+            const isOneSignalActive = window.OneSignal && typeof window.OneSignal.Notifications !== 'undefined';
+
+            if (isOneSignalActive) {
+                OneSignal.push(function() {
+                    const isGranted = OneSignal.Notifications.permission || (window.Notification && Notification.permission === 'granted');
+                    if (isGranted) {
+                        alert("🔔 Upozornění na tomto zařízení jsou již zapnutá a plně funkční!");
+                        updateBellStatus();
+                        return;
+                    }
+
+                    if (window.Notification && Notification.permission === 'denied') {
+                        alert("⚠️ Upozornění jsou zablokována v nastavení vašeho prohlížeče. Klikněte na ikonu zámku 🔒 vedle adresního řádku a povolte je.");
+                        updateBellStatus();
+                        return;
+                    }
+
+                    OneSignal.Notifications.requestPermission().then(() => {
+                        setTimeout(updateBellStatus, 800);
+                    });
+                });
+            } else {
+                // FALLBACK: Standard Native Browser Notifications
+                if (!window.Notification) {
+                    alert("⚠️ Tento prohlížeč nepodporuje push upozornění.");
+                    return;
+                }
+
+                if (Notification.permission === 'granted') {
                     alert("🔔 Upozornění na tomto zařízení jsou již zapnutá a plně funkční!");
                     updateBellStatus();
                     return;
                 }
 
-                if (window.Notification && Notification.permission === 'denied') {
+                if (Notification.permission === 'denied') {
                     alert("⚠️ Upozornění jsou zablokována v nastavení vašeho prohlížeče. Klikněte na ikonu zámku 🔒 vedle adresního řádku a povolte je.");
                     updateBellStatus();
                     return;
                 }
 
-                OneSignal.Notifications.requestPermission().then(() => {
-                    setTimeout(updateBellStatus, 800);
+                Notification.requestPermission().then((permission) => {
+                    if (permission === 'granted') {
+                        alert("✅ Upozornění úspěšně zapnuta!");
+                    } else {
+                        alert("❌ Povolení upozornění bylo odmítnuto.");
+                    }
+                    updateBellStatus();
+                }).catch(() => {
+                    alert("⚠️ Nepodařilo se vyžádat povolení. Zkuste to prosím na standardním listování prohlížeče (ne anonymní tab) a ujistěte se, že nejste na zablokované síti.");
                 });
-            });
+            }
         };
 
         document.getElementById('loginForm').addEventListener('submit', (e) => {
