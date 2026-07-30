@@ -579,17 +579,25 @@
         window.currentRecipeFilter = '';
 
         // Initialize OneSignal
-        window.OneSignal = window.OneSignal || [];
-        OneSignal.push(function() {
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        OneSignalDeferred.push(async function(OneSignal) {
             const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             const scopePath = isLocal ? '/' : '/kavy-vyber/';
             const swPath = isLocal ? 'OneSignalSDKWorker.js' : '/kavy-vyber/OneSignalSDKWorker.js';
-            OneSignal.init({
+            await OneSignal.init({
                 appId: "6383d18a-bae9-4e58-b577-39e9c58c3fe2",
                 serviceWorkerParam: { scope: scopePath },
                 serviceWorkerPath: swPath,
                 allowLocalhostAsSecureOrigin: true
             });
+            
+            // Listen for OneSignal events to update status
+            OneSignal.Notifications.addEventListener("permissionChange", function(permission) {
+                updateBellStatus();
+            });
+            
+            // Update bell status on load
+            updateBellStatus();
         });
 
         const updateBellStatus = () => {
@@ -610,13 +618,6 @@
                 bell.title = "Zapnout push upozornění 🔔";
             }
         };
-
-        // Listen for OneSignal events to update status
-        OneSignal.push(function() {
-            OneSignal.Notifications.addEventListener("permissionChange", function(permission) {
-                updateBellStatus();
-            });
-        });
 
         const normalizeScore = (s) => {
             if (s.aroma_int === undefined && s.aroma !== undefined) {
@@ -984,11 +985,10 @@
 
                 // Prompt for push notifications and update bell state
                 updateBellStatus();
-                if (window.OneSignal && typeof window.OneSignal.Notifications !== 'undefined') {
-                    OneSignal.push(function() {
-                        OneSignal.Notifications.requestPermission();
-                    });
-                }
+                window.OneSignalDeferred = window.OneSignalDeferred || [];
+                OneSignalDeferred.push(function(OneSignal) {
+                    OneSignal.Notifications.requestPermission();
+                });
             } else {
                 document.getElementById('loginScreen').classList.remove('hidden');
                 document.getElementById('mainApp').classList.add('hidden');
@@ -1005,25 +1005,30 @@
             const isOneSignalActive = window.OneSignal && typeof window.OneSignal.Notifications !== 'undefined';
 
             if (isOneSignalActive) {
-                OneSignal.push(function() {
-                    const isGranted = OneSignal.Notifications.permission || (window.Notification && Notification.permission === 'granted');
-                    if (isGranted) {
-                        alert("🔔 Upozornění na tomto zařízení jsou již zapnutá a plně funkční!");
-                        updateBellStatus();
-                        return;
-                    }
+                const isGranted = window.OneSignal.Notifications.permission || (window.Notification && Notification.permission === 'granted');
+                if (isGranted) {
+                    alert("🔔 Upozornění na tomto zařízení jsou již zapnutá a plně funkční!");
+                    updateBellStatus();
+                    return;
+                }
 
-                    if (window.Notification && Notification.permission === 'denied') {
-                        alert("⚠️ Upozornění jsou zablokována v nastavení vašeho prohlížeče. Klikněte na ikonu zámku 🔒 vedle adresního řádku a povolte je.");
-                        updateBellStatus();
-                        return;
-                    }
+                if (window.Notification && Notification.permission === 'denied') {
+                    alert("⚠️ Upozornění jsou zablokována v nastavení vašeho prohlížeče. Klikněte na ikonu zámku 🔒 vedle adresního řádku a povolte je.");
+                    updateBellStatus();
+                    return;
+                }
 
-                    OneSignal.Notifications.requestPermission().then(() => {
-                        setTimeout(updateBellStatus, 800);
-                    });
+                window.OneSignal.Notifications.requestPermission().then(() => {
+                    setTimeout(updateBellStatus, 800);
                 });
             } else {
+                // iOS check (notifications require PWA installation)
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                if (isIOS && !window.navigator.standalone) {
+                    alert("📲 Pro zapnutí upozornění na iPhone/iPadu musíte tuto aplikaci nejprve přidat na plochu:\n\n1. Klikněte na tlačítko Sdílet 📤 v Safari.\n2. Zvolte 'Přidat na plochu' 📲.\n3. Otevřete aplikaci z plochy a znovu klikněte na zvoneček!");
+                    return;
+                }
+
                 // FALLBACK: Standard Native Browser Notifications
                 if (!window.Notification) {
                     alert("⚠️ Tento prohlížeč nepodporuje push upozornění.");
