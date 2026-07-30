@@ -944,9 +944,25 @@
             }
         };
 
-        onAuthStateChanged(auth, (user) => {
+                onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
+                
+                // Handle attendance from notification click
+                const urlParams = new URLSearchParams(window.location.search);
+                const actionCuppingId = urlParams.get('cuppingId');
+                const actionAttendance = urlParams.get('attendance');
+                if (actionCuppingId && actionAttendance) {
+                    const targetStatus = actionAttendance === 'yes' ? 'yes' : 'no';
+                    window.updateAttendance(actionCuppingId, targetStatus).then(() => {
+                        alert(targetStatus === 'yes' ? '✅ Vaše účast na cuppingu byla úspěšně potvrzena!' : '❌ Byla odeslána omluva z cuppingu.');
+                        // Clean up URL parameters so it doesn't run again on page refresh
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    }).catch((err) => {
+                        console.error("Failed to update attendance from notification link:", err);
+                    });
+                }
+
                 // Zde se ověřuje více adminů
                 isAdmin = ADMIN_EMAILS.includes(user.email);
                 
@@ -1461,7 +1477,7 @@
 
             const titleVal = document.getElementById('cup_title').value;
 
-            await addDoc(collection(db, "cuppings"), { 
+            const docRef = await addDoc(collection(db, "cuppings"), { 
                 title: titleVal, 
                 date: document.getElementById('cup_date').value, 
                 time: document.getElementById('cup_time').value, 
@@ -1470,10 +1486,24 @@
                 declined: [],
                 excludeFromLeaderboard: excludeVal
             });
+            const cuppingId = docRef.id;
 
             // Send push notification to all baristas
             try {
-                puter.net.fetch("https://onesignal.com/api/v1/notifications", {
+                const dateVal = document.getElementById('cup_date').value;
+                const timeVal = document.getElementById('cup_time').value;
+                
+                // Format Czech date (YYYY-MM-DD to DD.MM.YYYY)
+                let formattedDate = dateVal;
+                if (dateVal) {
+                    const parts = dateVal.split('-');
+                    if (parts.length === 3) {
+                        formattedDate = `${parts[2]}.${parts[1]}.${parts[0]}`;
+                    }
+                }
+
+                console.log("Sending push notification via Puter...");
+                const response = await puter.net.fetch("https://onesignal.com/api/v1/notifications", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json; charset=utf-8",
@@ -1482,11 +1512,32 @@
                     body: JSON.stringify({
                         app_id: "6383d18a-bae9-4e58-b577-39e9c58c3fe2",
                         included_segments: ["Subscribed Users"],
-                        headings: { cs: "Nový Cupping! ☕", en: "Nový Cupping! ☕" },
-                        contents: { cs: `Byl vytvořen nový cupping: ${titleVal}`, en: `Byl vytvořen nový cupping: ${titleVal}` },
-                        url: "https://hradskydavid06-bit.github.io/kavy-vyber/"
+                        headings: { 
+                            cs: "Nový Cupping! ☕", 
+                            en: "New Cupping! ☕" 
+                        },
+                        contents: { 
+                            cs: `Byl vytvořen nový cupping: ${titleVal} dne ${formattedDate} v ${timeVal}.`, 
+                            en: `New cupping created: ${titleVal} on ${formattedDate} at ${timeVal}.` 
+                        },
+                        url: `https://hradskydavid06-bit.github.io/kavy-vyber/?cuppingId=${cuppingId}`,
+                        web_buttons: [
+                            {
+                                id: "going",
+                                text: "Jdu 👍",
+                                url: `https://hradskydavid06-bit.github.io/kavy-vyber/?cuppingId=${cuppingId}&attendance=yes`
+                            },
+                            {
+                                id: "decline",
+                                text: "Nejdu 👎",
+                                url: `https://hradskydavid06-bit.github.io/kavy-vyber/?cuppingId=${cuppingId}&attendance=no`
+                            }
+                        ]
                     })
                 });
+                const resText = await response.text();
+                console.log("Push notification response status:", response.status);
+                console.log("Push notification response body:", resText);
             } catch (err) {
                 console.error("Failed to send push notification:", err);
             }
