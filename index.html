@@ -11,6 +11,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script src="https://js.puter.com/v2/"></script>
 
     <script>
         tailwind.config = {
@@ -1462,7 +1463,7 @@
 
             // Send push notification to all baristas
             try {
-                fetch("https://thingproxy.freeboard.io/fetch/https://onesignal.com/api/v1/notifications", {
+                puter.net.fetch("https://onesignal.com/api/v1/notifications", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json; charset=utf-8",
