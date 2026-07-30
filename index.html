@@ -1018,7 +1018,7 @@
                 loadChecklists();
 
                 // Fetch OneSignal API key from Firestore config
-                getDoc(doc(db, "recipes", "config_onesignal")).then(docSnap => {
+                getDoc(doc(db, "cuppings", "config_onesignal")).then(docSnap => {
                     if (docSnap.exists()) {
                         window.onesignalApiKey = docSnap.data().key;
                         const configInput = document.getElementById('onesignal_config_key');
@@ -1300,7 +1300,7 @@
                 return;
             }
             try {
-                await setDoc(doc(db, "recipes", "config_onesignal"), { key: keyVal, author: currentUser.email });
+                await setDoc(doc(db, "cuppings", "config_onesignal"), { key: keyVal });
                 window.onesignalApiKey = keyVal;
                 alert("✅ OneSignal API klíč byl úspěšně uložen do databáze!");
             } catch (err) {
