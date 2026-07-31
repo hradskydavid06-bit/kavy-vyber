@@ -1549,7 +1549,7 @@
                 console.log("Sending push notification via CORS proxy...");
                 const restApiKey = window.onesignalApiKey;
                 if (!restApiKey) {
-                    console.warn("Push notification skipped: OneSignal API Key is not configured in database.");
+                    alert("Chyba: OneSignal API klíč není načten v prohlížeči! Počkej prosím sekundu po načtení stránky.");
                     return;
                 }
 
@@ -1588,8 +1588,10 @@
                 const resText = await response.text();
                 console.log("Push notification response status:", response.status);
                 console.log("Push notification response body:", resText);
+                alert("Odeslání notification status: " + response.status + "\nBody: " + resText);
             } catch (err) {
                 console.error("Failed to send push notification:", err);
+                alert("Fatální chyba odeslání push: " + err.message);
             }
             
             e.target.reset();
