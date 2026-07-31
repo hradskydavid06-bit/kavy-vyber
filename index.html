@@ -1054,58 +1054,51 @@
         });
 
         window.subscribeNotifications = () => {
-            try {
-                // iOS check (notifications require PWA installation)
-                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                if (isIOS && !window.navigator.standalone) {
-                    alert("📲 Pro zapnutí upozornění na iPhone/iPadu musíte tuto aplikaci nejprve přidat na plochu:\n\n1. Klikněte na tlačítko Sdílet 📤 v Safari.\n2. Zvolte 'Přidat na plochu' 📲.\n3. Otevřete aplikaci z plochy a znovu klikněte na zvoneček!");
+            // iOS check (notifications require PWA installation)
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            if (isIOS && !window.navigator.standalone) {
+                alert("📲 Pro zapnutí upozornění na iPhone/iPadu musíte tuto aplikaci nejprve přidat na plochu:\n\n1. Klikněte na tlačítko Sdílet 📤 v Safari.\n2. Zvolte 'Přidat na plochu' 📲.\n3. Otevřete aplikaci z plochy a znovu klikněte na zvoneček!");
+                return;
+            }
+
+            const bell = document.getElementById('onesignalBell');
+            if (bell) {
+                bell.classList.add('animate-bounce');
+                setTimeout(() => bell.classList.remove('animate-bounce'), 1200);
+            }
+
+            const isOneSignalActive = window.OneSignal && typeof window.OneSignal.Notifications !== 'undefined';
+
+            if (isOneSignalActive) {
+                const pushSub = window.OneSignal?.User?.PushSubscription;
+                const isSubscribed = pushSub?.optedIn && !!pushSub?.id;
+                
+                if (isSubscribed) {
+                    if (confirm("🔔 Upozornění jsou aktivní. Chcete je pro toto zařízení vypnout?")) {
+                        pushSub?.optOut().then(() => {
+                            updateBellStatus();
+                        }).catch(err => console.error("Chyba při odhlášení:", err));
+                    }
                     return;
                 }
 
-                const bell = document.getElementById('onesignalBell');
-                if (bell) {
-                    bell.classList.add('animate-bounce');
-                    setTimeout(() => bell.classList.remove('animate-bounce'), 1200);
+                if (window.Notification && Notification.permission === 'denied') {
+                    alert("⚠️ Upozornění jsou zablokována v nastavení vašeho prohlížeče. Klikněte na ikonu zámku 🔒 vedle adresního řádku a povolte je.");
+                    updateBellStatus();
+                    return;
                 }
 
-                const isOneSignalActive = window.OneSignal && typeof window.OneSignal.Notifications !== 'undefined';
-
-                if (isOneSignalActive) {
-                    const pushSub = window.OneSignal?.User?.PushSubscription;
-                    const isSubscribed = pushSub?.optedIn && !!pushSub?.id;
-                    
-                    if (isSubscribed) {
-                        if (confirm("🔔 Upozornění jsou aktivní. Chcete je pro toto zařízení vypnout?")) {
-                            pushSub?.optOut().then(() => {
-                                updateBellStatus();
-                            }).catch(err => alert("Chyba při odhlášení: " + err.message));
-                        }
-                        return;
-                    }
-
-                    if (window.Notification && Notification.permission === 'denied') {
-                        alert("⚠️ Upozornění jsou zablokována v nastavení vašeho prohlížeče. Klikněte na ikonu zámku 🔒 vedle adresního řádku a povolte je.");
+                if (window.OneSignal?.Notifications?.permission) {
+                    pushSub?.optIn().then(() => {
                         updateBellStatus();
-                        return;
-                    }
-
-                    if (window.OneSignal?.Notifications?.permission) {
-                        pushSub?.optIn().then(() => {
-                            updateBellStatus();
-                            alert("✅ Upozornění OneSignal úspěšně aktivována!");
-                        }).catch(err => alert("Chyba při přihlášení odběru: " + err.message));
-                    } else {
-                        window.OneSignal?.Notifications?.requestPermission().then(() => {
-                            setTimeout(updateBellStatus, 800);
-                        }).catch(err => alert("Chyba při vyžádání povolení: " + err.message));
-                    }
+                    }).catch(err => console.error("Chyba při přihlášení odběru:", err));
                 } else {
-                    alert("OneSignal není plně načten. Stav:\nOneSignal: " + (typeof window.OneSignal !== 'undefined') + 
-                          "\nNotifications: " + (window.OneSignal && typeof window.OneSignal.Notifications !== 'undefined') + 
-                          "\nNative permission: " + (window.Notification ? Notification.permission : 'not supported'));
+                    window.OneSignal?.Notifications?.requestPermission().then(() => {
+                        setTimeout(updateBellStatus, 800);
+                    }).catch(err => console.error("Chyba při vyžádání povolení:", err));
                 }
-            } catch (globalErr) {
-                alert("Fatální chyba zvonečku: " + globalErr.message + "\nStack: " + globalErr.stack);
+            } else {
+                console.warn("OneSignal is not active during subscription request.");
             }
         };
 
@@ -1588,10 +1581,8 @@
                 const resText = await response.text();
                 console.log("Push notification response status:", response.status);
                 console.log("Push notification response body:", resText);
-                alert("Odeslání notification status: " + response.status + "\nBody: " + resText);
             } catch (err) {
                 console.error("Failed to send push notification:", err);
-                alert("Fatální chyba odeslání push: " + err.message);
             }
             
             e.target.reset();
