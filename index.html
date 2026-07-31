@@ -1070,10 +1070,12 @@
             const isOneSignalActive = window.OneSignal && typeof window.OneSignal.Notifications !== 'undefined';
 
             if (isOneSignalActive) {
-                const isSubscribed = OneSignal.User.PushSubscription.optedIn && !!OneSignal.User.PushSubscription.id;
+                const pushSub = window.OneSignal?.User?.PushSubscription;
+                const isSubscribed = pushSub?.optedIn && !!pushSub?.id;
+                
                 if (isSubscribed) {
                     if (confirm("🔔 Upozornění jsou aktivní. Chcete je pro toto zařízení vypnout?")) {
-                        OneSignal.User.PushSubscription.optOut().then(() => {
+                        pushSub?.optOut().then(() => {
                             updateBellStatus();
                         });
                     }
@@ -1086,12 +1088,12 @@
                     return;
                 }
 
-                if (OneSignal.Notifications.permission) {
-                    OneSignal.User.PushSubscription.optIn().then(() => {
+                if (window.OneSignal?.Notifications?.permission) {
+                    pushSub?.optIn().then(() => {
                         updateBellStatus();
                     });
                 } else {
-                    window.OneSignal.Notifications.requestPermission().then(() => {
+                    window.OneSignal?.Notifications?.requestPermission().then(() => {
                         setTimeout(updateBellStatus, 800);
                     });
                 }
