@@ -1,6 +1,6 @@
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 
-const CACHE_NAME = 'poppy-os-cache-v6';
+const CACHE_NAME = 'poppy-os-cache-v7';
 const STATIC_ASSETS = [
   './index.html',
   './manifest.json',
@@ -13,7 +13,9 @@ const STATIC_ASSETS = [
   'https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js',
   'https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js',
   'https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js',
-  'https://cdn-icons-png.flaticon.com/512/924/924514.png'
+  'https://cdn-icons-png.flaticon.com/512/924/924514.png',
+  'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js',
+  'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js'
 ];
 
 // Install Event - Pre-cache core assets
