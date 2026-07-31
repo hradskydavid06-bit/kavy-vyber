@@ -67,10 +67,11 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
 
-  // Skip Firebase Firestore backend calls, WebSockets, or auth endpoints
+  // Skip Firebase Firestore backend calls, WebSockets, auth endpoints, or OneSignal API calls
   if (url.hostname.includes('firestore.googleapis.com') || 
       url.hostname.includes('identitytoolkit.googleapis.com') ||
       url.hostname.includes('securetoken.googleapis.com') ||
+      url.hostname.includes('onesignal.com') ||
       url.href.includes('google.com/recaptcha')) {
     return;
   }

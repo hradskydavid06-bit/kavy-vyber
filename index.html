@@ -608,6 +608,10 @@
             OneSignal.Notifications.addEventListener("permissionChange", function(permission) {
                 updateBellStatus();
             });
+            OneSignal.User.PushSubscription.addEventListener("change", function(event) {
+                console.log("OneSignal push subscription changed:", event.current);
+                updateBellStatus();
+            });
             
             // Update bell status on load
             updateBellStatus();
@@ -618,10 +622,18 @@
             if (!bell) return;
             
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            // Force isGranted to false if on iOS and not in standalone PWA mode (since push notifications are locked out by Apple)
-            const isGranted = !(isIOS && !window.navigator.standalone) && 
-                ((window.OneSignal && window.OneSignal.Notifications && window.OneSignal.Notifications.permission) || (window.Notification && Notification.permission === 'granted'));
-            const isDenied = window.Notification && Notification.permission === 'denied';
+            
+            let isGranted = false;
+            let isDenied = false;
+
+            if (window.OneSignal && OneSignal.User && OneSignal.User.PushSubscription) {
+                isGranted = OneSignal.User.PushSubscription.optedIn && !!OneSignal.User.PushSubscription.id;
+                isDenied = OneSignal.Notifications.permission === false || (window.Notification && Notification.permission === 'denied');
+            } else {
+                isGranted = !(isIOS && !window.navigator.standalone) && 
+                    (window.Notification && Notification.permission === 'granted');
+                isDenied = window.Notification && Notification.permission === 'denied';
+            }
 
             if (isGranted) {
                 bell.className = "text-green-600 hover:text-green-500 transition text-sm flex items-center gap-1";
@@ -1033,12 +1045,8 @@
                     console.error("Failed to load OneSignal configuration:", err);
                 });
 
-                // Prompt for push notifications and update bell state
+                // Update bell status on load
                 updateBellStatus();
-                window.OneSignalDeferred = window.OneSignalDeferred || [];
-                OneSignalDeferred.push(function(OneSignal) {
-                    OneSignal.Notifications.requestPermission();
-                });
             } else {
                 document.getElementById('loginScreen').classList.remove('hidden');
                 document.getElementById('mainApp').classList.add('hidden');
@@ -1062,10 +1070,13 @@
             const isOneSignalActive = window.OneSignal && typeof window.OneSignal.Notifications !== 'undefined';
 
             if (isOneSignalActive) {
-                const isGranted = window.OneSignal.Notifications.permission || (window.Notification && Notification.permission === 'granted');
-                if (isGranted) {
-                    alert("🔔 Upozornění na tomto zařízení jsou již zapnutá a plně funkční!");
-                    updateBellStatus();
+                const isSubscribed = OneSignal.User.PushSubscription.optedIn && !!OneSignal.User.PushSubscription.id;
+                if (isSubscribed) {
+                    if (confirm("🔔 Upozornění jsou aktivní. Chcete je pro toto zařízení vypnout?")) {
+                        OneSignal.User.PushSubscription.optOut().then(() => {
+                            updateBellStatus();
+                        });
+                    }
                     return;
                 }
 
@@ -1075,9 +1086,15 @@
                     return;
                 }
 
-                window.OneSignal.Notifications.requestPermission().then(() => {
-                    setTimeout(updateBellStatus, 800);
-                });
+                if (OneSignal.Notifications.permission) {
+                    OneSignal.User.PushSubscription.optIn().then(() => {
+                        updateBellStatus();
+                    });
+                } else {
+                    window.OneSignal.Notifications.requestPermission().then(() => {
+                        setTimeout(updateBellStatus, 800);
+                    });
+                }
             } else {
                 // FALLBACK: Standard Native Browser Notifications
                 if (!window.Notification) {
@@ -1086,13 +1103,13 @@
                 }
 
                 if (Notification.permission === 'granted') {
-                    alert("🔔 Upozornění na tomto zařízení jsou již zapnutá a plně funkční!");
+                    alert("🔔 Upozornění jsou již povolena v prohlížeči.");
                     updateBellStatus();
                     return;
                 }
 
                 if (Notification.permission === 'denied') {
-                    alert("⚠️ Upozornění jsou zablokována v nastavení vašeho prohlížeče. Klikněte na ikonu zámku 🔒 vedle adresního řádku a povolte je.");
+                    alert("⚠️ Upozornění jsou zablokována v nastavení vašeho prohlížeče.");
                     updateBellStatus();
                     return;
                 }
