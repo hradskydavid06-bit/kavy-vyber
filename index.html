@@ -1154,6 +1154,7 @@
                 const list = document.getElementById('cuppingList');
                 list.innerHTML = '';
                 sn.forEach(d => {
+                    if (d.id === 'config_onesignal') return; // Skip configuration document
                     const data = d.data();
                     window.globalCuppings[d.id] = data; 
                     
