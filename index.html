@@ -1547,14 +1547,14 @@
                     }
                 }
 
-                console.log("Sending push notification via Puter...");
+                console.log("Sending push notification via CORS proxy...");
                 const restApiKey = window.onesignalApiKey;
                 if (!restApiKey) {
                     console.warn("Push notification skipped: OneSignal API Key is not configured in database.");
                     return;
                 }
 
-                const response = await puter.net.fetch("https://onesignal.com/api/v1/notifications", {
+                const response = await fetch("https://corsproxy.io/?https://onesignal.com/api/v1/notifications", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json; charset=utf-8",
