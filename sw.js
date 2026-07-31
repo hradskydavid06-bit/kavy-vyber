@@ -1,4 +1,6 @@
-const CACHE_NAME = 'poppy-os-cache-v5';
+importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
+
+const CACHE_NAME = 'poppy-os-cache-v6';
 const STATIC_ASSETS = [
   './index.html',
   './manifest.json',

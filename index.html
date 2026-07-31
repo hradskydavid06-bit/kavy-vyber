@@ -596,7 +596,7 @@
         OneSignalDeferred.push(async function(OneSignal) {
             const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             const scopePath = isLocal ? '/' : '/kavy-vyber/';
-            const swPath = isLocal ? 'OneSignalSDKWorker.js' : '/kavy-vyber/OneSignalSDKWorker.js';
+            const swPath = isLocal ? 'sw.js' : '/kavy-vyber/sw.js';
             await OneSignal.init({
                 appId: "6383d18a-bae9-4e58-b577-39e9c58c3fe2",
                 serviceWorkerParam: { scope: scopePath },
