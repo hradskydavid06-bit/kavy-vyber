@@ -1,0 +1,24 @@
+{
+  "short_name": "Memory Map",
+  "name": "Our Memory Map",
+  "description": "A responsive map displaying our favorite memories together.",
+  "icons": [
+    {
+      "src": "images/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "images/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    }
+  ],
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#07152b",
+  "background_color": "#050b16"
+}
