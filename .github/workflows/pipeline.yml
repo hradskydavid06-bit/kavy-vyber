@@ -15,4 +15,4 @@ jobs:
       - name: Vypis souboru projektu
         run: ls -la
       - name: Kontrola existence Poppy
-        run: grep "Poppy" index.html
+        run: grep "Starbucks" index.html
