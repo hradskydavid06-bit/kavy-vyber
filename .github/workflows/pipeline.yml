@@ -1,0 +1,16 @@
+name: Poppy OS Kontrola
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  diagnostika:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Stazeni kody na server
+        uses: actions/checkout@v4
+
+      - name: Vypis souboru projektu
+        run: ls -la
