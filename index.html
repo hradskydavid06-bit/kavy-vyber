@@ -374,6 +374,36 @@
                         </button>
                     </div>
  
+                    <!-- VOLBA TYPU DEGUSTACE: CUPPING VS OCHUTNÁVKA FILTRŮ -->
+                    <div class="md:col-span-2 bg-theme-bg p-4 border border-theme-border rounded-theme space-y-2">
+                        <label class="block text-[10px] font-bold uppercase tracking-widest text-theme-muted">Typ degustace & průběh:</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <label class="flex items-start gap-3 p-3 bg-theme-surface border border-theme-border rounded-theme cursor-pointer has-[:checked]:border-theme-accent has-[:checked]:ring-1 has-[:checked]:ring-theme-accent transition">
+                                <input type="radio" name="cup_type" value="cupping" checked class="mt-1 accent-theme-accent cursor-pointer">
+                                <div>
+                                    <div class="text-xs font-extrabold uppercase text-theme-text flex items-center gap-1.5">
+                                        <span>☕</span> Klasický SCA Cupping
+                                    </div>
+                                    <div class="text-[10px] text-theme-muted mt-0.5 leading-normal">
+                                        Všechny misky na stole. Ve 4. min krusta (Break aroma všech vzorků naráz na začátku), pak ochutnávání.
+                                    </div>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start gap-3 p-3 bg-theme-surface border border-theme-border rounded-theme cursor-pointer has-[:checked]:border-theme-accent has-[:checked]:ring-1 has-[:checked]:ring-theme-accent transition">
+                                <input type="radio" name="cup_type" value="filter" class="mt-1 accent-theme-accent cursor-pointer">
+                                <div>
+                                    <div class="text-xs font-extrabold uppercase text-theme-text flex items-center gap-1.5">
+                                        <span>🫖</span> Ochutnávka filtrů (Batch/V60)
+                                    </div>
+                                    <div class="text-[10px] text-theme-muted mt-0.5 leading-normal">
+                                        Kávy se rozlévají postupně. Baristé hodnotí aroma i chuť u každého filtru rovnou pohromadě.
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+ 
                     <!-- VOLBA VYLOUČENÍ Z ŽEBŘÍČKU -->
                     <div class="md:col-span-2 flex items-center gap-3 bg-theme-bg p-4 border border-theme-border rounded-theme">
                         <input type="checkbox" id="cup_exclude_leaderboard" class="w-4 h-4 accent-theme-accent cursor-pointer">
@@ -544,18 +574,32 @@
             <button onclick="closeModal('evalModal')" class="absolute top-4 right-4 text-theme-muted hover:text-theme-accent font-bold uppercase text-xs z-10">Zavřít ✕</button>
             
             <div class="border-b border-theme-border pb-4 mb-5">
-                <h2 class="text-xl font-extrabold uppercase tracking-tight text-theme-text flex items-center gap-2">
-                    <span>☕ SCA Cupping Protokol</span>
-                </h2>
+                <div class="flex flex-wrap justify-between items-center gap-3">
+                    <h2 class="text-xl font-extrabold uppercase tracking-tight text-theme-text flex items-center gap-2">
+                        <span id="evalModalTitle">☕ SCA Cupping Protokol</span>
+                    </h2>
+                    
+                    <!-- PŘEPÍNAČ REŽIMU DEGUSTACE -->
+                    <div class="flex items-center gap-1 bg-theme-bg p-1 rounded-theme border border-theme-border text-[10px] font-bold">
+                        <button type="button" id="btnModeCupping" onclick="window.setCuppingMode('cupping')" class="px-2.5 py-1 rounded transition-all btn-primary">☕ Cupping</button>
+                        <button type="button" id="btnModeFilter" onclick="window.setCuppingMode('filter')" class="px-2.5 py-1 rounded transition-all text-theme-muted">🫖 Filtry</button>
+                    </div>
+                </div>
                 
-                <!-- PŘEPÍNAČ FÁZÍ STOLU -->
-                <div class="flex gap-2 mt-4 bg-theme-bg p-1.5 rounded-theme border border-theme-border">
+                <!-- PŘEPÍNAČ FÁZÍ STOLU (Zobrazí se pouze u Cuppingu s krustou) -->
+                <div id="phaseSwitchContainer" class="flex gap-2 mt-4 bg-theme-bg p-1.5 rounded-theme border border-theme-border">
                     <button type="button" id="tabPhaseBreak" onclick="window.switchCuppingPhase('break')" class="flex-1 py-2 px-3 text-[10px] md:text-xs font-bold uppercase tracking-wider rounded-theme transition-all btn-primary">
                         👃 1. Fáze: Break (Aroma)
                     </button>
                     <button type="button" id="tabPhaseTaste" onclick="window.switchCuppingPhase('taste')" class="flex-1 py-2 px-3 text-[10px] md:text-xs font-bold uppercase tracking-wider rounded-theme transition-all btn-secondary text-theme-muted">
                         👅 2. Fáze: Ochutnávka
                     </button>
+                </div>
+
+                <!-- OZNÁMENÍ PRO FILTROVANOU KÁVU -->
+                <div id="filterModeNotice" class="hidden mt-3 text-[11px] text-theme-muted bg-theme-bg p-2.5 rounded-theme border border-theme-border flex items-center gap-2">
+                    <span>🫖</span>
+                    <span><strong>Postupné nalévání:</strong> Hodnotíš každou filtrovanou kávu zvlášť (aroma i chuťový profil máš u každého vzorku rovnou pohromadě).</span>
                 </div>
             </div>
 
@@ -603,7 +647,7 @@
                     <div class="score-card bg-theme-bg p-4 rounded-theme border border-theme-border space-y-3">
                         <div class="flex justify-between items-center border-b border-theme-border/60 pb-2">
                             <span class="text-xs font-extrabold uppercase tracking-wider text-theme-text flex items-center gap-1.5">
-                                <span>🌸</span> Aroma (Vůně za sucha & Break)
+                                <span>🌸</span> <span id="aromaSectionTitle">Aroma (Vůně za sucha & Break)</span>
                             </span>
                             <span id="display_aroma_score" class="text-xs font-mono font-bold text-theme-accent">8.0</span>
                         </div>
@@ -1422,16 +1466,21 @@
                         </div>
                     `;
 
+                    const typeBadge = data.type === 'filter'
+                        ? `<span class="inline-block ml-2 px-2.5 py-0.5 text-[9px] font-extrabold uppercase bg-amber-500/20 text-amber-500 border border-amber-500/30 rounded-full tracking-wider align-middle">🫖 Filtry</span>`
+                        : `<span class="inline-block ml-2 px-2.5 py-0.5 text-[9px] font-extrabold uppercase bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full tracking-wider align-middle">☕ Cupping</span>`;
+
                     const excludeBadge = data.excludeFromLeaderboard === true 
-                        ? `<span class="inline-block ml-3 px-2 py-0.5 text-[9px] font-extrabold uppercase bg-zinc-500/20 text-zinc-400 border border-zinc-500/30 rounded-full tracking-wider align-middle">🔒 Nehodnocený</span>`
+                        ? `<span class="inline-block ml-2 px-2 py-0.5 text-[9px] font-extrabold uppercase bg-zinc-500/20 text-zinc-400 border border-zinc-500/30 rounded-full tracking-wider align-middle">🔒 Nehodnocený</span>`
                         : '';
 
                     card.innerHTML = `
                         <div class="flex flex-col md:flex-row justify-between items-start gap-6">
                             <div class="w-full">
                                 <div class="text-xs font-bold text-theme-accent uppercase mb-2 tracking-widest">${data.date} | ${data.time} | Vzorků: ${sampleCount}</div>
-                                <h3 class="text-2xl font-extrabold uppercase tracking-tight text-theme-text flex items-center flex-wrap">
+                                <h3 class="text-2xl font-extrabold uppercase tracking-tight text-theme-text flex items-center flex-wrap gap-1">
                                     <span>${data.title}</span>
+                                    ${typeBadge}
                                     ${excludeBadge}
                                 </h3>
                                 ${samplesListHtml}
@@ -1552,9 +1601,55 @@
             after_qual: 7.5
         };
 
+        window.currentCuppingMode = 'cupping'; // 'cupping' | 'filter'
+        window.setCuppingMode = (mode) => {
+            window.currentCuppingMode = mode;
+            const btnCupping = document.getElementById('btnModeCupping');
+            const btnFilter = document.getElementById('btnModeFilter');
+            const phaseSwitch = document.getElementById('phaseSwitchContainer');
+            const filterNotice = document.getElementById('filterModeNotice');
+            const modalTitle = document.getElementById('evalModalTitle');
+            const aromaTitle = document.getElementById('aromaSectionTitle');
+
+            if (mode === 'filter') {
+                if (btnFilter) {
+                    btnFilter.classList.add('btn-primary', 'text-white');
+                    btnFilter.classList.remove('text-theme-muted');
+                }
+                if (btnCupping) {
+                    btnCupping.classList.remove('btn-primary', 'text-white');
+                    btnCupping.classList.add('text-theme-muted');
+                }
+                if (phaseSwitch) phaseSwitch.classList.add('hidden');
+                if (filterNotice) filterNotice.classList.remove('hidden');
+                if (modalTitle) modalTitle.innerHTML = '<span>🫖 Ochutnávka Filtrů</span>';
+                if (aromaTitle) aromaTitle.innerText = 'Aroma šálku (Vůně filtru)';
+                
+                // U filtrů hodnotíme každou kávu zvlášť - přechod rovnou do ochutnávky
+                window.switchCuppingPhase('taste');
+            } else {
+                if (btnCupping) {
+                    btnCupping.classList.add('btn-primary', 'text-white');
+                    btnCupping.classList.remove('text-theme-muted');
+                }
+                if (btnFilter) {
+                    btnFilter.classList.remove('btn-primary', 'text-white');
+                    btnFilter.classList.add('text-theme-muted');
+                }
+                if (phaseSwitch) phaseSwitch.classList.remove('hidden');
+                if (filterNotice) filterNotice.classList.add('hidden');
+                if (modalTitle) modalTitle.innerHTML = '<span>☕ SCA Cupping Protokol</span>';
+                if (aromaTitle) aromaTitle.innerText = 'Aroma (Vůně za sucha & Break)';
+
+                // U cuppingu začínáme Breakem všech misek naráz
+                window.switchCuppingPhase('break');
+            }
+        };
+
         window.openEvalModal = (cuppingId) => {
             document.getElementById('eval_cuppingId').value = cuppingId;
-            const samples = window.globalCuppings[cuppingId]?.samples || [];
+            const cuppingData = window.globalCuppings[cuppingId] || {};
+            const samples = cuppingData.samples || [];
             const select = document.getElementById('eval_sample');
             select.innerHTML = samples.map(s => `<option value="${s}">${s}</option>`).join('');
 
@@ -1617,8 +1712,9 @@
                 }).join('');
             }
 
-            // Výchozí zobrazení: 1. Fáze Break
-            window.switchCuppingPhase('break');
+            // Nastavení režimu podle typu události (cupping vs filter)
+            const sessionType = cuppingData.type || 'cupping';
+            window.setCuppingMode(sessionType);
             
             document.getElementById('evalModal').classList.remove('hidden');
         };
@@ -1985,13 +2081,14 @@
             const samplesArray = Array.from(sampleInputs).map(input => input.value).filter(val => val.trim() !== '');
 
             const excludeVal = document.getElementById('cup_exclude_leaderboard').checked;
-
             const titleVal = document.getElementById('cup_title').value;
+            const typeVal = document.querySelector('input[name="cup_type"]:checked')?.value || 'cupping';
 
             const docRef = await addDoc(collection(db, "cuppings"), { 
                 title: titleVal, 
                 date: document.getElementById('cup_date').value, 
                 time: document.getElementById('cup_time').value, 
+                type: typeVal,
                 samples: samplesArray, 
                 attendees: [], 
                 declined: [],
@@ -1999,10 +2096,12 @@
             });
             const cuppingId = docRef.id;
 
-            alert(`✅ Cupping "${titleVal}" byl úspěšně vypsán! Notifikace se odesílá baristům přes Cloud Function.`);
+            alert(`✅ ${typeVal === 'filter' ? 'Ochutnávka filtrů' : 'Cupping'} "${titleVal}" byl úspěšně vypsán! Notifikace se odesílá baristům přes Cloud Function.`);
             
             e.target.reset();
             document.getElementById('cup_exclude_leaderboard').checked = false;
+            const defaultTypeRadio = document.querySelector('input[name="cup_type"][value="cupping"]');
+            if (defaultTypeRadio) defaultTypeRadio.checked = true;
             const dynamicContainer = document.getElementById('dynamicSamples');
             while (dynamicContainer.children.length > 2) {
                 dynamicContainer.removeChild(dynamicContainer.lastChild);
