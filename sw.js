@@ -1,6 +1,6 @@
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 
-const CACHE_NAME = 'poppy-os-cache-v7';
+const CACHE_NAME = 'poppy-os-cache-v8';
 const STATIC_ASSETS = [
   './index.html',
   './manifest.json',
@@ -77,7 +77,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Network-First for our main HTML, Cache-First for CDNs & static assets
-  const isMainPage = url.pathname.endsWith('index (1).html') || url.pathname.endsWith('/') || url.pathname.endsWith('index.html');
+  const isMainPage = url.pathname.endsWith('/') || url.pathname.endsWith('index.html');
 
   if (isMainPage) {
     event.respondWith(

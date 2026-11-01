@@ -18,7 +18,13 @@ service cloud.firestore {
     // Cuppings (cupping events)
     match /cuppings/{cuppingId} {
       allow read: if isLoggedIn();
-      allow write: if isAdmin();
+      allow create, delete: if isAdmin();
+      // Only administrators can edit cupping details.
+      // Logged-in baristas can only confirm/decline attendance (update attendees and declined lists).
+      allow update: if isAdmin() || (
+        isLoggedIn() && 
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['attendees', 'declined'])
+      );
     }
     
     // Cupping Scores (evaluations submitted by baristas)
