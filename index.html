@@ -213,6 +213,85 @@
         .score-block:hover {
             border-color: rgba(var(--t-accent-rgb), 0.3);
         }
+
+        .chip-btn { 
+            border: var(--t-border-w) solid var(--t-border); 
+            background: var(--t-surface); 
+            color: var(--t-text); 
+            border-radius: var(--t-radius); 
+            padding: 8px 4px; 
+            font-size: 11px; 
+            font-weight: 700; 
+            transition: all 0.15s ease; 
+            cursor: pointer; 
+            text-align: center; 
+            user-select: none;
+        }
+        .chip-btn:hover { 
+            border-color: var(--t-accent); 
+        }
+        .chip-btn.active { 
+            background: var(--t-accent); 
+            color: #ffffff; 
+            border-color: var(--t-accent); 
+            box-shadow: 0 2px 8px rgba(var(--t-accent-rgb), 0.25); 
+        }
+
+        .sample-chip {
+            border: var(--t-border-w) solid var(--t-border);
+            background: var(--t-surface);
+            color: var(--t-text);
+            border-radius: var(--t-radius);
+            padding: 6px 14px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .sample-chip:hover {
+            border-color: var(--t-accent);
+        }
+        .sample-chip.active {
+            background: var(--t-accent);
+            color: #ffffff;
+            border-color: var(--t-accent);
+            box-shadow: var(--t-shadow);
+        }
+
+        .tag-chip { 
+            border-radius: 9999px; 
+            padding: 6px 14px; 
+            font-size: 11px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            border: 2px solid transparent; 
+            user-select: none;
+            opacity: 0.85; 
+        }
+        .tag-chip:hover { 
+            transform: translateY(-1px); 
+            opacity: 1; 
+        }
+        .tag-chip.selected { 
+            opacity: 1; 
+            transform: scale(1.05); 
+            border-color: var(--t-text); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18); 
+        }
+        .tag-red { background: #fee2e2; color: #991b1b; }
+        .tag-yellow { background: #fef9c3; color: #854d0e; }
+        .tag-purple { background: #f3e8ff; color: #6b21a8; }
+        .tag-orange { background: #ffedd5; color: #9a3412; }
+        .tag-amber { background: #fef3c7; color: #92400e; }
+        .tag-brown { background: #f5ebe0; color: #582f0e; }
+        .tag-gold { background: #ede0d4; color: #7f4f24; }
+        .tag-wine { background: #fce7f3; color: #831843; }
+        .tag-green { background: #dcfce7; color: #166534; }
+        .tag-spicy { background: #ffedd5; color: #c2410c; }
     </style>
     <link rel="manifest" href="manifest.json">
     <script>
@@ -459,66 +538,222 @@
         </section>
     </div>
 
-    <!-- MODAL HODNOCENÍ -->
-    <div id="evalModal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-theme-surface max-w-md w-full p-6 border-theme border-theme-border rounded-theme shadow-theme relative max-h-[95vh] overflow-y-auto hide-scroll">
-            <button onclick="closeModal('evalModal')" class="absolute top-4 right-4 text-theme-muted hover:text-theme-accent font-bold uppercase text-xs">Zavřít ✕</button>
-            <h2 class="text-xl font-extrabold uppercase mb-4 border-b border-theme-border pb-4 text-theme-text">Hodnocení Vzorku</h2>
+    <!-- MODAL HODNOCENÍ (SCA PROTOKOL & DVOUFÁZOVÝ WORKFLOW) -->
+    <div id="evalModal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-3 md:p-4">
+        <div class="bg-theme-surface max-w-xl w-full p-5 md:p-8 border-theme border-theme-border rounded-theme shadow-theme relative max-h-[95vh] overflow-y-auto hide-scroll">
+            <button onclick="closeModal('evalModal')" class="absolute top-4 right-4 text-theme-muted hover:text-theme-accent font-bold uppercase text-xs z-10">Zavřít ✕</button>
             
-            <form id="evalForm" class="space-y-4">
-                <input type="hidden" id="eval_cuppingId">
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-2">Vyber kávu:</label>
-                    <select id="eval_sample" class="input-minimal text-sm font-bold bg-theme-bg border-theme-base"></select>
-                </div>
-
-                <div class="pt-2">
-                    <div class="score-block">
-                        <div class="text-xs font-bold uppercase tracking-widest mb-3 text-theme-text flex justify-between"><span>Aroma</span></div>
-                        <div class="flex items-center gap-3 mb-2"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Intenzita</span><input type="range" id="sl_aroma_int" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_ar_i').innerText=this.value"><span id="val_ar_i" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
-                        <div class="flex items-center gap-3"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Kvalita</span><input type="range" id="sl_aroma_qual" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_ar_q').innerText=this.value"><span id="val_ar_q" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
-                    </div>
-                    <div class="score-block">
-                        <div class="text-xs font-bold uppercase tracking-widest mb-3 text-theme-text flex justify-between"><span>Acidita</span></div>
-                        <div class="flex items-center gap-3 mb-2"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Intenzita</span><input type="range" id="sl_acid_int" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_ac_i').innerText=this.value"><span id="val_ac_i" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
-                        <div class="flex items-center gap-3"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Kvalita</span><input type="range" id="sl_acid_qual" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_ac_q').innerText=this.value"><span id="val_ac_q" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
-                    </div>
-                    <div class="score-block">
-                        <div class="text-xs font-bold uppercase tracking-widest mb-3 text-theme-text flex justify-between"><span>Sladkost</span></div>
-                        <div class="flex items-center gap-3 mb-2"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Intenzita</span><input type="range" id="sl_sweet_int" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_sw_i').innerText=this.value"><span id="val_sw_i" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
-                        <div class="flex items-center gap-3"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Kvalita</span><input type="range" id="sl_sweet_qual" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_sw_q').innerText=this.value"><span id="val_sw_q" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
-                    </div>
-                    <div class="score-block">
-                        <div class="text-xs font-bold uppercase tracking-widest mb-3 text-theme-text flex justify-between"><span>Tělo (Body)</span></div>
-                        <div class="flex items-center gap-3 mb-2"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Intenzita</span><input type="range" id="sl_body_int" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_bd_i').innerText=this.value"><span id="val_bd_i" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
-                        <div class="flex items-center gap-3"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Kvalita</span><input type="range" id="sl_body_qual" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_bd_q').innerText=this.value"><span id="val_bd_q" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
-                    </div>
-                    <div class="score-block">
-                        <div class="text-xs font-bold uppercase tracking-widest mb-3 text-theme-text flex justify-between"><span>Dochůť</span></div>
-                        <div class="flex items-center gap-3 mb-2"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Délka</span><input type="range" id="sl_after_int" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_af_i').innerText=this.value"><span id="val_af_i" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
-                        <div class="flex items-center gap-3"><span class="w-14 text-[9px] uppercase font-bold text-theme-muted">Kvalita</span><input type="range" id="sl_after_qual" min="0" max="10" step="0.5" value="5" oninput="document.getElementById('val_af_q').innerText=this.value"><span id="val_af_q" class="w-6 text-right font-bold text-theme-accent text-xs">5</span></div>
-                    </div>
-                </div>
-
-                <div class="pt-2 border-t border-theme-border">
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-3">Chuťový profil</label>
-                    <div class="flex flex-wrap gap-2" id="flavorTagsContainer">
-                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected'); window.saveCuppingDraft();">Květiny</button>
-                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected'); window.saveCuppingDraft();">Bobule</button>
-                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected'); window.saveCuppingDraft();">Citrusy</button>
-                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected'); window.saveCuppingDraft();">Peckovice</button>
-                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected'); window.saveCuppingDraft();">Tropické ovoce</button>
-                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected'); window.saveCuppingDraft();">Čokoláda / Kakao</button>
-                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected'); window.saveCuppingDraft();">Karamel / Ořechy</button>
-                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected'); window.saveCuppingDraft();">Koření</button>
-                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected'); window.saveCuppingDraft();">Černý čaj</button>
-                        <button type="button" class="tag-btn" onclick="this.classList.toggle('selected'); window.saveCuppingDraft();">Fermentace</button>
-                    </div>
-                </div>
+            <div class="border-b border-theme-border pb-4 mb-5">
+                <h2 class="text-xl font-extrabold uppercase tracking-tight text-theme-text flex items-center gap-2">
+                    <span>☕ SCA Cupping Protokol</span>
+                </h2>
                 
-                <textarea id="eval_note" class="input-minimal text-sm h-16" placeholder="Osobní poznámka k chuti..."></textarea>
-                <button type="submit" id="submitEvalBtn" class="w-full btn-primary p-4 uppercase tracking-widest text-xs font-bold transition-all duration-300">Uložit a vybrat další</button>
-            </form>
+                <!-- PŘEPÍNAČ FÁZÍ STOLU -->
+                <div class="flex gap-2 mt-4 bg-theme-bg p-1.5 rounded-theme border border-theme-border">
+                    <button type="button" id="tabPhaseBreak" onclick="window.switchCuppingPhase('break')" class="flex-1 py-2 px-3 text-[10px] md:text-xs font-bold uppercase tracking-wider rounded-theme transition-all btn-primary">
+                        👃 1. Fáze: Break (Aroma)
+                    </button>
+                    <button type="button" id="tabPhaseTaste" onclick="window.switchCuppingPhase('taste')" class="flex-1 py-2 px-3 text-[10px] md:text-xs font-bold uppercase tracking-wider rounded-theme transition-all btn-secondary text-theme-muted">
+                        👅 2. Fáze: Ochutnávka
+                    </button>
+                </div>
+            </div>
+
+            <input type="hidden" id="eval_cuppingId">
+
+            <!-- FÁZE 1: BREAK & AROMA VŠECH VZORKŮ NA STOLE -->
+            <div id="evalPhaseBreak" class="space-y-5">
+                <div class="text-xs text-theme-muted bg-theme-bg p-3.5 rounded-theme border border-theme-border leading-relaxed">
+                    <strong>Rychlé Aroma stolu:</strong> Prolomte krustu (Break) u jednotlivých misek a zhodnoťte suché a mokré aroma u všech káv za sebou. Vaše hodnocení se automaticky přenese do 2. fáze.
+                </div>
+                <div id="breakSamplesList" class="space-y-4">
+                    <!-- Dynamicky generované karty vzorků pro Aroma -->
+                </div>
+                <button type="button" onclick="window.switchCuppingPhase('taste')" class="w-full btn-primary p-4 uppercase tracking-widest text-xs font-bold flex items-center justify-center gap-2 mt-4">
+                    <span>Přejít na 2. Fázi: Ochutnávání</span>
+                    <span>➔</span>
+                </button>
+            </div>
+
+            <!-- FÁZE 2: KOMPLETNÍ OCHUTNÁVKA PO ZCHLADNUTÍ -->
+            <div id="evalPhaseTaste" class="hidden space-y-5">
+                <!-- VÝBĚR VZORKU (Tlačítkové čipy nahoře) -->
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-2">Hodnocený vzorek:</label>
+                    <div id="sampleSelectorChips" class="flex gap-2 overflow-x-auto hide-scroll pb-1">
+                        <!-- Generované čipy vzorků -->
+                    </div>
+                    <select id="eval_sample" class="hidden"></select>
+                </div>
+
+                <!-- ŽIVÉ SCA SKÓRE BADGE -->
+                <div class="bg-theme-bg border-theme border-theme-border p-4 rounded-theme flex items-center justify-between">
+                    <div>
+                        <div class="text-[9px] uppercase font-bold tracking-widest text-theme-muted">Odhadované SCA skóre šálku:</div>
+                        <div id="scaScoreTier" class="text-xs font-extrabold uppercase tracking-wide text-theme-accent mt-0.5">🟡 Výborný mikrolot</div>
+                    </div>
+                    <div class="text-right">
+                        <span id="liveScaScore" class="text-3xl font-extrabold font-mono text-theme-text tracking-tight">85.0</span>
+                        <span class="text-xs text-theme-muted font-bold">/ 100</span>
+                    </div>
+                </div>
+
+                <form id="evalForm" class="space-y-4">
+                    <!-- AROMA (Z 1. fáze, ale lze ještě doladit) -->
+                    <div class="score-card bg-theme-bg p-4 rounded-theme border border-theme-border space-y-3">
+                        <div class="flex justify-between items-center border-b border-theme-border/60 pb-2">
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-theme-text flex items-center gap-1.5">
+                                <span>🌸</span> Aroma (Vůně za sucha & Break)
+                            </span>
+                            <span id="display_aroma_score" class="text-xs font-mono font-bold text-theme-accent">8.0</span>
+                        </div>
+                        <div>
+                            <div class="text-[9px] font-bold uppercase tracking-widest text-theme-muted mb-1.5">Intenzita vůně:</div>
+                            <div class="grid grid-cols-3 gap-1.5" id="group_aroma_int">
+                                <button type="button" onclick="window.selectChip('aroma_int', 3.5, this)" class="chip-btn" data-field="aroma_int" data-val="3.5">Jemná</button>
+                                <button type="button" onclick="window.selectChip('aroma_int', 6.5, this)" class="chip-btn active" data-field="aroma_int" data-val="6.5">Střední</button>
+                                <button type="button" onclick="window.selectChip('aroma_int', 9.0, this)" class="chip-btn" data-field="aroma_int" data-val="9.0">Pronikavá</button>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-[9px] font-bold uppercase tracking-widest text-theme-muted mb-1.5">Kvalita aromatu (SCA stupnice):</div>
+                            <div class="grid grid-cols-6 gap-1" id="group_aroma_qual">
+                                <button type="button" onclick="window.selectChip('aroma_qual', 6.5, this)" class="chip-btn text-xs" data-field="aroma_qual" data-val="6.5">6.5</button>
+                                <button type="button" onclick="window.selectChip('aroma_qual', 7.0, this)" class="chip-btn text-xs" data-field="aroma_qual" data-val="7.0">7.0</button>
+                                <button type="button" onclick="window.selectChip('aroma_qual', 7.5, this)" class="chip-btn text-xs" data-field="aroma_qual" data-val="7.5">7.5</button>
+                                <button type="button" onclick="window.selectChip('aroma_qual', 8.0, this)" class="chip-btn text-xs active" data-field="aroma_qual" data-val="8.0">8.0</button>
+                                <button type="button" onclick="window.selectChip('aroma_qual', 8.5, this)" class="chip-btn text-xs" data-field="aroma_qual" data-val="8.5">8.5</button>
+                                <button type="button" onclick="window.selectChip('aroma_qual', 9.0, this)" class="chip-btn text-xs" data-field="aroma_qual" data-val="9.0">9.0+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ACIDITA -->
+                    <div class="score-card bg-theme-bg p-4 rounded-theme border border-theme-border space-y-3">
+                        <div class="flex justify-between items-center border-b border-theme-border/60 pb-2">
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-theme-text flex items-center gap-1.5">
+                                <span>🍋</span> Acidita (Kyselost)
+                            </span>
+                            <span id="display_acid_score" class="text-xs font-mono font-bold text-theme-accent">8.0</span>
+                        </div>
+                        <div>
+                            <div class="text-[9px] font-bold uppercase tracking-widest text-theme-muted mb-1.5">Intenzita kyselosti:</div>
+                            <div class="grid grid-cols-3 gap-1.5" id="group_acid_int">
+                                <button type="button" onclick="window.selectChip('acid_int', 3.5, this)" class="chip-btn" data-field="acid_int" data-val="3.5">Jemná</button>
+                                <button type="button" onclick="window.selectChip('acid_int', 6.5, this)" class="chip-btn active" data-field="acid_int" data-val="6.5">Střední</button>
+                                <button type="button" onclick="window.selectChip('acid_int', 9.0, this)" class="chip-btn" data-field="acid_int" data-val="9.0">Výrazná</button>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-[9px] font-bold uppercase tracking-widest text-theme-muted mb-1.5">Kvalita acidity (Šťavnatost & čistota):</div>
+                            <div class="grid grid-cols-6 gap-1" id="group_acid_qual">
+                                <button type="button" onclick="window.selectChip('acid_qual', 6.5, this)" class="chip-btn text-xs" data-field="acid_qual" data-val="6.5">6.5</button>
+                                <button type="button" onclick="window.selectChip('acid_qual', 7.0, this)" class="chip-btn text-xs" data-field="acid_qual" data-val="7.0">7.0</button>
+                                <button type="button" onclick="window.selectChip('acid_qual', 7.5, this)" class="chip-btn text-xs" data-field="acid_qual" data-val="7.5">7.5</button>
+                                <button type="button" onclick="window.selectChip('acid_qual', 8.0, this)" class="chip-btn text-xs active" data-field="acid_qual" data-val="8.0">8.0</button>
+                                <button type="button" onclick="window.selectChip('acid_qual', 8.5, this)" class="chip-btn text-xs" data-field="acid_qual" data-val="8.5">8.5</button>
+                                <button type="button" onclick="window.selectChip('acid_qual', 9.0, this)" class="chip-btn text-xs" data-field="acid_qual" data-val="9.0">9.0+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SLADKOST -->
+                    <div class="score-card bg-theme-bg p-4 rounded-theme border border-theme-border space-y-3">
+                        <div class="flex justify-between items-center border-b border-theme-border/60 pb-2">
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-theme-text flex items-center gap-1.5">
+                                <span>🍯</span> Sladkost (Sweetness)
+                            </span>
+                            <span id="display_sweet_score" class="text-xs font-mono font-bold text-theme-accent">8.0</span>
+                        </div>
+                        <div>
+                            <div class="text-[9px] font-bold uppercase tracking-widest text-theme-muted mb-1.5">Kvalita sladkosti (Zralost ovoce):</div>
+                            <div class="grid grid-cols-6 gap-1" id="group_sweet_qual">
+                                <button type="button" onclick="window.selectChip('sweet_qual', 6.5, this)" class="chip-btn text-xs" data-field="sweet_qual" data-val="6.5">6.5</button>
+                                <button type="button" onclick="window.selectChip('sweet_qual', 7.0, this)" class="chip-btn text-xs" data-field="sweet_qual" data-val="7.0">7.0</button>
+                                <button type="button" onclick="window.selectChip('sweet_qual', 7.5, this)" class="chip-btn text-xs" data-field="sweet_qual" data-val="7.5">7.5</button>
+                                <button type="button" onclick="window.selectChip('sweet_qual', 8.0, this)" class="chip-btn text-xs active" data-field="sweet_qual" data-val="8.0">8.0</button>
+                                <button type="button" onclick="window.selectChip('sweet_qual', 8.5, this)" class="chip-btn text-xs" data-field="sweet_qual" data-val="8.5">8.5</button>
+                                <button type="button" onclick="window.selectChip('sweet_qual', 9.0, this)" class="chip-btn text-xs" data-field="sweet_qual" data-val="9.0">9.0+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TĚLO -->
+                    <div class="score-card bg-theme-bg p-4 rounded-theme border border-theme-border space-y-3">
+                        <div class="flex justify-between items-center border-b border-theme-border/60 pb-2">
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-theme-text flex items-center gap-1.5">
+                                <span>☕</span> Tělo (Body / Textura)
+                            </span>
+                            <span id="display_body_score" class="text-xs font-mono font-bold text-theme-accent">7.5</span>
+                        </div>
+                        <div>
+                            <div class="text-[9px] font-bold uppercase tracking-widest text-theme-muted mb-1.5">Textura a pocit na patře:</div>
+                            <div class="grid grid-cols-3 gap-1.5" id="group_body_int">
+                                <button type="button" onclick="window.selectChip('body_int', 3.5, this)" class="chip-btn" data-field="body_int" data-val="3.5">Lehké</button>
+                                <button type="button" onclick="window.selectChip('body_int', 6.5, this)" class="chip-btn active" data-field="body_int" data-val="6.5">Střední</button>
+                                <button type="button" onclick="window.selectChip('body_int', 9.0, this)" class="chip-btn" data-field="body_int" data-val="9.0">Hutné / Plné</button>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-[9px] font-bold uppercase tracking-widest text-theme-muted mb-1.5">Kvalita těla (Hebkost / Sametovost):</div>
+                            <div class="grid grid-cols-6 gap-1" id="group_body_qual">
+                                <button type="button" onclick="window.selectChip('body_qual', 6.5, this)" class="chip-btn text-xs" data-field="body_qual" data-val="6.5">6.5</button>
+                                <button type="button" onclick="window.selectChip('body_qual', 7.0, this)" class="chip-btn text-xs" data-field="body_qual" data-val="7.0">7.0</button>
+                                <button type="button" onclick="window.selectChip('body_qual', 7.5, this)" class="chip-btn text-xs active" data-field="body_qual" data-val="7.5">7.5</button>
+                                <button type="button" onclick="window.selectChip('body_qual', 8.0, this)" class="chip-btn text-xs" data-field="body_qual" data-val="8.0">8.0</button>
+                                <button type="button" onclick="window.selectChip('body_qual', 8.5, this)" class="chip-btn text-xs" data-field="body_qual" data-val="8.5">8.5</button>
+                                <button type="button" onclick="window.selectChip('body_qual', 9.0, this)" class="chip-btn text-xs" data-field="body_qual" data-val="9.0">9.0+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DOCHŮŤ -->
+                    <div class="score-card bg-theme-bg p-4 rounded-theme border border-theme-border space-y-3">
+                        <div class="flex justify-between items-center border-b border-theme-border/60 pb-2">
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-theme-text flex items-center gap-1.5">
+                                <span>✨</span> Dochůť (Aftertaste)
+                            </span>
+                            <span id="display_after_score" class="text-xs font-mono font-bold text-theme-accent">7.5</span>
+                        </div>
+                        <div>
+                            <div class="text-[9px] font-bold uppercase tracking-widest text-theme-muted mb-1.5">Délka a čistota po polknutí:</div>
+                            <div class="grid grid-cols-6 gap-1" id="group_after_qual">
+                                <button type="button" onclick="window.selectChip('after_qual', 6.5, this)" class="chip-btn text-xs" data-field="after_qual" data-val="6.5">6.5</button>
+                                <button type="button" onclick="window.selectChip('after_qual', 7.0, this)" class="chip-btn text-xs" data-field="after_qual" data-val="7.0">7.0</button>
+                                <button type="button" onclick="window.selectChip('after_qual', 7.5, this)" class="chip-btn text-xs active" data-field="after_qual" data-val="7.5">7.5</button>
+                                <button type="button" onclick="window.selectChip('after_qual', 8.0, this)" class="chip-btn text-xs" data-field="after_qual" data-val="8.0">8.0</button>
+                                <button type="button" onclick="window.selectChip('after_qual', 8.5, this)" class="chip-btn text-xs" data-field="after_qual" data-val="8.5">8.5</button>
+                                <button type="button" onclick="window.selectChip('after_qual', 9.0, this)" class="chip-btn text-xs" data-field="after_qual" data-val="9.0">9.0+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BAREVNÉ CHUŤOVÉ TÓNY PODLE FLAVOR WHEEL -->
+                    <div class="pt-2 border-t border-theme-border">
+                        <label class="block text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-2.5">
+                            Senzorický profil (Klepnutím vyber dominantní tóny):
+                        </label>
+                        <div class="flex flex-wrap gap-2" id="flavorTagsContainer">
+                            <button type="button" class="tag-chip tag-red" data-tag="Bobule" onclick="window.toggleFlavorTag(this)">🍓 Bobule</button>
+                            <button type="button" class="tag-chip tag-yellow" data-tag="Citrusy" onclick="window.toggleFlavorTag(this)">🍋 Citrusy</button>
+                            <button type="button" class="tag-chip tag-purple" data-tag="Květiny" onclick="window.toggleFlavorTag(this)">🌸 Květiny</button>
+                            <button type="button" class="tag-chip tag-orange" data-tag="Peckovice" onclick="window.toggleFlavorTag(this)">🍑 Peckovice</button>
+                            <button type="button" class="tag-chip tag-amber" data-tag="Tropické ovoce" onclick="window.toggleFlavorTag(this)">🥭 Tropické ovoce</button>
+                            <button type="button" class="tag-chip tag-brown" data-tag="Čokoláda / Kakao" onclick="window.toggleFlavorTag(this)">🍫 Čokoláda / Kakao</button>
+                            <button type="button" class="tag-chip tag-gold" data-tag="Karamel / Ořechy" onclick="window.toggleFlavorTag(this)">🌰 Karamel / Ořechy</button>
+                            <button type="button" class="tag-chip tag-wine" data-tag="Fermentace" onclick="window.toggleFlavorTag(this)">🍷 Fermentace</button>
+                            <button type="button" class="tag-chip tag-green" data-tag="Černý čaj" onclick="window.toggleFlavorTag(this)">🌿 Černý čaj</button>
+                            <button type="button" class="tag-chip tag-spicy" data-tag="Koření" onclick="window.toggleFlavorTag(this)">🌶️ Koření</button>
+                        </div>
+                    </div>
+
+                    <textarea id="eval_note" class="input-minimal text-xs h-16" placeholder="Osobní poznámka k chuti..."></textarea>
+                    
+                    <button type="submit" id="submitEvalBtn" class="w-full btn-primary p-4 uppercase tracking-widest text-xs font-bold transition-all duration-300">
+                        Uložit a vybrat další vzorek ➔
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -1309,17 +1544,256 @@
 
         window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); };
         
+        window.currentEval = {
+            aroma_int: 6.5, aroma_qual: 8.0,
+            acid_int: 6.5, acid_qual: 8.0,
+            sweet_qual: 8.0,
+            body_int: 6.5, body_qual: 7.5,
+            after_qual: 7.5
+        };
+
         window.openEvalModal = (cuppingId) => {
             document.getElementById('eval_cuppingId').value = cuppingId;
-            const samples = window.globalCuppings[cuppingId].samples || [];
+            const samples = window.globalCuppings[cuppingId]?.samples || [];
             const select = document.getElementById('eval_sample');
             select.innerHTML = samples.map(s => `<option value="${s}">${s}</option>`).join('');
 
-            // Load any saved draft for the first sample in this cupping
-            window.loadCuppingDraft();
+            // Generování čipů pro Phase 2 (Ochutnávka)
+            const chipsContainer = document.getElementById('sampleSelectorChips');
+            if (chipsContainer) {
+                chipsContainer.innerHTML = samples.map((s, idx) => `
+                    <button type="button" onclick="window.selectTasteSample('${s.replace(/'/g, "\\'")}')" 
+                            class="sample-chip ${idx === 0 ? 'active' : ''}" 
+                            data-sample="${s}">
+                        ${s}
+                    </button>
+                `).join('');
+            }
+
+            // Generování karet pro Phase 1 (Break & Aroma)
+            const breakList = document.getElementById('breakSamplesList');
+            if (breakList) {
+                breakList.innerHTML = samples.map(s => {
+                    const draftKey = `cupping_draft_${cuppingId}_${s}_${currentUser ? currentUser.uid : ''}`;
+                    let savedAromaInt = 6.5;
+                    let savedAromaQual = 8.0;
+                    try {
+                        const raw = localStorage.getItem(draftKey);
+                        if (raw) {
+                            const parsed = JSON.parse(raw);
+                            if (parsed.aroma_int !== undefined) savedAromaInt = parseFloat(parsed.aroma_int);
+                            if (parsed.aroma_qual !== undefined) savedAromaQual = parseFloat(parsed.aroma_qual);
+                        }
+                    } catch(e) {}
+
+                    return `
+                        <div class="bg-theme-bg p-4 rounded-theme border border-theme-border space-y-3">
+                            <div class="flex justify-between items-center border-b border-theme-border/60 pb-2">
+                                <span class="text-xs font-extrabold uppercase tracking-wider text-theme-text flex items-center gap-1.5">
+                                    <span>☕</span> ${s}
+                                </span>
+                                <span class="text-[10px] font-bold text-theme-muted uppercase tracking-wider">Aroma šálku</span>
+                            </div>
+                            <div>
+                                <div class="text-[9px] font-bold uppercase tracking-widest text-theme-muted mb-1.5">Intenzita vůně:</div>
+                                <div class="grid grid-cols-3 gap-1.5">
+                                    <button type="button" onclick="window.selectBreakChip('${s.replace(/'/g, "\\'")}', 'aroma_int', 3.5, this)" class="chip-btn ${Math.abs(savedAromaInt - 3.5) < 0.05 ? 'active' : ''}" data-val="3.5">Jemná</button>
+                                    <button type="button" onclick="window.selectBreakChip('${s.replace(/'/g, "\\'")}', 'aroma_int', 6.5, this)" class="chip-btn ${Math.abs(savedAromaInt - 6.5) < 0.05 ? 'active' : ''}" data-val="6.5">Střední</button>
+                                    <button type="button" onclick="window.selectBreakChip('${s.replace(/'/g, "\\'")}', 'aroma_int', 9.0, this)" class="chip-btn ${Math.abs(savedAromaInt - 9.0) < 0.05 ? 'active' : ''}" data-val="9.0">Pronikavá</button>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="text-[9px] font-bold uppercase tracking-widest text-theme-muted mb-1.5">Kvalita aromatu (SCA stupnice):</div>
+                                <div class="grid grid-cols-6 gap-1">
+                                    ${[6.5, 7.0, 7.5, 8.0, 8.5, 9.0].map(v => `
+                                        <button type="button" onclick="window.selectBreakChip('${s.replace(/'/g, "\\'")}', 'aroma_qual', ${v}, this)" class="chip-btn text-xs ${Math.abs(savedAromaQual - v) < 0.05 ? 'active' : ''}" data-val="${v}">
+                                            ${v === 9.0 ? '9.0+' : v.toFixed(1)}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Výchozí zobrazení: 1. Fáze Break
+            window.switchCuppingPhase('break');
             
             document.getElementById('evalModal').classList.remove('hidden');
         };
+
+        window.selectTasteSample = (sample) => {
+            const select = document.getElementById('eval_sample');
+            if (select) select.value = sample;
+
+            document.querySelectorAll('#sampleSelectorChips .sample-chip').forEach(btn => {
+                if (btn.getAttribute('data-sample') === sample) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            window.loadCuppingDraft();
+        };
+
+        window.selectBreakChip = (sample, field, val, btn) => {
+            const numVal = parseFloat(val);
+            if (btn && btn.parentElement) {
+                btn.parentElement.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+
+            const cuppingId = document.getElementById('eval_cuppingId').value;
+            if (!cuppingId || !currentUser) return;
+
+            const draftKey = `cupping_draft_${cuppingId}_${sample}_${currentUser.uid}`;
+            let draftData = {
+                aroma_int: 6.5, aroma_qual: 8.0,
+                acid_int: 6.5, acid_qual: 8.0,
+                sweet_qual: 8.0, body_int: 6.5,
+                body_qual: 7.5, after_qual: 7.5,
+                flavorTags: [], note: ""
+            };
+            try {
+                const raw = localStorage.getItem(draftKey);
+                if (raw) draftData = { ...draftData, ...JSON.parse(raw) };
+            } catch(e) {}
+
+            draftData[field] = numVal;
+            localStorage.setItem(draftKey, JSON.stringify(draftData));
+
+            const currentSample = document.getElementById('eval_sample').value;
+            if (currentSample === sample) {
+                window.currentEval[field] = numVal;
+                syncEvalUi();
+                window.updateLiveScaScore();
+            }
+        };
+
+        window.switchCuppingPhase = (phase) => {
+            const phaseBreak = document.getElementById('evalPhaseBreak');
+            const phaseTaste = document.getElementById('evalPhaseTaste');
+            const tabBreak = document.getElementById('tabPhaseBreak');
+            const tabTaste = document.getElementById('tabPhaseTaste');
+
+            if (phase === 'break') {
+                if (phaseBreak) phaseBreak.classList.remove('hidden');
+                if (phaseTaste) phaseTaste.classList.add('hidden');
+                
+                if (tabBreak) {
+                    tabBreak.classList.add('btn-primary', 'text-white');
+                    tabBreak.classList.remove('btn-secondary', 'text-theme-muted');
+                }
+                if (tabTaste) {
+                    tabTaste.classList.remove('btn-primary', 'text-white');
+                    tabTaste.classList.add('btn-secondary', 'text-theme-muted');
+                }
+            } else {
+                if (phaseBreak) phaseBreak.classList.add('hidden');
+                if (phaseTaste) phaseTaste.classList.remove('hidden');
+                
+                if (tabTaste) {
+                    tabTaste.classList.add('btn-primary', 'text-white');
+                    tabTaste.classList.remove('btn-secondary', 'text-theme-muted');
+                }
+                if (tabBreak) {
+                    tabBreak.classList.remove('btn-primary', 'text-white');
+                    tabBreak.classList.add('btn-secondary', 'text-theme-muted');
+                }
+
+                const select = document.getElementById('eval_sample');
+                if (select && select.value) {
+                    window.selectTasteSample(select.value);
+                } else {
+                    window.loadCuppingDraft();
+                }
+            }
+        };
+
+        window.selectChip = (field, val, btn) => {
+            const numVal = parseFloat(val);
+            window.currentEval[field] = numVal;
+            
+            if (btn && btn.parentElement) {
+                btn.parentElement.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+            
+            if (field === 'aroma_qual' && document.getElementById('display_aroma_score')) {
+                document.getElementById('display_aroma_score').innerText = numVal.toFixed(1);
+            } else if (field === 'acid_qual' && document.getElementById('display_acid_score')) {
+                document.getElementById('display_acid_score').innerText = numVal.toFixed(1);
+            } else if (field === 'sweet_qual' && document.getElementById('display_sweet_score')) {
+                document.getElementById('display_sweet_score').innerText = numVal.toFixed(1);
+            } else if (field === 'body_qual' && document.getElementById('display_body_score')) {
+                document.getElementById('display_body_score').innerText = numVal.toFixed(1);
+            } else if (field === 'after_qual' && document.getElementById('display_after_score')) {
+                document.getElementById('display_after_score').innerText = numVal.toFixed(1);
+            }
+            
+            window.updateLiveScaScore();
+            window.saveCuppingDraft();
+        };
+
+        window.toggleFlavorTag = (btn) => {
+            btn.classList.toggle('selected');
+            window.saveCuppingDraft();
+        };
+
+        window.updateLiveScaScore = () => {
+            const e = window.currentEval;
+            const score = 50 + (e.aroma_qual + e.acid_qual + e.sweet_qual + e.body_qual + e.after_qual);
+            const scoreEl = document.getElementById('liveScaScore');
+            const tierEl = document.getElementById('scaScoreTier');
+            
+            if (scoreEl) {
+                scoreEl.innerText = score.toFixed(1);
+            }
+            
+            if (tierEl) {
+                if (score >= 90) {
+                    tierEl.innerText = "🏆 90+ Vítězná káva (Outstanding)";
+                    tierEl.className = "text-xs font-extrabold uppercase tracking-wide text-yellow-500 mt-0.5";
+                } else if (score >= 87) {
+                    tierEl.innerText = "✨ 87-89 Výborný mikrolot (Exemplary)";
+                    tierEl.className = "text-xs font-extrabold uppercase tracking-wide text-theme-accent mt-0.5";
+                } else if (score >= 84) {
+                    tierEl.innerText = "🟡 84-86 Velmi dobrá výběrovka (Very Good)";
+                    tierEl.className = "text-xs font-extrabold uppercase tracking-wide text-amber-500 mt-0.5";
+                } else if (score >= 80) {
+                    tierEl.innerText = "☕ 80-83 Standardní výběrovka (Specialty)";
+                    tierEl.className = "text-xs font-extrabold uppercase tracking-wide text-emerald-500 mt-0.5";
+                } else {
+                    tierEl.innerText = "⚠️ Pod 80 bodů (Komerční / Defektní)";
+                    tierEl.className = "text-xs font-extrabold uppercase tracking-wide text-red-500 mt-0.5";
+                }
+            }
+        };
+
+        function syncEvalUi() {
+            ['aroma_int', 'aroma_qual', 'acid_int', 'acid_qual', 'sweet_qual', 'body_int', 'body_qual', 'after_qual'].forEach(field => {
+                const group = document.getElementById(`group_${field}`);
+                if (group) {
+                    const val = window.currentEval[field];
+                    group.querySelectorAll('.chip-btn').forEach(btn => {
+                        const btnVal = parseFloat(btn.getAttribute('data-val'));
+                        if (Math.abs(btnVal - val) < 0.05) {
+                            btn.classList.add('active');
+                        } else {
+                            btn.classList.remove('active');
+                        }
+                    });
+                }
+            });
+
+            if (document.getElementById('display_aroma_score')) document.getElementById('display_aroma_score').innerText = window.currentEval.aroma_qual.toFixed(1);
+            if (document.getElementById('display_acid_score')) document.getElementById('display_acid_score').innerText = window.currentEval.acid_qual.toFixed(1);
+            if (document.getElementById('display_sweet_score')) document.getElementById('display_sweet_score').innerText = window.currentEval.sweet_qual.toFixed(1);
+            if (document.getElementById('display_body_score')) document.getElementById('display_body_score').innerText = window.currentEval.body_qual.toFixed(1);
+            if (document.getElementById('display_after_score')) document.getElementById('display_after_score').innerText = window.currentEval.after_qual.toFixed(1);
+        }
         
         window.openResultsModal = async (cuppingId) => {
             document.getElementById('resultsModal').classList.remove('hidden');
@@ -1616,68 +2090,72 @@
             const submitBtn = document.getElementById('submitEvalBtn');
             const originalBtnText = submitBtn.innerText;
             
-            const selectedTags = Array.from(document.querySelectorAll('#flavorTagsContainer .tag-btn.selected')).map(btn => btn.innerText);
+            const selectedTags = Array.from(document.querySelectorAll('#flavorTagsContainer .tag-chip.selected'))
+                .map(btn => btn.getAttribute('data-tag') || btn.innerText.trim());
+
+            const currentSample = document.getElementById('eval_sample').value;
+            const cuppingId = document.getElementById('eval_cuppingId').value;
 
             const scoreData = { 
-                cuppingId: document.getElementById('eval_cuppingId').value, 
+                cuppingId: cuppingId, 
                 userEmail: currentUser.email, 
-                sample: document.getElementById('eval_sample').value, 
+                sample: currentSample, 
                 
-                aroma_int: parseFloat(document.getElementById('sl_aroma_int').value), 
-                aroma_qual: parseFloat(document.getElementById('sl_aroma_qual').value), 
+                aroma_int: window.currentEval.aroma_int, 
+                aroma_qual: window.currentEval.aroma_qual, 
                 
-                acid_int: parseFloat(document.getElementById('sl_acid_int').value), 
-                acid_qual: parseFloat(document.getElementById('sl_acid_qual').value), 
+                acid_int: window.currentEval.acid_int, 
+                acid_qual: window.currentEval.acid_qual, 
                 
-                sweet_int: parseFloat(document.getElementById('sl_sweet_int').value), 
-                sweet_qual: parseFloat(document.getElementById('sl_sweet_qual').value), 
+                sweet_int: window.currentEval.sweet_qual, 
+                sweet_qual: window.currentEval.sweet_qual, 
                 
-                body_int: parseFloat(document.getElementById('sl_body_int').value), 
-                body_qual: parseFloat(document.getElementById('sl_body_qual').value), 
+                body_int: window.currentEval.body_int, 
+                body_qual: window.currentEval.body_qual, 
                 
-                after_int: parseFloat(document.getElementById('sl_after_int').value), 
-                after_qual: parseFloat(document.getElementById('sl_after_qual').value), 
+                after_int: window.currentEval.after_qual, 
+                after_qual: window.currentEval.after_qual, 
                 
                 flavorTags: selectedTags,
-                note: document.getElementById('eval_note').value, 
+                note: document.getElementById('eval_note').value.trim(), 
                 timestamp: new Date() 
             };
             
             try { 
-                submitBtn.innerText = "Ukládám...";
+                submitBtn.innerText = "Ukládám hodnocení...";
                 await addDoc(collection(db, "cuppingScores"), scoreData); 
                 
                 // Clear localStorage draft on successful submission
                 window.clearCuppingDraft(scoreData.cuppingId, scoreData.sample);
                 
-                submitBtn.innerText = "✅ Uloženo! Vyber další vzorek";
-                submitBtn.classList.replace('btn-primary', 'bg-green-600');
-                submitBtn.classList.add('text-white', 'border-green-600');
-                
-                ['aroma_int', 'aroma_qual', 'acid_int', 'acid_qual', 'sweet_int', 'sweet_qual', 'body_int', 'body_qual', 'after_int', 'after_qual'].forEach(i => {
-                    document.getElementById(`sl_${i}`).value = 5;
-                });
-                document.getElementById('val_ar_i').innerText = "5"; document.getElementById('val_ar_q').innerText = "5";
-                document.getElementById('val_ac_i').innerText = "5"; document.getElementById('val_ac_q').innerText = "5";
-                document.getElementById('val_sw_i').innerText = "5"; document.getElementById('val_sw_q').innerText = "5";
-                document.getElementById('val_bd_i').innerText = "5"; document.getElementById('val_bd_q').innerText = "5";
-                document.getElementById('val_af_i').innerText = "5"; document.getElementById('val_af_q').innerText = "5";
-
-                document.querySelectorAll('#flavorTagsContainer .tag-btn.selected').forEach(btn => btn.classList.remove('selected'));
-                document.getElementById('eval_note').value = "";
-                
                 const select = document.getElementById('eval_sample');
-                if (select.selectedIndex < select.options.length - 1) {
-                    select.selectedIndex += 1;
-                    // Load draft for the next sample
-                    window.loadCuppingDraft();
+                const nextIndex = select.selectedIndex + 1;
+                
+                if (nextIndex < select.options.length) {
+                    submitBtn.innerText = "✅ Uloženo! Další vzorek...";
+                    submitBtn.classList.replace('btn-primary', 'bg-green-600');
+                    submitBtn.classList.add('text-white', 'border-green-600');
+                    
+                    setTimeout(() => {
+                        select.selectedIndex = nextIndex;
+                        const nextSample = select.options[nextIndex].value;
+                        window.selectTasteSample(nextSample);
+                        submitBtn.innerText = originalBtnText;
+                        submitBtn.classList.replace('bg-green-600', 'btn-primary');
+                        submitBtn.classList.remove('border-green-600');
+                    }, 800);
+                } else {
+                    submitBtn.innerText = "🎉 Všechny vzorky ohodnoceny!";
+                    submitBtn.classList.replace('btn-primary', 'bg-emerald-600');
+                    submitBtn.classList.add('text-white', 'border-emerald-600');
+                    
+                    setTimeout(() => {
+                        window.closeModal('evalModal');
+                        submitBtn.innerText = originalBtnText;
+                        submitBtn.classList.replace('bg-emerald-600', 'btn-primary');
+                        submitBtn.classList.remove('border-emerald-600');
+                    }, 1200);
                 }
-
-                setTimeout(() => {
-                    submitBtn.innerText = originalBtnText;
-                    submitBtn.classList.replace('bg-green-600', 'btn-primary');
-                    submitBtn.classList.remove('border-green-600');
-                }, 2000);
                 
             } catch (error) { 
                 console.error(error); 
@@ -1742,19 +2220,11 @@
             if (!cuppingId || !sample || !currentUser) return;
             
             const draftKey = `cupping_draft_${cuppingId}_${sample}_${currentUser.uid}`;
-            const selectedTags = Array.from(document.querySelectorAll('#flavorTagsContainer .tag-btn.selected')).map(btn => btn.innerText);
+            const selectedTags = Array.from(document.querySelectorAll('#flavorTagsContainer .tag-chip.selected'))
+                .map(btn => btn.getAttribute('data-tag') || btn.innerText.trim());
             
             const draftData = {
-                aroma_int: parseFloat(document.getElementById('sl_aroma_int').value),
-                aroma_qual: parseFloat(document.getElementById('sl_aroma_qual').value),
-                acid_int: parseFloat(document.getElementById('sl_acid_int').value),
-                acid_qual: parseFloat(document.getElementById('sl_acid_qual').value),
-                sweet_int: parseFloat(document.getElementById('sl_sweet_int').value),
-                sweet_qual: parseFloat(document.getElementById('sl_sweet_qual').value),
-                body_int: parseFloat(document.getElementById('sl_body_int').value),
-                body_qual: parseFloat(document.getElementById('sl_body_qual').value),
-                after_int: parseFloat(document.getElementById('sl_after_int').value),
-                after_qual: parseFloat(document.getElementById('sl_after_qual').value),
+                ...window.currentEval,
                 flavorTags: selectedTags,
                 note: document.getElementById('eval_note').value
             };
@@ -1766,44 +2236,34 @@
             const sample = document.getElementById('eval_sample').value;
             if (!cuppingId || !sample || !currentUser) return;
             
+            // Výchozí hodnoty podle SCA
+            window.currentEval = {
+                aroma_int: 6.5, aroma_qual: 8.0,
+                acid_int: 6.5, acid_qual: 8.0,
+                sweet_qual: 8.0,
+                body_int: 6.5, body_qual: 7.5,
+                after_qual: 7.5
+            };
+
+            document.querySelectorAll('#flavorTagsContainer .tag-chip').forEach(btn => btn.classList.remove('selected'));
+            document.getElementById('eval_note').value = "";
+
             const draftKey = `cupping_draft_${cuppingId}_${sample}_${currentUser.uid}`;
             const rawDraft = localStorage.getItem(draftKey);
-            
-            // Set defaults first
-            ['aroma_int', 'aroma_qual', 'acid_int', 'acid_qual', 'sweet_int', 'sweet_qual', 'body_int', 'body_qual', 'after_int', 'after_qual'].forEach(i => {
-                document.getElementById(`sl_${i}`).value = 5;
-            });
-            document.getElementById('val_ar_i').innerText = "5"; document.getElementById('val_ar_q').innerText = "5";
-            document.getElementById('val_ac_i').innerText = "5"; document.getElementById('val_ac_q').innerText = "5";
-            document.getElementById('val_sw_i').innerText = "5"; document.getElementById('val_sw_q').innerText = "5";
-            document.getElementById('val_bd_i').innerText = "5"; document.getElementById('val_bd_q').innerText = "5";
-            document.getElementById('val_af_i').innerText = "5"; document.getElementById('val_af_q').innerText = "5";
-            document.querySelectorAll('#flavorTagsContainer .tag-btn.selected').forEach(btn => btn.classList.remove('selected'));
-            document.getElementById('eval_note').value = "";
 
             if (rawDraft) {
                 try {
                     const draft = JSON.parse(rawDraft);
-                    ['aroma_int', 'aroma_qual', 'acid_int', 'acid_qual', 'sweet_int', 'sweet_qual', 'body_int', 'body_qual', 'after_int', 'after_qual'].forEach(i => {
-                        if (draft[i] !== undefined) {
-                            document.getElementById(`sl_${i}`).value = draft[i];
+                    ['aroma_int', 'aroma_qual', 'acid_int', 'acid_qual', 'sweet_qual', 'body_int', 'body_qual', 'after_qual'].forEach(k => {
+                        if (draft[k] !== undefined) {
+                            window.currentEval[k] = parseFloat(draft[k]);
                         }
                     });
                     
-                    document.getElementById('val_ar_i').innerText = document.getElementById('sl_aroma_int').value;
-                    document.getElementById('val_ar_q').innerText = document.getElementById('sl_aroma_qual').value;
-                    document.getElementById('val_ac_i').innerText = document.getElementById('sl_acid_int').value;
-                    document.getElementById('val_ac_q').innerText = document.getElementById('sl_acid_qual').value;
-                    document.getElementById('val_sw_i').innerText = document.getElementById('sl_sweet_int').value;
-                    document.getElementById('val_sw_q').innerText = document.getElementById('sl_sweet_qual').value;
-                    document.getElementById('val_bd_i').innerText = document.getElementById('sl_body_int').value;
-                    document.getElementById('val_bd_q').innerText = document.getElementById('sl_body_qual').value;
-                    document.getElementById('val_af_i').innerText = document.getElementById('sl_after_int').value;
-                    document.getElementById('val_af_q').innerText = document.getElementById('sl_after_qual').value;
-                    
                     if (draft.flavorTags && Array.isArray(draft.flavorTags)) {
-                        document.querySelectorAll('#flavorTagsContainer .tag-btn').forEach(btn => {
-                            if (draft.flavorTags.includes(btn.innerText)) {
+                        document.querySelectorAll('#flavorTagsContainer .tag-chip').forEach(btn => {
+                            const tag = btn.getAttribute('data-tag') || btn.innerText.trim();
+                            if (draft.flavorTags.includes(tag) || draft.flavorTags.includes(btn.innerText.trim())) {
                                 btn.classList.add('selected');
                             }
                         });
@@ -1815,6 +2275,9 @@
                     console.error("Chyba při načítání konceptu:", e);
                 }
             }
+
+            syncEvalUi();
+            window.updateLiveScaScore();
         };
 
         window.clearCuppingDraft = (cuppingId, sample) => {
@@ -2044,9 +2507,10 @@
 
         // Hook up change listeners to save cupping draft automatically
         document.getElementById('eval_sample').addEventListener('change', window.loadCuppingDraft);
-        document.getElementById('evalForm').querySelectorAll('input, textarea').forEach(el => {
-            el.addEventListener('input', window.saveCuppingDraft);
-        });
+        const evalNoteInput = document.getElementById('eval_note');
+        if (evalNoteInput) {
+            evalNoteInput.addEventListener('input', window.saveCuppingDraft);
+        }
     </script>
 </body>
 </html>
