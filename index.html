@@ -2,7 +2,10 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#b91c1c">
     <title>Poppy Beans | OS</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -219,16 +222,26 @@
             background: var(--t-surface); 
             color: var(--t-text); 
             border-radius: var(--t-radius); 
-            padding: 8px 4px; 
+            padding: 10px 2px; 
+            min-height: 44px;
             font-size: 11px; 
             font-weight: 700; 
-            transition: all 0.15s ease; 
+            transition: all 0.12s ease; 
             cursor: pointer; 
             text-align: center; 
             user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .chip-btn:hover { 
             border-color: var(--t-accent); 
+        }
+        .chip-btn:active {
+            transform: scale(0.96);
         }
         .chip-btn.active { 
             background: var(--t-accent); 
@@ -242,17 +255,30 @@
             background: var(--t-surface);
             color: var(--t-text);
             border-radius: var(--t-radius);
-            padding: 6px 14px;
-            font-size: 11px;
+            padding: 10px 16px;
+            min-height: 44px;
+            font-size: 12px;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
             white-space: nowrap;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            scroll-snap-align: start;
         }
         .sample-chip:hover {
             border-color: var(--t-accent);
+        }
+        .sample-chip:active {
+            transform: scale(0.96);
         }
         .sample-chip.active {
             background: var(--t-accent);
@@ -263,18 +289,27 @@
 
         .tag-chip { 
             border-radius: 9999px; 
-            padding: 6px 14px; 
+            padding: 8px 14px; 
+            min-height: 40px;
             font-size: 11px; 
             font-weight: 700; 
             cursor: pointer; 
-            transition: all 0.2s ease; 
+            transition: all 0.15s ease; 
             border: 2px solid transparent; 
             user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
             opacity: 0.85; 
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
         .tag-chip:hover { 
-            transform: translateY(-1px); 
             opacity: 1; 
+        }
+        .tag-chip:active {
+            transform: scale(0.95);
         }
         .tag-chip.selected { 
             opacity: 1; 
@@ -292,6 +327,17 @@
         .tag-wine { background: #fce7f3; color: #831843; }
         .tag-green { background: #dcfce7; color: #166534; }
         .tag-spicy { background: #ffedd5; color: #c2410c; }
+
+        /* Mobilní optimalizace pro telefony a tablety na pobočkách */
+        @media (max-width: 768px) {
+            /* Zabraňuje nechtěnému přiblížení v iOS Safari při kliknutí do pole */
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+            .chip-btn {
+                font-size: 11px !important;
+            }
+        }
     </style>
     <link rel="manifest" href="manifest.json">
     <script>
@@ -570,8 +616,8 @@
 
     <!-- MODAL HODNOCENÍ (SCA PROTOKOL & DVOUFÁZOVÝ WORKFLOW) -->
     <div id="evalModal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-3 md:p-4">
-        <div class="bg-theme-surface max-w-xl w-full p-5 md:p-8 border-theme border-theme-border rounded-theme shadow-theme relative max-h-[95vh] overflow-y-auto hide-scroll">
-            <button onclick="closeModal('evalModal')" class="absolute top-4 right-4 text-theme-muted hover:text-theme-accent font-bold uppercase text-xs z-10">Zavřít ✕</button>
+        <div class="bg-theme-surface max-w-xl w-full p-4 sm:p-6 md:p-8 border-theme border-theme-border rounded-theme shadow-theme relative max-h-[95vh] overflow-y-auto hide-scroll" style="padding-bottom: max(1.5rem, env(safe-area-inset-bottom));">
+            <button onclick="closeModal('evalModal')" class="absolute top-3 right-3 text-theme-muted hover:text-theme-accent font-bold uppercase text-xs z-10 p-2">Zavřít ✕</button>
             
             <div class="border-b border-theme-border pb-4 mb-5">
                 <div class="flex flex-wrap justify-between items-center gap-3">
@@ -624,20 +670,20 @@
                 <!-- VÝBĚR VZORKU (Tlačítkové čipy nahoře) -->
                 <div>
                     <label class="block text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-2">Hodnocený vzorek:</label>
-                    <div id="sampleSelectorChips" class="flex gap-2 overflow-x-auto hide-scroll pb-1">
+                    <div id="sampleSelectorChips" class="flex gap-2 overflow-x-auto hide-scroll pb-1" style="-webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory;">
                         <!-- Generované čipy vzorků -->
                     </div>
                     <select id="eval_sample" class="hidden"></select>
                 </div>
 
-                <!-- ŽIVÉ SCA SKÓRE BADGE -->
-                <div class="bg-theme-bg border-theme border-theme-border p-4 rounded-theme flex items-center justify-between">
+                <!-- ŽIVÉ SCA SKÓRE BADGE (Sticky na mobilu i tabletu pro stálý přehled během scrollování) -->
+                <div class="bg-theme-surface/95 backdrop-blur border-theme border-theme-border p-3.5 md:p-4 rounded-theme flex items-center justify-between sticky top-0 z-20 shadow-sm">
                     <div>
                         <div class="text-[9px] uppercase font-bold tracking-widest text-theme-muted">Odhadované SCA skóre šálku:</div>
                         <div id="scaScoreTier" class="text-xs font-extrabold uppercase tracking-wide text-theme-accent mt-0.5">🟡 Výborný mikrolot</div>
                     </div>
                     <div class="text-right">
-                        <span id="liveScaScore" class="text-3xl font-extrabold font-mono text-theme-text tracking-tight">85.0</span>
+                        <span id="liveScaScore" class="text-2xl md:text-3xl font-extrabold font-mono text-theme-text tracking-tight">85.0</span>
                         <span class="text-xs text-theme-muted font-bold">/ 100</span>
                     </div>
                 </div>
