@@ -4,6 +4,12 @@
   "description": "Internal system and brewing guide for Poppy Beans and Krok baristas.",
   "icons": [
     {
+      "src": "./poppy-logo.png",
+      "type": "image/png",
+      "sizes": "400x262",
+      "purpose": "any"
+    },
+    {
       "src": "https://cdn-icons-png.flaticon.com/512/924/924514.png",
       "type": "image/png",
       "sizes": "512x512",
@@ -13,6 +19,6 @@
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "theme_color": "#b91c1c",
-  "background_color": "#fafafa"
+  "theme_color": "#6b2138",
+  "background_color": "#fcfaf7"
 }
