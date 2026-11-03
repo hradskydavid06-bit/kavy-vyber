@@ -1,9 +1,11 @@
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 
-const CACHE_NAME = 'poppy-os-cache-v9';
+const CACHE_NAME = 'poppy-os-cache-v10';
 const STATIC_ASSETS = [
   './index.html',
   './manifest.json',
+  './poppy_os_plum.png',
+  './poppy_os_plum_192.png',
   './poppy-logo.png',
   './sw.js',
   './OneSignalSDKWorker.js',
