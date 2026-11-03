@@ -555,11 +555,13 @@
                 <h1 class="text-2xl sm:text-3xl font-light tracking-tight text-theme-text">Poppy OS</h1>
                 <p class="text-xs text-theme-muted mt-1 font-light">Cuppingy, výběr káv, směny & receptury</p>
             </div>
-            <form id="loginForm" class="space-y-4">
-                <input type="email" id="emailInput" class="input-minimal text-sm" placeholder="E-mail" required>
-                <input type="password" id="passwordInput" class="input-minimal text-sm" placeholder="Heslo" required>
+            <form id="loginForm" class="space-y-4" autocomplete="on">
+                <input type="email" id="emailInput" class="input-minimal text-sm" placeholder="E-mail" required 
+                       inputmode="email" autocomplete="username email" autocapitalize="none" autocorrect="off" spellcheck="false">
+                <input type="password" id="passwordInput" class="input-minimal text-sm" placeholder="Heslo" required 
+                       autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false">
                 <div id="loginError" class="text-red-500 text-xs hidden font-medium text-center">Přihlášení se nezdařilo.</div>
-                <button type="submit" class="w-full btn-primary py-3.5 font-bold uppercase tracking-wider text-xs">Vstoupit</button>
+                <button type="submit" id="loginSubmitBtn" class="w-full btn-primary py-3.5 font-bold uppercase tracking-wider text-xs shadow-sm transition" style="touch-action: manipulation;">Vstoupit</button>
             </form>
         </div>
     </div>
@@ -1605,148 +1607,176 @@
             }
         };
 
-                onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                
-                // Handle attendance from notification click
-                const urlParams = new URLSearchParams(window.location.search);
-                const actionCuppingId = urlParams.get('cuppingId');
-                const actionAttendance = urlParams.get('attendance');
-                if (actionCuppingId && actionAttendance) {
-                    const targetStatus = actionAttendance === 'yes' ? 'yes' : 'no';
-                    window.updateAttendance(actionCuppingId, targetStatus).then(() => {
-                        alert(targetStatus === 'yes' ? '✅ Vaše účast na cuppingu byla úspěšně potvrzena!' : '❌ Byla odeslána omluva z cuppingu.');
-                        // Clean up URL parameters so it doesn't run again on page refresh
-                        window.history.replaceState({}, document.title, window.location.pathname);
-                    }).catch((err) => {
-                        console.error("Failed to update attendance from notification link:", err);
-                    });
-                }
+                const setupUserSession = (user) => {
+            if (!user) return;
+            currentUser = user;
 
-                // Zde se ověřuje více adminů
-                isAdmin = ADMIN_EMAILS.includes(user.email);
-                
-                // Pre-fill and lock signatures
-                const userPrefix = user.email.split('@')[0];
-                document.getElementById('open_signature').value = userPrefix;
-                document.getElementById('close_signature').value = userPrefix;
-                document.getElementById('maint_signature').value = userPrefix;
-                
-                if(isAdmin) {
-                    currentBranch = document.getElementById('adminBranchSelect').value;
-                    document.getElementById('adminBranchSelect').classList.remove('hidden');
-                    document.getElementById('userGreeting').classList.add('hidden');
-                    
-                    document.getElementById('admin-cupping-form').classList.remove('hidden');
-                    document.getElementById('admin-onesignal-config').classList.remove('hidden');
-                    document.getElementById('admin-coffee-form').classList.remove('hidden');
-                    document.getElementById('admin-recipe-form').classList.remove('hidden');
-                    document.getElementById('admin-maintenance-form').classList.remove('hidden');
-                } else {
-                    currentBranch = getBranch(user.email);
-                    document.getElementById('adminBranchSelect').classList.add('hidden');
-                    document.getElementById('userGreeting').classList.remove('hidden');
-                    
-                    document.getElementById('userGreeting').innerText = currentBranch !== "Osobní účet" ? `📍 Pobočka ${currentBranch}` : user.email;
-                    
-                    document.getElementById('admin-cupping-form').classList.add('hidden');
-                    document.getElementById('admin-onesignal-config').classList.add('hidden');
-                    document.getElementById('admin-coffee-form').classList.add('hidden');
-                    document.getElementById('admin-recipe-form').classList.add('hidden');
-                    document.getElementById('admin-maintenance-form').classList.add('hidden'); 
-                }
-
-                applyTheme(currentBranch);
-                updateNavVisibility();
-
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('mainApp').classList.remove('hidden');
-                
-                loadData(); 
-                loadMaintenance(); 
-                loadChecklists();
-
-                // Fetch OneSignal API key from Firestore config
-                getDoc(doc(db, "cuppings", "config_onesignal")).then(docSnap => {
-                    if (docSnap.exists()) {
-                        window.onesignalApiKey = docSnap.data().key;
-                        const configInput = document.getElementById('onesignal_config_key');
-                        if (configInput) {
-                            configInput.value = window.onesignalApiKey;
-                        }
-                        console.log("OneSignal configuration loaded.");
-                    } else {
-                        console.warn("OneSignal configuration not found in Firestore.");
-                    }
-                }).catch(err => {
-                    console.error("Failed to load OneSignal configuration:", err);
+            // Handle attendance from notification click
+            const urlParams = new URLSearchParams(window.location.search);
+            const actionCuppingId = urlParams.get('cuppingId');
+            const actionAttendance = urlParams.get('attendance');
+            if (actionCuppingId && actionAttendance) {
+                const targetStatus = actionAttendance === 'yes' ? 'yes' : 'no';
+                window.updateAttendance(actionCuppingId, targetStatus).then(() => {
+                    alert(targetStatus === 'yes' ? '✅ Vaše účast na cuppingu byla úspěšně potvrzena!' : '❌ Byla odeslána omluva z cuppingu.');
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }).catch((err) => {
+                    console.error("Failed to update attendance from notification link:", err);
                 });
+            }
 
-                // Update bell status on load
-                updateBellStatus();
+            const cleanEmail = (user.email || '').toLowerCase().trim();
+            isAdmin = ADMIN_EMAILS.includes(cleanEmail);
+
+            // Pre-fill and lock signatures
+            const userPrefix = cleanEmail.split('@')[0];
+            const openSig = document.getElementById('open_signature');
+            const closeSig = document.getElementById('close_signature');
+            const maintSig = document.getElementById('maint_signature');
+            if (openSig) openSig.value = userPrefix;
+            if (closeSig) closeSig.value = userPrefix;
+            if (maintSig) maintSig.value = userPrefix;
+
+            const adminBranchSelect = document.getElementById('adminBranchSelect');
+            const userGreeting = document.getElementById('userGreeting');
+
+            if (isAdmin) {
+                if (adminBranchSelect) {
+                    currentBranch = adminBranchSelect.value;
+                    adminBranchSelect.classList.remove('hidden');
+                }
+                if (userGreeting) userGreeting.classList.add('hidden');
+
+                document.getElementById('admin-cupping-form')?.classList.remove('hidden');
+                document.getElementById('admin-onesignal-config')?.classList.remove('hidden');
+                document.getElementById('admin-coffee-form')?.classList.remove('hidden');
+                document.getElementById('admin-recipe-form')?.classList.remove('hidden');
+                document.getElementById('admin-maintenance-form')?.classList.remove('hidden');
             } else {
-                document.getElementById('loginScreen').classList.remove('hidden');
-                document.getElementById('mainApp').classList.add('hidden');
+                currentBranch = getBranch(cleanEmail);
+                if (adminBranchSelect) adminBranchSelect.classList.add('hidden');
+                if (userGreeting) {
+                    userGreeting.classList.remove('hidden');
+                    userGreeting.innerText = currentBranch !== "Osobní účet" ? `📍 Pobočka ${currentBranch}` : cleanEmail;
+                }
+
+                document.getElementById('admin-cupping-form')?.classList.add('hidden');
+                document.getElementById('admin-onesignal-config')?.classList.add('hidden');
+                document.getElementById('admin-coffee-form')?.classList.add('hidden');
+                document.getElementById('admin-recipe-form')?.classList.add('hidden');
+                document.getElementById('admin-maintenance-form')?.classList.add('hidden');
+            }
+
+            applyTheme(currentBranch);
+            updateNavVisibility();
+
+            // Okamžité skrytí login screen a zobrazení aplikace bez čekání
+            document.getElementById('loginScreen')?.classList.add('hidden');
+            document.getElementById('mainApp')?.classList.remove('hidden');
+
+            loadData();
+            loadMaintenance();
+            loadChecklists();
+
+            // Fetch OneSignal API key from Firestore config
+            getDoc(doc(db, "cuppings", "config_onesignal")).then(docSnap => {
+                if (docSnap.exists()) {
+                    window.onesignalApiKey = docSnap.data().key;
+                    const configInput = document.getElementById('onesignal_config_key');
+                    if (configInput) configInput.value = window.onesignalApiKey;
+                }
+            }).catch(err => {
+                console.error("Failed to load OneSignal configuration:", err);
+            });
+
+            updateBellStatus();
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setupUserSession(user);
+            } else {
+                currentUser = null;
+                document.getElementById('loginScreen')?.classList.remove('hidden');
+                document.getElementById('mainApp')?.classList.add('hidden');
             }
         });
 
-        window.subscribeNotifications = () => {
-            // iOS check (notifications require PWA installation)
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            if (isIOS && !window.navigator.standalone) {
-                alert("📲 Pro zapnutí upozornění na iPhone/iPadu musíte tuto aplikaci nejprve přidat na plochu:\n\n1. Klikněte na tlačítko Sdílet 📤 v Safari.\n2. Zvolte 'Přidat na plochu' 📲.\n3. Otevřete aplikaci z plochy a znovu klikněte na zvoneček!");
-                return;
+        const handleLoginSubmit = async (e) => {
+            if (e) e.preventDefault();
+            const emailInput = document.getElementById('emailInput');
+            const passwordInput = document.getElementById('passwordInput');
+            const submitBtn = document.getElementById('loginSubmitBtn');
+            const errorDiv = document.getElementById('loginError');
+
+            const rawEmail = emailInput?.value || '';
+            const email = rawEmail.trim().toLowerCase();
+            const password = passwordInput?.value || '';
+
+            if (!email || !password) return;
+
+            if (errorDiv) {
+                errorDiv.classList.add('hidden');
+                errorDiv.innerText = '';
             }
 
-            const bell = document.getElementById('onesignalBell');
-            if (bell) {
-                bell.classList.add('animate-bounce');
-                setTimeout(() => bell.classList.remove('animate-bounce'), 1200);
+            const origBtnText = submitBtn ? submitBtn.innerHTML : 'Vstoupit';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <span class="inline-flex items-center gap-2">
+                        <svg class="animate-spin w-4 h-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                        <span>Ověřuji...</span>
+                    </span>
+                `;
             }
 
-            const isOneSignalActive = window.OneSignal && typeof window.OneSignal.Notifications !== 'undefined';
-
-            if (isOneSignalActive) {
-                const pushSub = window.OneSignal?.User?.PushSubscription;
-                const isSubscribed = pushSub?.optedIn && !!pushSub?.id;
-                
-                if (isSubscribed) {
-                    if (confirm("🔔 Upozornění jsou aktivní. Chcete je pro toto zařízení vypnout?")) {
-                        pushSub?.optOut().then(() => {
-                            updateBellStatus();
-                        }).catch(err => console.error("Chyba při odhlášení:", err));
+            try {
+                const userCred = await signInWithEmailAndPassword(auth, email, password);
+                // Okamžité otevření aplikace hned na první pokus
+                setupUserSession(userCred.user);
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = origBtnText;
+                }
+            } catch (err) {
+                console.error("Chyba při přihlašování:", err);
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = origBtnText;
+                }
+                if (errorDiv) {
+                    errorDiv.classList.remove('hidden');
+                    if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+                        errorDiv.innerText = "Nesprávný e-mail nebo heslo.";
+                    } else if (err.code === 'auth/invalid-email') {
+                        errorDiv.innerText = "Neplatný formát e-mailové adresy.";
+                    } else if (err.code === 'auth/too-many-requests') {
+                        errorDiv.innerText = "Příliš mnoho neúspěšných pokusů. Zkuste to prosím za chvíli.";
+                    } else {
+                        errorDiv.innerText = "Přihlášení se nezdařilo. Zkontrolujte prosím připojení a údaje.";
                     }
-                    return;
                 }
-
-                if (window.Notification && Notification.permission === 'denied') {
-                    alert("⚠️ Upozornění jsou zablokována v nastavení vašeho prohlížeče. Klikněte na ikonu zámku 🔒 vedle adresního řádku a povolte je.");
-                    updateBellStatus();
-                    return;
-                }
-
-                if (window.OneSignal?.Notifications?.permission) {
-                    pushSub?.optIn().then(() => {
-                        updateBellStatus();
-                    }).catch(err => console.error("Chyba při přihlášení odběru:", err));
-                } else {
-                    window.OneSignal?.Notifications?.requestPermission().then(() => {
-                        setTimeout(updateBellStatus, 800);
-                    }).catch(err => console.error("Chyba při vyžádání povolení:", err));
-                }
-            } else {
-                console.warn("OneSignal is not active during subscription request.");
             }
         };
 
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            signInWithEmailAndPassword(auth, document.getElementById('emailInput').value, document.getElementById('passwordInput').value)
-                .catch(() => document.getElementById('loginError').classList.remove('hidden'));
-        });
+        const loginFormEl = document.getElementById('loginForm');
+        if (loginFormEl) {
+            loginFormEl.addEventListener('submit', handleLoginSubmit);
+        }
 
-        document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+        document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+            await signOut(auth);
+            currentUser = null;
+            document.getElementById('mainApp')?.classList.add('hidden');
+            document.getElementById('loginScreen')?.classList.remove('hidden');
+            const passwordInput = document.getElementById('passwordInput');
+            if (passwordInput) passwordInput.value = '';
+            document.getElementById('loginError')?.classList.add('hidden');
+        });
 
         window.addSampleField = () => {
             const container = document.getElementById('dynamicSamples');
