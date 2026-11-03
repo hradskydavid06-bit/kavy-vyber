@@ -448,6 +448,36 @@
             box-shadow: 0 4px 12px rgba(var(--t-accent-rgb), 0.2);
             transform: translateY(-1px);
         }
+        .sample-chip.done:not(.active) {
+            border-color: #059669;
+            background: rgba(5, 150, 105, 0.08);
+            color: var(--t-text);
+        }
+        .sample-chip .status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-right: 6px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .sample-chip.done .status-badge {
+            background: #059669;
+            color: #ffffff;
+        }
+        .sample-chip.active .status-badge {
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+        }
+        .sample-chip:not(.done):not(.active) .status-badge {
+            background: var(--t-border);
+            color: var(--t-muted);
+        }
 
         .tag-chip { 
             border-radius: 9999px; 
@@ -846,30 +876,53 @@
 
             <!-- FÁZE 2: KOMPLETNÍ OCHUTNÁVKA PO ZCHLADNUTÍ -->
             <div id="evalPhaseTaste" class="hidden space-y-5">
-                <!-- VÝBĚR VZORKU (Tlačítkové čipy nahoře) -->
+                <!-- VÝBĚR VZORKU & PŘEHLED STOLU (Stepper) -->
                 <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-2">Hodnocený vzorek:</label>
-                    <div id="sampleSelectorChips" class="flex gap-2 overflow-x-auto hide-scroll pb-1" style="-webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory;">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-theme-muted flex items-center gap-1.5">
+                            <span>☕</span> Vzorek <span id="sampleStepIndex" class="text-theme-text font-extrabold font-mono">1</span> z <span id="sampleStepTotal" class="text-theme-text font-extrabold font-mono">10</span>
+                        </label>
+                        <span id="sessionProgressCounter" class="text-[10px] font-bold font-mono px-2.5 py-0.5 rounded-full bg-theme-plumSoft text-theme-accent border border-theme-plumBorder shadow-xs">
+                            0 / 0 ohodnoceno
+                        </span>
+                    </div>
+                    <div id="sampleSelectorChips" class="flex gap-2 overflow-x-auto hide-scroll pb-1.5 pt-0.5" style="-webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory;">
                         <!-- Generované čipy vzorků -->
                     </div>
                     <select id="eval_sample" class="hidden"></select>
                 </div>
 
                 <!-- ŽIVÉ SCA SKÓRE BADGE (Sticky na mobilu i tabletu pro stálý přehled během scrollování) -->
-                <div class="bg-theme-surface/95 backdrop-blur border-theme border-theme-border p-3.5 md:p-4 rounded-theme flex items-center justify-between sticky top-0 z-20 shadow-sm">
-                    <div>
-                        <div class="text-[9px] uppercase font-bold tracking-widest text-theme-muted">Odhadované SCA skóre šálku:</div>
-                        <div id="scaScoreTier" class="text-xs font-extrabold uppercase tracking-wide text-theme-accent mt-0.5">🟡 Výborný mikrolot</div>
+                <div class="bg-theme-surface/95 backdrop-blur border-theme border-theme-border p-3.5 md:p-4 rounded-theme sticky top-0 z-20 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-[9px] uppercase font-bold tracking-widest text-theme-muted">Odhadované SCA skóre šálku:</div>
+                            <div id="scaScoreTier" class="text-xs font-extrabold uppercase tracking-wide text-theme-accent mt-0.5">🟡 Výborný mikrolot</div>
+                        </div>
+                        <div class="text-right">
+                            <span id="liveScaScore" class="text-2xl md:text-3xl font-extrabold font-mono text-theme-text tracking-tight">85.0</span>
+                            <span class="text-xs text-theme-muted font-bold">/ 100</span>
+                        </div>
                     </div>
-                    <div class="text-right">
-                        <span id="liveScaScore" class="text-2xl md:text-3xl font-extrabold font-mono text-theme-text tracking-tight">85.0</span>
-                        <span class="text-xs text-theme-muted font-bold">/ 100</span>
+                    
+                    <!-- POUZE V CUPPINGU: KOMPAKTNÍ SOUHRN AROMA Z 1. FÁZE (BREAK) -->
+                    <div id="cuppingAromaSummaryBadge" class="hidden mt-2.5 pt-2.5 border-t border-theme-border/60 flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2">
+                            <span>🌸</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-theme-muted">Aroma z Break fáze:</span>
+                            <span id="badgeAromaQual" class="font-extrabold font-mono text-theme-accent text-xs">8.0 b.</span>
+                            <span class="text-theme-muted text-[10px]">·</span>
+                            <span id="badgeAromaInt" class="text-[10px] text-theme-text font-semibold">Střední</span>
+                        </div>
+                        <button type="button" onclick="window.switchCuppingPhase('break')" class="text-[10px] font-bold text-theme-accent hover:underline flex items-center gap-1">
+                            <span>Upravit aroma</span> ➔
+                        </button>
                     </div>
                 </div>
 
-                <form id="evalForm" class="space-y-4">
-                    <!-- AROMA (Z 1. fáze, ale lze ještě doladit) -->
-                    <div class="score-card bg-theme-bg p-4 rounded-theme border border-theme-border space-y-3">
+                <form id="evalForm" class="space-y-4" onsubmit="event.preventDefault();">
+                    <!-- AROMA (Zobrazuje se pouze u režimu filtrů, u cuppingu je hodnoceno v Break fázi) -->
+                    <div id="tasteAromaContainer" class="score-card bg-theme-bg p-4 rounded-theme border border-theme-border space-y-3">
                         <div class="flex justify-between items-center border-b border-theme-border/60 pb-2">
                             <span class="text-xs font-extrabold uppercase tracking-wider text-theme-text flex items-center gap-1.5">
                                 <span>🌸</span> <span id="aromaSectionTitle">Aroma (Vůně za sucha & Break)</span>
@@ -935,6 +988,14 @@
                             <span id="display_sweet_score" class="text-xs font-mono font-bold text-theme-accent">8.0</span>
                         </div>
                         <div>
+                            <div class="text-[9px] font-bold uppercase tracking-widest text-theme-muted mb-1.5">Intenzita sladkosti:</div>
+                            <div class="grid grid-cols-3 gap-1.5" id="group_sweet_int">
+                                <button type="button" onclick="window.selectChip('sweet_int', 3.5, this)" class="chip-btn" data-field="sweet_int" data-val="3.5">Jemná</button>
+                                <button type="button" onclick="window.selectChip('sweet_int', 6.5, this)" class="chip-btn active" data-field="sweet_int" data-val="6.5">Střední</button>
+                                <button type="button" onclick="window.selectChip('sweet_int', 9.0, this)" class="chip-btn" data-field="sweet_int" data-val="9.0">Výrazná</button>
+                            </div>
+                        </div>
+                        <div>
                             <div class="text-[9px] font-bold uppercase tracking-widest text-theme-muted mb-1.5">Kvalita sladkosti (Zralost ovoce):</div>
                             <div class="grid grid-cols-6 gap-1" id="group_sweet_qual">
                                 <button type="button" onclick="window.selectChip('sweet_qual', 6.5, this)" class="chip-btn text-xs" data-field="sweet_qual" data-val="6.5">6.5</button>
@@ -985,6 +1046,14 @@
                             <span id="display_after_score" class="text-xs font-mono font-bold text-theme-accent">7.5</span>
                         </div>
                         <div>
+                            <div class="text-[9px] font-bold uppercase tracking-widest text-theme-muted mb-1.5">Délka a intenzita dochuti:</div>
+                            <div class="grid grid-cols-3 gap-1.5" id="group_after_int">
+                                <button type="button" onclick="window.selectChip('after_int', 3.5, this)" class="chip-btn" data-field="after_int" data-val="3.5">Krátká</button>
+                                <button type="button" onclick="window.selectChip('after_int', 6.5, this)" class="chip-btn active" data-field="after_int" data-val="6.5">Střední</button>
+                                <button type="button" onclick="window.selectChip('after_int', 9.0, this)" class="chip-btn" data-field="after_int" data-val="9.0">Dlouhá</button>
+                            </div>
+                        </div>
+                        <div>
                             <div class="text-[9px] font-bold uppercase tracking-widest text-theme-muted mb-1.5">Délka a čistota po polknutí:</div>
                             <div class="grid grid-cols-6 gap-1" id="group_after_qual">
                                 <button type="button" onclick="window.selectChip('after_qual', 6.5, this)" class="chip-btn text-xs" data-field="after_qual" data-val="6.5">6.5</button>
@@ -1018,9 +1087,23 @@
 
                     <textarea id="eval_note" class="input-minimal text-xs h-16" placeholder="Osobní poznámka k chuti..."></textarea>
                     
-                    <button type="submit" id="submitEvalBtn" class="w-full btn-primary p-4 uppercase tracking-widest text-xs font-bold transition-all duration-300">
-                        Uložit a vybrat další vzorek ➔
-                    </button>
+                    <!-- AKČNÍ NAVIGACE MEZI VZORKY & FINÁLNÍ ODESLÁNÍ CUPPINGU -->
+                    <div class="pt-2 space-y-2.5">
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" id="btnPrevSample" onclick="window.navSample(-1)" class="py-3 px-3 rounded-theme bg-theme-bg border border-theme-border text-theme-text hover:bg-theme-border/20 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition">
+                                <span>◀</span> <span>Předchozí</span>
+                            </button>
+                            <button type="button" id="btnNextSample" onclick="window.navSample(1)" class="py-3 px-3 rounded-theme bg-theme-bg border border-theme-border text-theme-text hover:bg-theme-border/20 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition">
+                                <span>Další vzorek</span> <span>▶</span>
+                            </button>
+                        </div>
+
+                        <button type="button" id="btnSubmitFullCupping" onclick="window.submitFullCuppingSession()" class="w-full btn-primary p-4 uppercase tracking-widest text-xs font-bold shadow-lg flex items-center justify-center gap-2 transition-all duration-300">
+                            <span id="btnSubmitIcon">🚀</span>
+                            <span id="btnSubmitText">Odeslat hodnocení na stůl</span>
+                            <span id="btnSubmitCount" class="text-[10px] opacity-80 font-mono"></span>
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -1166,7 +1249,42 @@
                     after_int: s.aftertaste, after_qual: s.aftertaste
                 };
             }
-            return s;
+            return {
+                ...s,
+                aroma_int: s.aroma_int !== undefined ? s.aroma_int : 6.5,
+                aroma_qual: s.aroma_qual !== undefined ? s.aroma_qual : 8.0,
+                acid_int: s.acid_int !== undefined ? s.acid_int : 6.5,
+                acid_qual: s.acid_qual !== undefined ? s.acid_qual : 8.0,
+                sweet_int: s.sweet_int !== undefined ? s.sweet_int : 6.5,
+                sweet_qual: s.sweet_qual !== undefined ? s.sweet_qual : 8.0,
+                body_int: s.body_int !== undefined ? s.body_int : 6.5,
+                body_qual: s.body_qual !== undefined ? s.body_qual : 7.5,
+                after_int: s.after_int !== undefined ? s.after_int : 6.5,
+                after_qual: s.after_qual !== undefined ? s.after_qual : 7.5
+            };
+        };
+
+        const formatIntensityBadge = (val, type) => {
+            const num = parseFloat(val);
+            if (isNaN(num)) return 'Střední';
+            if (type === 'body') {
+                if (num <= 4.5) return 'Lehké';
+                if (num <= 7.5) return 'Střední';
+                return 'Hutné';
+            }
+            if (type === 'aroma') {
+                if (num <= 4.5) return 'Jemné';
+                if (num <= 7.5) return 'Střední';
+                return 'Pronikavé';
+            }
+            if (type === 'after') {
+                if (num <= 4.5) return 'Krátká';
+                if (num <= 7.5) return 'Střední';
+                return 'Dlouhá';
+            }
+            if (num <= 4.5) return 'Jemná';
+            if (num <= 7.5) return 'Střední';
+            return 'Výrazná';
         };
 
         window.renderLeaderboard = () => {
@@ -1183,7 +1301,20 @@
             });
 
             for(let key in grouped) {
-                let scores = grouped[key];
+                let rawScores = grouped[key];
+                // Deduplicate by userEmail (keeping latest timestamp)
+                let userMap = new Map();
+                rawScores.forEach(s => {
+                    const ex = userMap.get(s.userEmail);
+                    if (!ex) {
+                        userMap.set(s.userEmail, s);
+                    } else {
+                        const tEx = ex.timestamp?.seconds || (ex.timestamp ? new Date(ex.timestamp).getTime() : 0);
+                        const tCur = s.timestamp?.seconds || (s.timestamp ? new Date(s.timestamp).getTime() : 0);
+                        if (tCur >= tEx) userMap.set(s.userEmail, s);
+                    }
+                });
+                let scores = Array.from(userMap.values());
                 let adminScore = scores.find(s => s.userEmail === MASTER_CUPPING_ADMIN);
                 if(!adminScore || adminScore.aroma_int === undefined) continue;
 
@@ -1857,9 +1988,74 @@
         window.currentEval = {
             aroma_int: 6.5, aroma_qual: 8.0,
             acid_int: 6.5, acid_qual: 8.0,
-            sweet_qual: 8.0,
+            sweet_int: 6.5, sweet_qual: 8.0,
             body_int: 6.5, body_qual: 7.5,
-            after_qual: 7.5
+            after_int: 6.5, after_qual: 7.5
+        };
+
+        window.cuppingSession = {
+            cuppingId: null,
+            sampleList: [],
+            activeIndex: 0,
+            samples: {}
+        };
+
+        function getDefaultSampleEval(sampleName) {
+            return {
+                sample: sampleName,
+                aroma_int: 6.5, aroma_qual: 8.0,
+                acid_int: 6.5, acid_qual: 8.0,
+                sweet_int: 6.5, sweet_qual: 8.0,
+                body_int: 6.5, body_qual: 7.5,
+                after_int: 6.5, after_qual: 7.5,
+                flavorTags: [],
+                note: "",
+                completed: false
+            };
+        }
+
+        function updateSessionProgressUi() {
+            const session = window.cuppingSession;
+            const list = session.sampleList || [];
+            let completedCount = 0;
+            list.forEach(s => {
+                if (session.samples[s] && session.samples[s].completed) completedCount++;
+            });
+
+            const counterEl = document.getElementById('sessionProgressCounter');
+            if (counterEl) {
+                counterEl.innerText = `${completedCount} / ${list.length} ohodnoceno`;
+            }
+            const submitCountEl = document.getElementById('btnSubmitCount');
+            if (submitCountEl) {
+                submitCountEl.innerText = `(${completedCount}/${list.length} vzorků)`;
+            }
+
+            document.querySelectorAll('#sampleSelectorChips .sample-chip').forEach((chip, idx) => {
+                const s = chip.getAttribute('data-sample');
+                const isDone = session.samples[s] && session.samples[s].completed;
+                if (isDone) {
+                    chip.classList.add('done');
+                } else {
+                    chip.classList.remove('done');
+                }
+                const badge = chip.querySelector('.status-badge');
+                if (badge) {
+                    badge.innerText = isDone ? '✓' : (idx + 1);
+                }
+            });
+        }
+
+        window.saveCuppingSessionDraft = () => {
+            const session = window.cuppingSession;
+            const cuppingId = document.getElementById('eval_cuppingId').value;
+            if (!session || !cuppingId || !currentUser) return;
+            const draftKey = `cupping_session_${cuppingId}_${currentUser.uid}`;
+            try {
+                localStorage.setItem(draftKey, JSON.stringify(session));
+            } catch (e) {
+                console.warn("Chyba při ukládání draftu do localStorage:", e);
+            }
         };
 
         window.currentCuppingMode = 'cupping'; // 'cupping' | 'filter'
@@ -1871,6 +2067,8 @@
             const filterNotice = document.getElementById('filterModeNotice');
             const modalTitle = document.getElementById('evalModalTitle');
             const aromaTitle = document.getElementById('aromaSectionTitle');
+            const tasteAromaContainer = document.getElementById('tasteAromaContainer');
+            const cuppingAromaSummaryBadge = document.getElementById('cuppingAromaSummaryBadge');
 
             if (mode === 'filter') {
                 if (btnFilter) {
@@ -1883,6 +2081,8 @@
                 }
                 if (phaseSwitch) phaseSwitch.classList.add('hidden');
                 if (filterNotice) filterNotice.classList.remove('hidden');
+                if (tasteAromaContainer) tasteAromaContainer.classList.remove('hidden');
+                if (cuppingAromaSummaryBadge) cuppingAromaSummaryBadge.classList.add('hidden');
                 if (modalTitle) modalTitle.innerHTML = '<span>🫖 Ochutnávka Filtrů</span>';
                 if (aromaTitle) aromaTitle.innerText = 'Aroma šálku (Vůně filtru)';
                 
@@ -1899,6 +2099,8 @@
                 }
                 if (phaseSwitch) phaseSwitch.classList.remove('hidden');
                 if (filterNotice) filterNotice.classList.add('hidden');
+                if (tasteAromaContainer) tasteAromaContainer.classList.add('hidden');
+                if (cuppingAromaSummaryBadge) cuppingAromaSummaryBadge.classList.remove('hidden');
                 if (modalTitle) modalTitle.innerHTML = '<span>☕ SCA Cupping Protokol</span>';
                 if (aromaTitle) aromaTitle.innerText = 'Aroma (Vůně za sucha & Break)';
 
@@ -1907,21 +2109,71 @@
             }
         };
 
-        window.openEvalModal = (cuppingId) => {
+        window.openEvalModal = async (cuppingId) => {
             document.getElementById('eval_cuppingId').value = cuppingId;
             const cuppingData = window.globalCuppings[cuppingId] || {};
             const samples = cuppingData.samples || [];
             const select = document.getElementById('eval_sample');
             select.innerHTML = samples.map(s => `<option value="${s}">${s}</option>`).join('');
 
-            // Generování čipů pro Phase 2 (Ochutnávka)
+            // Inicializace relace hodnocení (session draft)
+            window.cuppingSession = {
+                cuppingId: cuppingId,
+                sampleList: [...samples],
+                activeIndex: 0,
+                samples: {}
+            };
+
+            samples.forEach(s => {
+                window.cuppingSession.samples[s] = getDefaultSampleEval(s);
+            });
+
+            // Načtení konceptu z localStorage, pokud existuje
+            if (currentUser) {
+                const draftKey = `cupping_session_${cuppingId}_${currentUser.uid}`;
+                try {
+                    const saved = localStorage.getItem(draftKey);
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        if (parsed.samples) {
+                            samples.forEach(s => {
+                                if (parsed.samples[s]) {
+                                    window.cuppingSession.samples[s] = {
+                                        ...window.cuppingSession.samples[s],
+                                        ...parsed.samples[s]
+                                    };
+                                }
+                            });
+                        }
+                    }
+                } catch(e) {}
+
+                // Zpětná kompatibilita se starými dílčími koncepty
+                samples.forEach(s => {
+                    const legacyKey = `cupping_draft_${cuppingId}_${s}_${currentUser.uid}`;
+                    try {
+                        const leg = localStorage.getItem(legacyKey);
+                        if (leg) {
+                            const parsedLeg = JSON.parse(leg);
+                            window.cuppingSession.samples[s] = {
+                                ...window.cuppingSession.samples[s],
+                                ...parsedLeg,
+                                completed: true
+                            };
+                        }
+                    } catch(e) {}
+                });
+            }
+
+            // Generování krokovacích čipů pro Phase 2 (Ochutnávka)
             const chipsContainer = document.getElementById('sampleSelectorChips');
             if (chipsContainer) {
                 chipsContainer.innerHTML = samples.map((s, idx) => `
                     <button type="button" onclick="window.selectTasteSample('${s.replace(/'/g, "\\'")}')" 
-                            class="sample-chip ${idx === 0 ? 'active' : ''}" 
+                            class="sample-chip ${idx === 0 ? 'active' : ''} ${window.cuppingSession.samples[s]?.completed ? 'done' : ''}" 
                             data-sample="${s}">
-                        ${s}
+                        <span class="status-badge">${window.cuppingSession.samples[s]?.completed ? '✓' : (idx + 1)}</span>
+                        <span>${s}</span>
                     </button>
                 `).join('');
             }
@@ -1930,17 +2182,9 @@
             const breakList = document.getElementById('breakSamplesList');
             if (breakList) {
                 breakList.innerHTML = samples.map(s => {
-                    const draftKey = `cupping_draft_${cuppingId}_${s}_${currentUser ? currentUser.uid : ''}`;
-                    let savedAromaInt = 6.5;
-                    let savedAromaQual = 8.0;
-                    try {
-                        const raw = localStorage.getItem(draftKey);
-                        if (raw) {
-                            const parsed = JSON.parse(raw);
-                            if (parsed.aroma_int !== undefined) savedAromaInt = parseFloat(parsed.aroma_int);
-                            if (parsed.aroma_qual !== undefined) savedAromaQual = parseFloat(parsed.aroma_qual);
-                        }
-                    } catch(e) {}
+                    const sData = window.cuppingSession.samples[s] || getDefaultSampleEval(s);
+                    const savedAromaInt = sData.aroma_int ?? 6.5;
+                    const savedAromaQual = sData.aroma_qual ?? 8.0;
 
                     return `
                         <div class="bg-theme-bg p-4 rounded-theme border border-theme-border space-y-3">
@@ -1978,19 +2222,103 @@
             window.setCuppingMode(sessionType);
             
             window.openModal('evalModal');
+
+            if (samples.length > 0) {
+                window.selectTasteSample(samples[0]);
+            }
+
+            // Asynchronní načtení již odeslaných skóre z Firestore (pokud barista doplňuje)
+            if (currentUser) {
+                try {
+                    const qUserScores = query(
+                        collection(db, "cuppingScores"), 
+                        where("cuppingId", "==", cuppingId), 
+                        where("userEmail", "==", currentUser.email)
+                    );
+                    const snap = await getDocs(qUserScores);
+                    let changed = false;
+                    snap.forEach(d => {
+                        const sData = normalizeScore(d.data());
+                        if (sData.sample && window.cuppingSession.samples[sData.sample]) {
+                            window.cuppingSession.samples[sData.sample] = {
+                                ...window.cuppingSession.samples[sData.sample],
+                                ...sData,
+                                completed: true
+                            };
+                            changed = true;
+                        }
+                    });
+                    if (changed) {
+                        updateSessionProgressUi();
+                        const curSample = document.getElementById('eval_sample') ? document.getElementById('eval_sample').value : null;
+                        if (curSample && window.cuppingSession.samples[curSample]) {
+                            const cur = window.cuppingSession.samples[curSample];
+                            window.currentEval = { ...cur };
+                            syncEvalUi();
+                            window.updateLiveScaScore();
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Chyba při stahování existujících skóre baristy:", e);
+                }
+            }
         };
 
         window.selectTasteSample = (sample) => {
+            const session = window.cuppingSession;
+            if (!session.sampleList || session.sampleList.length === 0) return;
+            if (!session.sampleList.includes(sample)) return;
+
+            // Uložit dosavadní stav aktivního vzorku do paměti relace
+            const prevIndex = session.activeIndex;
+            const prevSample = session.sampleList[prevIndex];
+            if (prevSample && session.samples[prevSample]) {
+                const curNote = document.getElementById('eval_note') ? document.getElementById('eval_note').value.trim() : "";
+                const curTags = Array.from(document.querySelectorAll('#flavorTagsContainer .tag-chip.selected')).map(b => b.getAttribute('data-tag') || b.innerText.trim());
+                session.samples[prevSample] = {
+                    ...session.samples[prevSample],
+                    ...window.currentEval,
+                    flavorTags: curTags,
+                    note: curNote
+                };
+            }
+
+            const targetIdx = session.sampleList.indexOf(sample);
+            session.activeIndex = targetIdx >= 0 ? targetIdx : 0;
+
             const select = document.getElementById('eval_sample');
             if (select) select.value = sample;
 
+            // Aktualizace krokovacích čísel a tlačítek
+            const stepIndexEl = document.getElementById('sampleStepIndex');
+            const stepTotalEl = document.getElementById('sampleStepTotal');
+            if (stepIndexEl) stepIndexEl.innerText = session.activeIndex + 1;
+            if (stepTotalEl) stepTotalEl.innerText = session.sampleList.length;
+
+            const prevBtn = document.getElementById('btnPrevSample');
+            const nextBtn = document.getElementById('btnNextSample');
+            if (prevBtn) {
+                prevBtn.disabled = (session.activeIndex === 0);
+                prevBtn.style.opacity = (session.activeIndex === 0) ? '0.45' : '1';
+            }
+            if (nextBtn) {
+                nextBtn.disabled = (session.activeIndex === session.sampleList.length - 1);
+                nextBtn.style.opacity = (session.activeIndex === session.sampleList.length - 1) ? '0.45' : '1';
+            }
+
+            // Zvýraznění aktivního čipu a automatické doscrolování
+            let activeChip = null;
             document.querySelectorAll('#sampleSelectorChips .sample-chip').forEach(btn => {
                 if (btn.getAttribute('data-sample') === sample) {
                     btn.classList.add('active');
+                    activeChip = btn;
                 } else {
                     btn.classList.remove('active');
                 }
             });
+            if (activeChip) {
+                activeChip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
 
             const form = document.getElementById('evalForm');
             if (form) {
@@ -1999,7 +2327,59 @@
                 form.classList.add('anim-sample-slide');
             }
 
-            window.loadCuppingDraft();
+            // Načtení dat vzorku do rozhraní
+            const sEval = session.samples[sample] || getDefaultSampleEval(sample);
+            window.currentEval = {
+                aroma_int: sEval.aroma_int ?? 6.5,
+                aroma_qual: sEval.aroma_qual ?? 8.0,
+                acid_int: sEval.acid_int ?? 6.5,
+                acid_qual: sEval.acid_qual ?? 8.0,
+                sweet_int: sEval.sweet_int ?? 6.5,
+                sweet_qual: sEval.sweet_qual ?? 8.0,
+                body_int: sEval.body_int ?? 6.5,
+                body_qual: sEval.body_qual ?? 7.5,
+                after_int: sEval.after_int ?? 6.5,
+                after_qual: sEval.after_qual ?? 7.5
+            };
+
+            // Aktualizace souhrnného aroma odznaku z 1. fáze
+            const badgeAromaQual = document.getElementById('badgeAromaQual');
+            const badgeAromaInt = document.getElementById('badgeAromaInt');
+            if (badgeAromaQual) badgeAromaQual.innerText = window.currentEval.aroma_qual.toFixed(1) + ' b.';
+            if (badgeAromaInt) badgeAromaInt.innerText = formatIntensityBadge(window.currentEval.aroma_int, 'aroma');
+
+            // Chuťové tóny a poznámka
+            document.querySelectorAll('#flavorTagsContainer .tag-chip').forEach(btn => {
+                const tag = btn.getAttribute('data-tag') || btn.innerText.trim();
+                if (sEval.flavorTags && sEval.flavorTags.includes(tag)) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+
+            const noteEl = document.getElementById('eval_note');
+            if (noteEl) noteEl.value = sEval.note || "";
+
+            syncEvalUi();
+            window.updateLiveScaScore();
+            updateSessionProgressUi();
+        };
+
+        window.navSample = (direction) => {
+            const session = window.cuppingSession;
+            if (!session.sampleList || session.sampleList.length === 0) return;
+            
+            const currentSample = session.sampleList[session.activeIndex];
+            if (currentSample && session.samples[currentSample]) {
+                session.samples[currentSample].completed = true;
+            }
+            window.saveCuppingSessionDraft();
+
+            const nextIdx = session.activeIndex + direction;
+            if (nextIdx >= 0 && nextIdx < session.sampleList.length) {
+                window.selectTasteSample(session.sampleList[nextIdx]);
+            }
         };
 
         window.selectBreakChip = (sample, field, val, btn) => {
@@ -2009,30 +2389,23 @@
                 btn.classList.add('active');
             }
 
-            const cuppingId = document.getElementById('eval_cuppingId').value;
-            if (!cuppingId || !currentUser) return;
+            const session = window.cuppingSession;
+            if (session && session.samples[sample]) {
+                session.samples[sample][field] = numVal;
+                session.samples[sample].completed = true;
+                window.saveCuppingSessionDraft();
+                updateSessionProgressUi();
+            }
 
-            const draftKey = `cupping_draft_${cuppingId}_${sample}_${currentUser.uid}`;
-            let draftData = {
-                aroma_int: 6.5, aroma_qual: 8.0,
-                acid_int: 6.5, acid_qual: 8.0,
-                sweet_qual: 8.0, body_int: 6.5,
-                body_qual: 7.5, after_qual: 7.5,
-                flavorTags: [], note: ""
-            };
-            try {
-                const raw = localStorage.getItem(draftKey);
-                if (raw) draftData = { ...draftData, ...JSON.parse(raw) };
-            } catch(e) {}
-
-            draftData[field] = numVal;
-            localStorage.setItem(draftKey, JSON.stringify(draftData));
-
-            const currentSample = document.getElementById('eval_sample').value;
+            const currentSample = document.getElementById('eval_sample') ? document.getElementById('eval_sample').value : null;
             if (currentSample === sample) {
                 window.currentEval[field] = numVal;
                 syncEvalUi();
                 window.updateLiveScaScore();
+                const badgeAromaQual = document.getElementById('badgeAromaQual');
+                const badgeAromaInt = document.getElementById('badgeAromaInt');
+                if (badgeAromaQual) badgeAromaQual.innerText = window.currentEval.aroma_qual.toFixed(1) + ' b.';
+                if (badgeAromaInt) badgeAromaInt.innerText = formatIntensityBadge(window.currentEval.aroma_int, 'aroma');
             }
         };
 
@@ -2070,8 +2443,8 @@
                 const select = document.getElementById('eval_sample');
                 if (select && select.value) {
                     window.selectTasteSample(select.value);
-                } else {
-                    window.loadCuppingDraft();
+                } else if (window.cuppingSession.sampleList.length > 0) {
+                    window.selectTasteSample(window.cuppingSession.sampleList[0]);
                 }
             }
         };
@@ -2085,6 +2458,15 @@
                 btn.classList.add('active');
             }
             
+            const session = window.cuppingSession;
+            const currentSample = document.getElementById('eval_sample') ? document.getElementById('eval_sample').value : null;
+            if (session && currentSample && session.samples[currentSample]) {
+                session.samples[currentSample][field] = numVal;
+                session.samples[currentSample].completed = true;
+                window.saveCuppingSessionDraft();
+                updateSessionProgressUi();
+            }
+
             if (field === 'aroma_qual' && document.getElementById('display_aroma_score')) {
                 document.getElementById('display_aroma_score').innerText = numVal.toFixed(1);
             } else if (field === 'acid_qual' && document.getElementById('display_acid_score')) {
@@ -2097,13 +2479,137 @@
                 document.getElementById('display_after_score').innerText = numVal.toFixed(1);
             }
             
+            if (field.startsWith('aroma_')) {
+                const badgeAromaQual = document.getElementById('badgeAromaQual');
+                const badgeAromaInt = document.getElementById('badgeAromaInt');
+                if (badgeAromaQual) badgeAromaQual.innerText = window.currentEval.aroma_qual.toFixed(1) + ' b.';
+                if (badgeAromaInt) badgeAromaInt.innerText = formatIntensityBadge(window.currentEval.aroma_int, 'aroma');
+            }
+
             window.updateLiveScaScore();
-            window.saveCuppingDraft();
         };
 
         window.toggleFlavorTag = (btn) => {
             btn.classList.toggle('selected');
-            window.saveCuppingDraft();
+            const session = window.cuppingSession;
+            const currentSample = document.getElementById('eval_sample') ? document.getElementById('eval_sample').value : null;
+            if (session && currentSample && session.samples[currentSample]) {
+                session.samples[currentSample].flavorTags = Array.from(document.querySelectorAll('#flavorTagsContainer .tag-chip.selected')).map(b => b.getAttribute('data-tag') || b.innerText.trim());
+                session.samples[currentSample].completed = true;
+                window.saveCuppingSessionDraft();
+                updateSessionProgressUi();
+            }
+        };
+
+        window.submitFullCuppingSession = async () => {
+            const session = window.cuppingSession;
+            const cuppingId = document.getElementById('eval_cuppingId').value;
+            if (!session || !cuppingId || !currentUser) return;
+
+            // Zajistit uložení aktuálního formuláře do aktivního vzorku
+            const currentSample = session.sampleList[session.activeIndex];
+            if (currentSample && session.samples[currentSample]) {
+                session.samples[currentSample] = {
+                    ...session.samples[currentSample],
+                    ...window.currentEval,
+                    flavorTags: Array.from(document.querySelectorAll('#flavorTagsContainer .tag-chip.selected')).map(b => b.getAttribute('data-tag') || b.innerText.trim()),
+                    note: document.getElementById('eval_note') ? document.getElementById('eval_note').value.trim() : "",
+                    completed: true
+                };
+            }
+            window.saveCuppingSessionDraft();
+
+            const samplesToSubmit = session.sampleList.filter(s => session.samples[s] && session.samples[s].completed);
+            if (samplesToSubmit.length === 0) {
+                alert("Zatím jste neohodnotili žádný vzorek.");
+                return;
+            }
+
+            if (samplesToSubmit.length < session.sampleList.length) {
+                const ok = confirm(`Máte ohodnoceno ${samplesToSubmit.length} z ${session.sampleList.length} vzorků.\n\nChcete nyní odeslat hodnocení na stůl? Zbývající vzorky můžete kdykoli doplnit nebo upravit.`);
+                if (!ok) return;
+            }
+
+            const btn = document.getElementById('btnSubmitFullCupping');
+            const origHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `
+                <span class="inline-flex items-center gap-2">
+                    <svg class="animate-spin w-4 h-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <span>Ukládám ${samplesToSubmit.length} vzorků na server...</span>
+                </span>
+            `;
+
+            try {
+                // Idempotentní dávkový zápis: deterministické Document ID zabraňuje jakýmkoli duplikátům
+                const submitPromises = samplesToSubmit.map(async (sampleName) => {
+                    const s = session.samples[sampleName];
+                    const cleanSample = sampleName.replace(/[^a-zA-Z0-9_-]/g, '_');
+                    const scoreDocId = `${cuppingId}_${currentUser.uid}_${cleanSample}`;
+                    const scoreRef = doc(db, "cuppingScores", scoreDocId);
+                    
+                    const scoreData = {
+                        cuppingId: cuppingId,
+                        userEmail: currentUser.email,
+                        userId: currentUser.uid,
+                        sample: sampleName,
+                        
+                        aroma_int: s.aroma_int ?? 6.5,
+                        aroma_qual: s.aroma_qual ?? 8.0,
+                        
+                        acid_int: s.acid_int ?? 6.5,
+                        acid_qual: s.acid_qual ?? 8.0,
+                        
+                        sweet_int: s.sweet_int ?? 6.5,
+                        sweet_qual: s.sweet_qual ?? 8.0,
+                        
+                        body_int: s.body_int ?? 6.5,
+                        body_qual: s.body_qual ?? 7.5,
+                        
+                        after_int: s.after_int ?? 6.5,
+                        after_qual: s.after_qual ?? 7.5,
+                        
+                        flavorTags: s.flavorTags || [],
+                        note: s.note || "",
+                        timestamp: serverTimestamp()
+                    };
+                    
+                    return setDoc(scoreRef, scoreData, { merge: true });
+                });
+
+                await Promise.all(submitPromises);
+
+                btn.innerHTML = `
+                    <span class="inline-flex items-center gap-2">
+                        <svg class="w-4 h-4 text-white inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12" class="anim-check-draw"></polyline>
+                        </svg>
+                        <span>Úspěšně uloženo na stůl!</span>
+                    </span>
+                `;
+                btn.classList.replace('btn-primary', 'bg-emerald-700');
+
+                if (currentUser) {
+                    localStorage.removeItem(`cupping_session_${cuppingId}_${currentUser.uid}`);
+                }
+
+                setTimeout(() => {
+                    window.closeModal('evalModal');
+                    btn.disabled = false;
+                    btn.innerHTML = origHtml;
+                    btn.classList.replace('bg-emerald-700', 'btn-primary');
+                    window.openResultsModal(cuppingId);
+                }, 900);
+
+            } catch (err) {
+                console.error("Error submitting cupping scores:", err);
+                alert("Chyba při ukládání: " + (err.message || err));
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+            }
         };
 
         window.updateLiveScaScore = () => {
@@ -2140,7 +2646,7 @@
         };
 
         function syncEvalUi() {
-            ['aroma_int', 'aroma_qual', 'acid_int', 'acid_qual', 'sweet_qual', 'body_int', 'body_qual', 'after_qual'].forEach(field => {
+            ['aroma_int', 'aroma_qual', 'acid_int', 'acid_qual', 'sweet_int', 'sweet_qual', 'body_int', 'body_qual', 'after_int', 'after_qual'].forEach(field => {
                 const group = document.getElementById(`group_${field}`);
                 if (group) {
                     const val = window.currentEval[field];
@@ -2164,7 +2670,7 @@
         
         window.openResultsModal = async (cuppingId) => {
             window.openModal('resultsModal');
-            const samples = window.globalCuppings[cuppingId].samples || [];
+            const samples = window.globalCuppings[cuppingId]?.samples || [];
             const select = document.getElementById('res_sample_select');
             select.innerHTML = samples.map(s => `<option value="${s}">${s}</option>`).join('');
 
@@ -2190,7 +2696,21 @@
         window.renderChartAndList = (sampleName) => {
             const indResultsDiv = document.getElementById('individualResults');
             const topTagsContainer = document.getElementById('topTagsContainer');
-            const filteredScores = window.currentResultsScores.filter(s => s.sample === sampleName);
+            const rawScores = window.currentResultsScores.filter(s => s.sample === sampleName);
+
+            // Deduplikace: Každý barista smí mít pro danou kávu pouze jeden (nejčerstvější) záznam
+            const baristaMap = new Map();
+            rawScores.forEach(s => {
+                const ex = baristaMap.get(s.userEmail);
+                if (!ex) {
+                    baristaMap.set(s.userEmail, s);
+                } else {
+                    const tEx = ex.timestamp?.seconds || (ex.timestamp ? new Date(ex.timestamp).getTime() : 0);
+                    const tCur = s.timestamp?.seconds || (s.timestamp ? new Date(s.timestamp).getTime() : 0);
+                    if (tCur >= tEx) baristaMap.set(s.userEmail, s);
+                }
+            });
+            const filteredScores = Array.from(baristaMap.values());
 
             if (filteredScores.length === 0) {
                 indResultsDiv.innerHTML = '<div class="text-[10px] font-bold text-theme-text uppercase tracking-widest border-theme border-theme-border bg-theme-bg p-6 rounded-theme">Tuto kávu zatím nikdo nehodnotil.</div>';
@@ -2276,18 +2796,50 @@
                     ? `<span class="bg-theme-accent text-white text-[9px] px-2 py-1 rounded-full ml-2">Referenční vzorek (David)</span>` 
                     : '';
 
+                const scaTotal = (50 + s.aroma_qual + s.acid_qual + s.sweet_qual + s.body_qual + s.after_qual).toFixed(1);
+
                 return `
-                    <div class="bg-theme-bg p-5 border-theme border-theme-border rounded-theme ${s.userEmail === MASTER_CUPPING_ADMIN ? 'border-theme-accent' : ''}">
-                        <div class="flex justify-between items-center mb-4 border-b border-theme-border pb-3"><span class="text-xs font-bold text-theme-accent">Barista</span><span class="text-[10px] font-extrabold text-theme-text uppercase tracking-widest">${s.userEmail.split('@')[0]} ${isAdminBadge}</span></div>
-                        <div class="text-[10px] font-bold text-theme-muted grid grid-cols-5 gap-2 text-center">
-                            <div>Aroma<br><span class="text-theme-text text-sm">I: ${s.aroma_int}</span><br><span class="text-theme-text text-sm">K: ${s.aroma_qual}</span></div>
-                            <div>Acidita<br><span class="text-theme-text text-sm">I: ${s.acid_int}</span><br><span class="text-theme-text text-sm">K: ${s.acid_qual}</span></div>
-                            <div>Sladk.<br><span class="text-theme-text text-sm">I: ${s.sweet_int}</span><br><span class="text-theme-text text-sm">K: ${s.sweet_qual}</span></div>
-                            <div>Tělo<br><span class="text-theme-text text-sm">I: ${s.body_int}</span><br><span class="text-theme-text text-sm">K: ${s.body_qual}</span></div>
-                            <div>Dochůť<br><span class="text-theme-text text-sm">D: ${s.after_int}</span><br><span class="text-theme-text text-sm">K: ${s.after_qual}</span></div>
+                    <div class="bg-theme-bg p-5 border-theme border-theme-border rounded-theme ${s.userEmail === MASTER_CUPPING_ADMIN ? 'border-theme-accent shadow-sm' : ''}">
+                        <div class="flex justify-between items-center mb-3.5 border-b border-theme-border/70 pb-2.5">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-theme-accent">Barista</span>
+                                <span class="text-xs font-extrabold text-theme-text uppercase tracking-wider">${s.userEmail.split('@')[0]}</span>
+                                ${isAdminBadge}
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[9px] font-bold uppercase tracking-widest text-theme-muted">SCA:</span>
+                                <span class="text-xs font-mono font-extrabold text-theme-accent bg-theme-plumSoft px-2.5 py-0.5 rounded-full border border-theme-plumBorder shadow-xs">${scaTotal} b.</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-5 gap-2 text-center">
+                            <div class="bg-theme-surface/70 p-2 rounded-theme border border-theme-border/60">
+                                <div class="text-[9px] font-bold uppercase tracking-wider text-theme-muted mb-0.5">Aroma</div>
+                                <div class="text-sm font-extrabold font-mono text-theme-text">${s.aroma_qual.toFixed(1)}</div>
+                                <div class="text-[9px] font-medium text-theme-muted mt-0.5">${formatIntensityBadge(s.aroma_int, 'aroma')}</div>
+                            </div>
+                            <div class="bg-theme-surface/70 p-2 rounded-theme border border-theme-border/60">
+                                <div class="text-[9px] font-bold uppercase tracking-wider text-theme-muted mb-0.5">Acidita</div>
+                                <div class="text-sm font-extrabold font-mono text-theme-text">${s.acid_qual.toFixed(1)}</div>
+                                <div class="text-[9px] font-medium text-theme-muted mt-0.5">${formatIntensityBadge(s.acid_int, 'acid')}</div>
+                            </div>
+                            <div class="bg-theme-surface/70 p-2 rounded-theme border border-theme-border/60">
+                                <div class="text-[9px] font-bold uppercase tracking-wider text-theme-muted mb-0.5">Sladk.</div>
+                                <div class="text-sm font-extrabold font-mono text-theme-text">${s.sweet_qual.toFixed(1)}</div>
+                                <div class="text-[9px] font-medium text-theme-muted mt-0.5">${formatIntensityBadge(s.sweet_int, 'sweet')}</div>
+                            </div>
+                            <div class="bg-theme-surface/70 p-2 rounded-theme border border-theme-border/60">
+                                <div class="text-[9px] font-bold uppercase tracking-wider text-theme-muted mb-0.5">Tělo</div>
+                                <div class="text-sm font-extrabold font-mono text-theme-text">${s.body_qual.toFixed(1)}</div>
+                                <div class="text-[9px] font-medium text-theme-muted mt-0.5">${formatIntensityBadge(s.body_int, 'body')}</div>
+                            </div>
+                            <div class="bg-theme-surface/70 p-2 rounded-theme border border-theme-border/60">
+                                <div class="text-[9px] font-bold uppercase tracking-wider text-theme-muted mb-0.5">Dochůť</div>
+                                <div class="text-sm font-extrabold font-mono text-theme-text">${s.after_qual.toFixed(1)}</div>
+                                <div class="text-[9px] font-medium text-theme-muted mt-0.5">${formatIntensityBadge(s.after_int, 'after')}</div>
+                            </div>
                         </div>
                         ${tagsHtml}
-                        ${s.note ? `<div class="mt-4 text-xs italic bg-theme-surface p-3 border-theme border-theme-border rounded-theme text-theme-text">"${s.note}"</div>` : ''}
+                        ${s.note ? `<div class="mt-3.5 text-xs italic bg-theme-surface p-3 border-theme border-theme-border rounded-theme text-theme-text font-light">"${s.note}"</div>` : ''}
                     </div>
                 `;
             }).join('');
@@ -2455,97 +3007,9 @@
             }
         });
 
-        document.getElementById('evalForm').addEventListener('submit', async (e) => {
+        document.getElementById('evalForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const submitBtn = document.getElementById('submitEvalBtn');
-            const originalBtnText = submitBtn.innerText;
-            
-            const selectedTags = Array.from(document.querySelectorAll('#flavorTagsContainer .tag-chip.selected'))
-                .map(btn => btn.getAttribute('data-tag') || btn.innerText.trim());
-
-            const currentSample = document.getElementById('eval_sample').value;
-            const cuppingId = document.getElementById('eval_cuppingId').value;
-
-            const scoreData = { 
-                cuppingId: cuppingId, 
-                userEmail: currentUser.email, 
-                sample: currentSample, 
-                
-                aroma_int: window.currentEval.aroma_int, 
-                aroma_qual: window.currentEval.aroma_qual, 
-                
-                acid_int: window.currentEval.acid_int, 
-                acid_qual: window.currentEval.acid_qual, 
-                
-                sweet_int: window.currentEval.sweet_qual, 
-                sweet_qual: window.currentEval.sweet_qual, 
-                
-                body_int: window.currentEval.body_int, 
-                body_qual: window.currentEval.body_qual, 
-                
-                after_int: window.currentEval.after_qual, 
-                after_qual: window.currentEval.after_qual, 
-                
-                flavorTags: selectedTags,
-                note: document.getElementById('eval_note').value.trim(), 
-                timestamp: new Date() 
-            };
-            
-            try { 
-                submitBtn.innerText = "Ukládám hodnocení...";
-                await addDoc(collection(db, "cuppingScores"), scoreData); 
-                
-                // Clear localStorage draft on successful submission
-                window.clearCuppingDraft(scoreData.cuppingId, scoreData.sample);
-                
-                const select = document.getElementById('eval_sample');
-                const nextIndex = select.selectedIndex + 1;
-                
-                if (nextIndex < select.options.length) {
-                    submitBtn.innerHTML = `
-                        <span class="inline-flex items-center gap-2">
-                            <svg class="w-4 h-4 text-white inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" class="anim-check-draw"></polyline>
-                            </svg>
-                            <span>Uloženo! Další vzorek...</span>
-                        </span>
-                    `;
-                    submitBtn.classList.replace('btn-primary', 'bg-emerald-700');
-                    submitBtn.classList.add('text-white', 'border-emerald-700');
-                    
-                    setTimeout(() => {
-                        select.selectedIndex = nextIndex;
-                        const nextSample = select.options[nextIndex].value;
-                        window.selectTasteSample(nextSample);
-                        submitBtn.innerHTML = originalBtnText;
-                        submitBtn.classList.replace('bg-emerald-700', 'btn-primary');
-                        submitBtn.classList.remove('border-emerald-700');
-                    }, 750);
-                } else {
-                    submitBtn.innerHTML = `
-                        <span class="inline-flex items-center gap-2">
-                            <svg class="w-4 h-4 text-white inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" class="anim-check-draw"></polyline>
-                            </svg>
-                            <span>Všechny vzorky ohodnoceny!</span>
-                        </span>
-                    `;
-                    submitBtn.classList.replace('btn-primary', 'bg-emerald-700');
-                    submitBtn.classList.add('text-white', 'border-emerald-700');
-                    
-                    setTimeout(() => {
-                        window.closeModal('evalModal');
-                        submitBtn.innerHTML = originalBtnText;
-                        submitBtn.classList.replace('bg-emerald-700', 'btn-primary');
-                        submitBtn.classList.remove('border-emerald-700');
-                    }, 1100);
-                }
-                
-            } catch (error) { 
-                console.error(error); 
-                submitBtn.innerText = "Chyba při ukládání!";
-                setTimeout(() => submitBtn.innerText = originalBtnText, 2000);
-            }
+            window.submitFullCuppingSession();
         });
 
         const handleChecklist = async (e, type, signatureId) => {
@@ -2597,77 +3061,24 @@
             });
         }
 
-        // --- DRAFT AUTOSAVE FOR CUPPING ---
+        // --- DRAFT AUTOSAVE PRO CUPPING & RELACE ---
         window.saveCuppingDraft = () => {
-            const cuppingId = document.getElementById('eval_cuppingId').value;
-            const sample = document.getElementById('eval_sample').value;
-            if (!cuppingId || !sample || !currentUser) return;
-            
-            const draftKey = `cupping_draft_${cuppingId}_${sample}_${currentUser.uid}`;
-            const selectedTags = Array.from(document.querySelectorAll('#flavorTagsContainer .tag-chip.selected'))
-                .map(btn => btn.getAttribute('data-tag') || btn.innerText.trim());
-            
-            const draftData = {
-                ...window.currentEval,
-                flavorTags: selectedTags,
-                note: document.getElementById('eval_note').value
-            };
-            localStorage.setItem(draftKey, JSON.stringify(draftData));
+            window.saveCuppingSessionDraft();
         };
 
         window.loadCuppingDraft = () => {
-            const cuppingId = document.getElementById('eval_cuppingId').value;
-            const sample = document.getElementById('eval_sample').value;
-            if (!cuppingId || !sample || !currentUser) return;
-            
-            // Výchozí hodnoty podle SCA
-            window.currentEval = {
-                aroma_int: 6.5, aroma_qual: 8.0,
-                acid_int: 6.5, acid_qual: 8.0,
-                sweet_qual: 8.0,
-                body_int: 6.5, body_qual: 7.5,
-                after_qual: 7.5
-            };
-
-            document.querySelectorAll('#flavorTagsContainer .tag-chip').forEach(btn => btn.classList.remove('selected'));
-            document.getElementById('eval_note').value = "";
-
-            const draftKey = `cupping_draft_${cuppingId}_${sample}_${currentUser.uid}`;
-            const rawDraft = localStorage.getItem(draftKey);
-
-            if (rawDraft) {
-                try {
-                    const draft = JSON.parse(rawDraft);
-                    ['aroma_int', 'aroma_qual', 'acid_int', 'acid_qual', 'sweet_qual', 'body_int', 'body_qual', 'after_qual'].forEach(k => {
-                        if (draft[k] !== undefined) {
-                            window.currentEval[k] = parseFloat(draft[k]);
-                        }
-                    });
-                    
-                    if (draft.flavorTags && Array.isArray(draft.flavorTags)) {
-                        document.querySelectorAll('#flavorTagsContainer .tag-chip').forEach(btn => {
-                            const tag = btn.getAttribute('data-tag') || btn.innerText.trim();
-                            if (draft.flavorTags.includes(tag) || draft.flavorTags.includes(btn.innerText.trim())) {
-                                btn.classList.add('selected');
-                            }
-                        });
-                    }
-                    if (draft.note) {
-                        document.getElementById('eval_note').value = draft.note;
-                    }
-                } catch (e) {
-                    console.error("Chyba při načítání konceptu:", e);
-                }
+            const curSample = document.getElementById('eval_sample') ? document.getElementById('eval_sample').value : null;
+            if (curSample && window.cuppingSession?.sampleList?.includes(curSample)) {
+                window.selectTasteSample(curSample);
             }
-
-            syncEvalUi();
-            window.updateLiveScaScore();
         };
 
         window.clearCuppingDraft = (cuppingId, sample) => {
-            if (!cuppingId || !sample || !currentUser) return;
-            const draftKey = `cupping_draft_${cuppingId}_${sample}_${currentUser.uid}`;
-            localStorage.removeItem(draftKey);
+            if (!cuppingId || !currentUser) return;
+            localStorage.removeItem(`cupping_session_${cuppingId}_${currentUser.uid}`);
+            if (sample) {
+                localStorage.removeItem(`cupping_draft_${cuppingId}_${sample}_${currentUser.uid}`);
+            }
         };
 
         // --- INTERAKTIVNÍ ČASOVAČ EXTRAKCE ---
@@ -2889,11 +3300,21 @@
             startBtn.classList.replace('bg-amber-600', 'btn-primary');
         };
 
-        // Hook up change listeners to save cupping draft automatically
-        document.getElementById('eval_sample').addEventListener('change', window.loadCuppingDraft);
+        // Automatické zachycení poznámek a synchronizace se session
+        document.getElementById('eval_sample')?.addEventListener('change', window.loadCuppingDraft);
         const evalNoteInput = document.getElementById('eval_note');
         if (evalNoteInput) {
-            evalNoteInput.addEventListener('input', window.saveCuppingDraft);
+            evalNoteInput.addEventListener('input', () => {
+                const session = window.cuppingSession;
+                if (!session || !session.sampleList) return;
+                const currentSample = session.sampleList[session.activeIndex];
+                if (currentSample && session.samples[currentSample]) {
+                    session.samples[currentSample].note = evalNoteInput.value.trim();
+                    session.samples[currentSample].completed = true;
+                    window.saveCuppingSessionDraft();
+                    updateSessionProgressUi();
+                }
+            });
         }
     </script>
 </body>

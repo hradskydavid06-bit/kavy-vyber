@@ -30,9 +30,14 @@ service cloud.firestore {
     // Cupping Scores (evaluations submitted by baristas)
     match /cuppingScores/{scoreId} {
       allow read: if isLoggedIn();
-      // Baristas can only submit evaluations under their own verified email
+      // Baristas can submit or update evaluations under their own verified email
       allow create: if isLoggedIn() && request.resource.data.userEmail == request.auth.token.email;
-      allow update, delete: if isAdmin();
+      allow update: if isAdmin() || (
+        isLoggedIn() && 
+        resource.data.userEmail == request.auth.token.email && 
+        request.resource.data.userEmail == request.auth.token.email
+      );
+      allow delete: if isAdmin();
     }
     
     // Roastery sets (sets of coffee to be voted on)
