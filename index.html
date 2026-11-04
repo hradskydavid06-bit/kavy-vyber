@@ -846,9 +846,16 @@
             
             <div class="border-b border-theme-border pb-4 mb-5">
                 <div class="flex flex-wrap justify-between items-center gap-3">
-                    <h2 class="text-xl font-extrabold uppercase tracking-tight text-theme-text flex items-center gap-2">
-                        <span id="evalModalTitle">☕ SCA Cupping Protokol</span>
-                    </h2>
+                    <div class="flex items-center gap-2.5">
+                        <h2 class="text-xl font-extrabold uppercase tracking-tight text-theme-text flex items-center gap-2">
+                            <span id="evalModalTitle">☕ SCA Cupping Protokol</span>
+                        </h2>
+                        <!-- Live Sync Status uvnitř modalu -->
+                        <div id="modalSyncPill" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-medium transition-all duration-300">
+                            <span id="modalSyncDot" class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            <span id="modalSyncText">Uloženo</span>
+                        </div>
+                    </div>
                     
                     <!-- PŘEPÍNAČ REŽIMU DEGUSTACE -->
                     <div class="flex items-center gap-1 bg-theme-bg p-1 rounded-theme border border-theme-border text-[10px] font-bold">
@@ -1257,35 +1264,111 @@
         window.currentRecipeFilter = '';
 
         // ========================================================
-        // POPPY UX ENGINE: HAPTICS, TOASTS, CONFIRM MODAL & SYNC
+        // POPPY UX ENGINE: HAPTICS (AUDIO + VIBRATION), TOASTS, CONFIRM & SYNC
         // ========================================================
 
-        window.haptic = (type = 'light') => {
+        let hapticAudioCtx = null;
+        const getHapticAudioContext = () => {
             try {
-                if (!('vibrate' in navigator)) return;
-                switch (type) {
-                    case 'selection':
-                    case 'light':
-                        navigator.vibrate(8);
-                        break;
-                    case 'chip':
-                    case 'medium':
-                        navigator.vibrate(14);
-                        break;
-                    case 'success':
-                        navigator.vibrate([10, 30, 15]);
-                        break;
-                    case 'warning':
-                        navigator.vibrate([20, 35, 20]);
-                        break;
-                    case 'error':
-                    case 'heavy':
-                        navigator.vibrate([30, 45, 30]);
-                        break;
+                if (!hapticAudioCtx) {
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContextClass) {
+                        hapticAudioCtx = new AudioContextClass();
+                    }
                 }
+                if (hapticAudioCtx && hapticAudioCtx.state === 'suspended') {
+                    hapticAudioCtx.resume();
+                }
+            } catch (e) {}
+            return hapticAudioCtx;
+        };
+
+        // Odblokování Web Audio při jakémkoli dotyku (pro iOS Safari)
+        ['touchstart', 'touchend', 'click', 'mousedown'].forEach(evt => {
+            window.addEventListener(evt, () => getHapticAudioContext(), { passive: true, capture: true });
+        });
+        document.addEventListener('touchstart', () => {}, { passive: true });
+
+        const playTactileClick = (type = 'light') => {
+            try {
+                const ctx = getHapticAudioContext();
+                if (!ctx) return;
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                let startFreq = 750;
+                let endFreq = 90;
+                let duration = 0.012;
+                let volume = 0.45;
+
+                if (type === 'chip' || type === 'medium') {
+                    startFreq = 850;
+                    endFreq = 80;
+                    duration = 0.014;
+                    volume = 0.55;
+                } else if (type === 'selection' || type === 'light') {
+                    startFreq = 950;
+                    endFreq = 120;
+                    duration = 0.009;
+                    volume = 0.40;
+                } else if (type === 'success') {
+                    startFreq = 520;
+                    endFreq = 260;
+                    duration = 0.04;
+                    volume = 0.35;
+                }
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(startFreq, now);
+                osc.frequency.exponentialRampToValueAtTime(endFreq, now + duration);
+
+                gain.gain.setValueAtTime(volume, now);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + duration + 0.002);
             } catch (e) {
-                // Silently ignore if unsupported or permission blocked
+                // Silently ignore audio errors
             }
+        };
+
+        window.haptic = (type = 'light') => {
+            // 1. Zvukové / mechanické cvaknutí (funguje na iPhone, iPad, Mac i Android)
+            playTactileClick(type);
+
+            // 2. Skutečná hardwarová vibrace (pro Android a zařízení podporující Vibration API)
+            try {
+                if ('vibrate' in navigator && typeof navigator.vibrate === 'function') {
+                    switch (type) {
+                        case 'selection':
+                        case 'light':
+                            navigator.vibrate(10);
+                            break;
+                        case 'chip':
+                        case 'medium':
+                            navigator.vibrate(16);
+                            break;
+                        case 'success':
+                            navigator.vibrate([12, 35, 18]);
+                            break;
+                        case 'warning':
+                            navigator.vibrate([25, 40, 25]);
+                            break;
+                        case 'error':
+                        case 'heavy':
+                            navigator.vibrate([35, 50, 35]);
+                            break;
+                    }
+                }
+            } catch (e) {}
         };
 
         window.showToast = (message, type = 'info', duration = 3500) => {
@@ -1423,37 +1506,60 @@
             const pillMobile = document.getElementById('syncStatusPillMobile');
             const dotMobile = document.getElementById('syncStatusDotMobile');
             const textMobile = document.getElementById('syncStatusTextMobile');
-            if (!pill || !text) return;
+            const modalPill = document.getElementById('modalSyncPill');
+            const modalDot = document.getElementById('modalSyncDot');
+            const modalText = document.getElementById('modalSyncText');
 
             if (status === 'saving') {
-                pill.className = 'hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-medium transition-all duration-300';
-                if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping';
-                text.innerText = label || 'Ukládám...';
-
-                if (pillMobile) {
+                const saveTxt = label || 'Ukládám koncept...';
+                if (pill && text) {
+                    pill.className = 'hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-medium transition-all duration-300';
+                    if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping';
+                    text.innerText = saveTxt;
+                }
+                if (pillMobile && textMobile) {
                     pillMobile.className = 'sm:hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[9px] font-medium transition-all duration-300';
                     if (dotMobile) dotMobile.className = 'w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping';
-                    if (textMobile) textMobile.innerText = 'Ukládám';
+                    textMobile.innerText = 'Ukládám';
+                }
+                if (modalPill && modalText) {
+                    modalPill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-medium transition-all duration-300 shadow-xs';
+                    if (modalDot) modalDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping';
+                    modalText.innerText = saveTxt;
                 }
             } else if (status === 'offline') {
-                pill.className = 'hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-600 border border-zinc-300 text-[10px] font-medium transition-all duration-300';
-                if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-zinc-400';
-                text.innerText = label || 'Offline paměť';
-
-                if (pillMobile) {
+                const offTxt = label || 'Offline paměť';
+                if (pill && text) {
+                    pill.className = 'hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-600 border border-zinc-300 text-[10px] font-medium transition-all duration-300';
+                    if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-zinc-400';
+                    text.innerText = offTxt;
+                }
+                if (pillMobile && textMobile) {
                     pillMobile.className = 'sm:hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-600 border border-zinc-300 text-[9px] font-medium transition-all duration-300';
                     if (dotMobile) dotMobile.className = 'w-1.5 h-1.5 rounded-full bg-zinc-400';
-                    if (textMobile) textMobile.innerText = 'Offline';
+                    textMobile.innerText = 'Offline';
+                }
+                if (modalPill && modalText) {
+                    modalPill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-600 border border-zinc-300 text-[10px] font-medium transition-all duration-300';
+                    if (modalDot) modalDot.className = 'w-1.5 h-1.5 rounded-full bg-zinc-400';
+                    modalText.innerText = offTxt;
                 }
             } else {
-                pill.className = 'hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-medium transition-all duration-300';
-                if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500';
-                text.innerText = label || 'Synchronizováno';
-
-                if (pillMobile) {
+                const syncTxt = label || 'Koncept uložen';
+                if (pill && text) {
+                    pill.className = 'hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-medium transition-all duration-300';
+                    if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500';
+                    text.innerText = 'Synchronizováno';
+                }
+                if (pillMobile && textMobile) {
                     pillMobile.className = 'sm:hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[9px] font-medium transition-all duration-300';
                     if (dotMobile) dotMobile.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500';
-                    if (textMobile) textMobile.innerText = 'Live';
+                    textMobile.innerText = 'Live';
+                }
+                if (modalPill && modalText) {
+                    modalPill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-medium transition-all duration-300';
+                    if (modalDot) modalDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500';
+                    modalText.innerText = syncTxt;
                 }
             }
         };
@@ -2408,11 +2514,11 @@
             const draftKey = `cupping_session_${cuppingId}_${currentUser.uid}`;
             try {
                 localStorage.setItem(draftKey, JSON.stringify(session));
-                window.setSyncStatus('saving', 'Ukládám koncept...');
+                window.setSyncStatus('saving', '⏳ Ukládám koncept...');
                 if (draftSaveTimer) clearTimeout(draftSaveTimer);
                 draftSaveTimer = setTimeout(() => {
-                    window.setSyncStatus('synced');
-                }, 500);
+                    window.setSyncStatus('synced', '✓ Uloženo');
+                }, 850);
             } catch (e) {
                 console.warn("Chyba při ukládání draftu do localStorage:", e);
             }
@@ -2470,7 +2576,9 @@
         };
 
         window.openEvalModal = async (cuppingId) => {
+            window.haptic('light');
             document.getElementById('eval_cuppingId').value = cuppingId;
+            window.setSyncStatus('synced', '✓ Koncept připraven');
             const cuppingData = window.globalCuppings[cuppingId] || {};
             const samples = cuppingData.samples || [];
             const select = document.getElementById('eval_sample');
@@ -2545,6 +2653,8 @@
                     const sData = window.cuppingSession.samples[s] || getDefaultSampleEval(s);
                     const savedAromaInt = sData.aroma_int ?? 6.5;
                     const savedAromaQual = sData.aroma_qual ?? 8.0;
+                    const cleanSample = s.replace(/[^a-zA-Z0-9_-]/g, '_');
+                    const isDone = window.cuppingSession.samples[s]?.completed;
 
                     return `
                         <div class="bg-theme-bg p-4 rounded-theme border border-theme-border space-y-3">
@@ -2552,7 +2662,9 @@
                                 <span class="text-xs font-extrabold uppercase tracking-wider text-theme-text flex items-center gap-1.5">
                                     <span>☕</span> ${s}
                                 </span>
-                                <span class="text-[10px] font-bold text-theme-muted uppercase tracking-wider">Aroma šálku</span>
+                                <span id="card_status_${cleanSample}" class="text-[9px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isDone ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-theme-subtle text-theme-muted border border-theme-border'}">
+                                    ${isDone ? '✓ Uloženo' : 'Aroma'}
+                                </span>
                             </div>
                             <div>
                                 <div class="text-[9px] font-bold uppercase tracking-widest text-theme-muted mb-1.5">Intenzita vůně:</div>
@@ -2625,6 +2737,7 @@
         };
 
         window.selectTasteSample = (sample) => {
+            window.haptic('selection');
             const session = window.cuppingSession;
             if (!session.sampleList || session.sampleList.length === 0) return;
             if (!session.sampleList.includes(sample)) return;
@@ -2750,6 +2863,13 @@
             if (btn && btn.parentElement) {
                 btn.parentElement.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
+            }
+
+            const cleanSample = sample.replace(/[^a-zA-Z0-9_-]/g, '_');
+            const cardBadge = document.getElementById(`card_status_${cleanSample}`);
+            if (cardBadge) {
+                cardBadge.className = 'text-[9px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200';
+                cardBadge.innerText = '✓ Uloženo';
             }
 
             const session = window.cuppingSession;
