@@ -569,11 +569,25 @@
     <!-- MAIN APP -->
     <div id="mainApp" class="max-w-6xl mx-auto p-4 sm:p-6 md:p-10 hidden">
         <header class="mb-8 flex flex-col md:flex-row justify-between items-center border-b border-theme-border pb-6 gap-6 anim-stagger-1">
-            <div class="flex items-center gap-3">
-                <img src="poppy-logo.png" alt="Poppy Beans" class="h-11 w-auto object-contain">
-                <div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-theme-accent block leading-none">Coffee Roastery</span>
-                    <h1 class="text-2xl font-light tracking-tight text-theme-text leading-tight">Poppy OS</h1>
+            <div class="flex items-center justify-between w-full md:w-auto gap-4">
+                <div class="flex items-center gap-3">
+                    <img src="poppy-logo.png" alt="Poppy Beans" class="h-11 w-auto object-contain">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-theme-accent block leading-none">Coffee Roastery</span>
+                            <div id="syncStatusPill" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-medium transition-all duration-300">
+                                <span id="syncStatusDot" class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                <span id="syncStatusText">Synchronizováno</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="text-2xl font-light tracking-tight text-theme-text leading-tight">Poppy OS</h1>
+                            <div id="syncStatusPillMobile" class="sm:hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[9px] font-medium transition-all duration-300">
+                                <span id="syncStatusDotMobile" class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                <span id="syncStatusTextMobile">Live</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <nav id="mainNav" class="flex gap-1 text-[11px] uppercase tracking-wider font-semibold overflow-x-auto w-full md:w-auto hide-scroll bg-theme-surface p-1.5 rounded-2xl items-center border border-theme-border shadow-sm">
@@ -832,9 +846,16 @@
             
             <div class="border-b border-theme-border pb-4 mb-5">
                 <div class="flex flex-wrap justify-between items-center gap-3">
-                    <h2 class="text-xl font-extrabold uppercase tracking-tight text-theme-text flex items-center gap-2">
-                        <span id="evalModalTitle">☕ SCA Cupping Protokol</span>
-                    </h2>
+                    <div class="flex items-center gap-2.5">
+                        <h2 class="text-xl font-extrabold uppercase tracking-tight text-theme-text flex items-center gap-2">
+                            <span id="evalModalTitle">☕ SCA Cupping Protokol</span>
+                        </h2>
+                        <!-- Live Sync Status uvnitř modalu -->
+                        <div id="modalSyncPill" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-medium transition-all duration-300">
+                            <span id="modalSyncDot" class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            <span id="modalSyncText">Uloženo</span>
+                        </div>
+                    </div>
                     
                     <!-- PŘEPÍNAČ REŽIMU DEGUSTACE -->
                     <div class="flex items-center gap-1 bg-theme-bg p-1 rounded-theme border border-theme-border text-[10px] font-bold">
@@ -1068,22 +1089,54 @@
                         </div>
                     </div>
 
-                    <!-- BAREVNÉ CHUŤOVÉ TÓNY PODLE FLAVOR WHEEL -->
-                    <div class="pt-2 border-t border-theme-border">
-                        <label class="block text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-2.5">
-                            Senzorický profil (Klepnutím vyber dominantní tóny):
-                        </label>
-                        <div class="flex flex-wrap gap-2" id="flavorTagsContainer">
-                            <button type="button" class="tag-chip tag-red" data-tag="Bobule" onclick="window.toggleFlavorTag(this)">🍓 Bobule</button>
-                            <button type="button" class="tag-chip tag-yellow" data-tag="Citrusy" onclick="window.toggleFlavorTag(this)">🍋 Citrusy</button>
-                            <button type="button" class="tag-chip tag-purple" data-tag="Květiny" onclick="window.toggleFlavorTag(this)">🌸 Květiny</button>
-                            <button type="button" class="tag-chip tag-orange" data-tag="Peckovice" onclick="window.toggleFlavorTag(this)">🍑 Peckovice</button>
-                            <button type="button" class="tag-chip tag-amber" data-tag="Tropické ovoce" onclick="window.toggleFlavorTag(this)">🥭 Tropické ovoce</button>
-                            <button type="button" class="tag-chip tag-brown" data-tag="Čokoláda / Kakao" onclick="window.toggleFlavorTag(this)">🍫 Čokoláda / Kakao</button>
-                            <button type="button" class="tag-chip tag-gold" data-tag="Karamel / Ořechy" onclick="window.toggleFlavorTag(this)">🌰 Karamel / Ořechy</button>
-                            <button type="button" class="tag-chip tag-wine" data-tag="Fermentace" onclick="window.toggleFlavorTag(this)">🍷 Fermentace</button>
-                            <button type="button" class="tag-chip tag-green" data-tag="Černý čaj" onclick="window.toggleFlavorTag(this)">🌿 Černý čaj</button>
-                            <button type="button" class="tag-chip tag-spicy" data-tag="Koření" onclick="window.toggleFlavorTag(this)">🌶️ Koření</button>
+                    <!-- BAREVNÉ CHUŤOVÉ TÓNY PODLE SCA FLAVOR WHEEL -->
+                    <div class="pt-3 border-t border-theme-border">
+                        <div class="flex items-center justify-between mb-2.5">
+                            <label class="text-[10px] font-bold uppercase tracking-widest text-theme-muted">
+                                Senzorický profil (SCA Flavor Wheel):
+                            </label>
+                            <span id="flavorTagsBadge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-theme-plumSoft text-theme-accent border border-theme-plumBorder font-semibold">
+                                0 vybráno
+                            </span>
+                        </div>
+                        <div id="flavorTagsContainer" class="space-y-3">
+                            <!-- Skupina: Ovocné & Svěží -->
+                            <div>
+                                <span class="text-[9px] font-bold uppercase tracking-widest text-theme-muted block mb-1.5">🍓 Ovocné & Svěží</span>
+                                <div class="flex flex-wrap gap-1.5">
+                                    <button type="button" class="tag-chip tag-red" data-tag="Bobule" onclick="window.toggleFlavorTag(this)">🍓 Bobule</button>
+                                    <button type="button" class="tag-chip tag-yellow" data-tag="Citrusy" onclick="window.toggleFlavorTag(this)">🍋 Citrusy</button>
+                                    <button type="button" class="tag-chip tag-orange" data-tag="Peckovice" onclick="window.toggleFlavorTag(this)">🍑 Peckovice</button>
+                                    <button type="button" class="tag-chip tag-amber" data-tag="Tropické ovoce" onclick="window.toggleFlavorTag(this)">🥭 Tropické ovoce</button>
+                                </div>
+                            </div>
+                            <!-- Skupina: Květinové & Bylinné -->
+                            <div>
+                                <span class="text-[9px] font-bold uppercase tracking-widest text-theme-muted block mb-1.5">🌸 Květinové & Bylinné</span>
+                                <div class="flex flex-wrap gap-1.5">
+                                    <button type="button" class="tag-chip tag-purple" data-tag="Květiny" onclick="window.toggleFlavorTag(this)">🌸 Květiny</button>
+                                    <button type="button" class="tag-chip tag-green" data-tag="Černý čaj" onclick="window.toggleFlavorTag(this)">🌿 Černý čaj</button>
+                                    <button type="button" class="tag-chip tag-purple" data-tag="Jasmín" onclick="window.toggleFlavorTag(this)">🌼 Jasmín</button>
+                                </div>
+                            </div>
+                            <!-- Skupina: Sladké, Oříšky & Kakao -->
+                            <div>
+                                <span class="text-[9px] font-bold uppercase tracking-widest text-theme-muted block mb-1.5">🍫 Sladké, Oříšky & Kakao</span>
+                                <div class="flex flex-wrap gap-1.5">
+                                    <button type="button" class="tag-chip tag-brown" data-tag="Čokoláda / Kakao" onclick="window.toggleFlavorTag(this)">🍫 Čokoláda / Kakao</button>
+                                    <button type="button" class="tag-chip tag-gold" data-tag="Karamel / Ořechy" onclick="window.toggleFlavorTag(this)">🌰 Karamel / Ořechy</button>
+                                    <button type="button" class="tag-chip tag-amber" data-tag="Med / Třtina" onclick="window.toggleFlavorTag(this)">🍯 Med / Třtina</button>
+                                </div>
+                            </div>
+                            <!-- Skupina: Fermentace & Koření -->
+                            <div>
+                                <span class="text-[9px] font-bold uppercase tracking-widest text-theme-muted block mb-1.5">🍷 Fermentace & Koření</span>
+                                <div class="flex flex-wrap gap-1.5">
+                                    <button type="button" class="tag-chip tag-wine" data-tag="Fermentace" onclick="window.toggleFlavorTag(this)">🍷 Fermentace</button>
+                                    <button type="button" class="tag-chip tag-wine" data-tag="Víno / Likér" onclick="window.toggleFlavorTag(this)">🍇 Víno / Likér</button>
+                                    <button type="button" class="tag-chip tag-spicy" data-tag="Koření" onclick="window.toggleFlavorTag(this)">🌶️ Koření</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -1143,6 +1196,32 @@
         </div>
     </div>
 
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toastContainer" class="fixed bottom-6 inset-x-0 sm:bottom-8 sm:inset-x-auto sm:right-8 z-[9999] flex flex-col items-center sm:items-end gap-2.5 pointer-events-none px-4 max-w-md ml-auto"></div>
+
+    <!-- BOTTOM SHEET / CONFIRMATION MODAL -->
+    <div id="confirmModal" class="fixed inset-0 bg-black/60 z-[9998] hidden flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity duration-200 opacity-0 pointer-events-none">
+        <div id="confirmModalCard" class="bg-theme-surface w-full max-w-md p-6 sm:p-7 border border-theme-border rounded-t-[28px] sm:rounded-theme shadow-2xl transform transition-transform duration-300 ease-out translate-y-8 sm:scale-95 pointer-events-auto">
+            <div class="flex items-start gap-3.5 mb-4">
+                <div id="confirmModalIcon" class="w-10 h-10 rounded-2xl flex items-center justify-center text-lg flex-shrink-0 bg-theme-plumSoft text-theme-accent border border-theme-plumBorder">
+                    ❓
+                </div>
+                <div>
+                    <h3 id="confirmModalTitle" class="text-base font-semibold text-theme-text leading-snug">Potvrzení akce</h3>
+                    <p id="confirmModalMessage" class="text-xs text-theme-muted mt-1 font-light leading-relaxed whitespace-pre-line"></p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 mt-6 pt-2">
+                <button type="button" id="confirmModalCancelBtn" class="flex-1 py-3 px-4 rounded-xl text-xs font-semibold btn-secondary text-center tracking-wide">
+                    Zrušit
+                </button>
+                <button type="button" id="confirmModalConfirmBtn" class="flex-1 py-3 px-4 rounded-xl text-xs font-semibold btn-primary text-center tracking-wide">
+                    Potvrdit
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
@@ -1184,10 +1263,333 @@
         window.globalRecipes = [];
         window.currentRecipeFilter = '';
 
+        // ========================================================
+        // POPPY UX ENGINE: HAPTICS (AUDIO + VIBRATION), TOASTS, CONFIRM & SYNC
+        // ========================================================
+
+        let hapticAudioCtx = null;
+        const getHapticAudioContext = () => {
+            try {
+                if (!hapticAudioCtx) {
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContextClass) {
+                        hapticAudioCtx = new AudioContextClass();
+                    }
+                }
+                if (hapticAudioCtx && hapticAudioCtx.state === 'suspended') {
+                    hapticAudioCtx.resume();
+                }
+            } catch (e) {}
+            return hapticAudioCtx;
+        };
+
+        // Odblokování Web Audio při jakémkoli dotyku (pro iOS Safari)
+        ['touchstart', 'touchend', 'click', 'mousedown'].forEach(evt => {
+            window.addEventListener(evt, () => getHapticAudioContext(), { passive: true, capture: true });
+        });
+        document.addEventListener('touchstart', () => {}, { passive: true });
+
+        const playTactileClick = (type = 'light') => {
+            try {
+                const ctx = getHapticAudioContext();
+                if (!ctx) return;
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                let startFreq = 750;
+                let endFreq = 90;
+                let duration = 0.012;
+                let volume = 0.45;
+
+                if (type === 'chip' || type === 'medium') {
+                    startFreq = 850;
+                    endFreq = 80;
+                    duration = 0.014;
+                    volume = 0.55;
+                } else if (type === 'selection' || type === 'light') {
+                    startFreq = 950;
+                    endFreq = 120;
+                    duration = 0.009;
+                    volume = 0.40;
+                } else if (type === 'success') {
+                    startFreq = 520;
+                    endFreq = 260;
+                    duration = 0.04;
+                    volume = 0.35;
+                }
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(startFreq, now);
+                osc.frequency.exponentialRampToValueAtTime(endFreq, now + duration);
+
+                gain.gain.setValueAtTime(volume, now);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + duration + 0.002);
+            } catch (e) {
+                // Silently ignore audio errors
+            }
+        };
+
+        window.haptic = (type = 'light') => {
+            // 1. Zvukové / mechanické cvaknutí (funguje na iPhone, iPad, Mac i Android)
+            playTactileClick(type);
+
+            // 2. Skutečná hardwarová vibrace (pro Android a zařízení podporující Vibration API)
+            try {
+                if ('vibrate' in navigator && typeof navigator.vibrate === 'function') {
+                    switch (type) {
+                        case 'selection':
+                        case 'light':
+                            navigator.vibrate(10);
+                            break;
+                        case 'chip':
+                        case 'medium':
+                            navigator.vibrate(16);
+                            break;
+                        case 'success':
+                            navigator.vibrate([12, 35, 18]);
+                            break;
+                        case 'warning':
+                            navigator.vibrate([25, 40, 25]);
+                            break;
+                        case 'error':
+                        case 'heavy':
+                            navigator.vibrate([35, 50, 35]);
+                            break;
+                    }
+                }
+            } catch (e) {}
+        };
+
+        window.showToast = (message, type = 'info', duration = 3500) => {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'fixed bottom-6 inset-x-0 sm:bottom-8 sm:inset-x-auto sm:right-8 z-[9999] flex flex-col items-center sm:items-end gap-2.5 pointer-events-none px-4 max-w-md ml-auto';
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            toast.className = 'pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl shadow-xl border text-xs font-medium backdrop-blur-md transition-all duration-300 transform translate-y-3 opacity-0 max-w-sm';
+
+            let icon = '☕';
+            if (type === 'success') {
+                toast.classList.add('bg-emerald-950/95', 'text-white', 'border-emerald-700/60');
+                icon = '✓';
+            } else if (type === 'error') {
+                toast.classList.add('bg-rose-950/95', 'text-white', 'border-rose-800/60');
+                icon = '✕';
+            } else if (type === 'warning') {
+                toast.classList.add('bg-amber-950/95', 'text-amber-100', 'border-amber-700/60');
+                icon = '⚠️';
+            } else {
+                toast.classList.add('bg-[#240c14]/95', 'text-[#fcfaf7]', 'border-[#6b2138]/60');
+                icon = '☕';
+            }
+
+            toast.innerHTML = `
+                <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-white/10 flex-shrink-0">${icon}</span>
+                <span class="leading-relaxed flex-1">${message}</span>
+                <button type="button" class="text-white/60 hover:text-white text-xs ml-1 transition p-1" aria-label="Zavřít">✕</button>
+            `;
+
+            const closeBtn = toast.querySelector('button');
+            if (closeBtn) {
+                closeBtn.onclick = () => {
+                    toast.classList.add('opacity-0', 'translate-y-2', 'scale-95');
+                    setTimeout(() => toast.remove(), 250);
+                };
+            }
+
+            container.appendChild(toast);
+            window.haptic(type === 'error' ? 'error' : (type === 'success' ? 'success' : 'light'));
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-3', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+            });
+
+            setTimeout(() => {
+                if (!toast.parentElement) return;
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-2', 'opacity-0', 'scale-95');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        };
+
+        window.showConfirm = ({
+            title = 'Potvrdit akci',
+            message = 'Opravdu si přejete pokračovat?',
+            confirmText = 'Potvrdit',
+            cancelText = 'Zrušit',
+            isDestructive = false,
+            icon = null
+        } = {}) => {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('confirmModal');
+                const card = document.getElementById('confirmModalCard');
+                const titleEl = document.getElementById('confirmModalTitle');
+                const msgEl = document.getElementById('confirmModalMessage');
+                const iconEl = document.getElementById('confirmModalIcon');
+                const confirmBtn = document.getElementById('confirmModalConfirmBtn');
+                const cancelBtn = document.getElementById('confirmModalCancelBtn');
+
+                if (!modal || !confirmBtn || !cancelBtn) {
+                    resolve(window.confirm(message));
+                    return;
+                }
+
+                titleEl.innerText = title;
+                msgEl.innerText = message;
+                confirmBtn.innerText = confirmText;
+                cancelBtn.innerText = cancelText;
+
+                if (isDestructive) {
+                    confirmBtn.className = 'flex-1 py-3 px-4 rounded-xl text-xs font-semibold bg-rose-700 hover:bg-rose-800 text-white shadow-md text-center tracking-wide transition active:scale-95';
+                    iconEl.className = 'w-10 h-10 rounded-2xl flex items-center justify-center text-lg flex-shrink-0 bg-rose-50 text-rose-700 border border-rose-200';
+                    iconEl.innerText = icon || '🗑️';
+                } else {
+                    confirmBtn.className = 'flex-1 py-3 px-4 rounded-xl text-xs font-semibold btn-primary text-center tracking-wide active:scale-95';
+                    iconEl.className = 'w-10 h-10 rounded-2xl flex items-center justify-center text-lg flex-shrink-0 bg-theme-plumSoft text-theme-accent border border-theme-plumBorder';
+                    iconEl.innerText = icon || '❓';
+                }
+
+                const cleanup = (result) => {
+                    modal.classList.add('opacity-0', 'pointer-events-none');
+                    card.classList.add('translate-y-8', 'sm:scale-95');
+                    setTimeout(() => {
+                        modal.classList.add('hidden');
+                    }, 200);
+                    window.removeEventListener('keydown', handleKey);
+                    modal.onclick = null;
+                    confirmBtn.onclick = null;
+                    cancelBtn.onclick = null;
+                    window.haptic('light');
+                    resolve(result);
+                };
+
+                const handleKey = (e) => {
+                    if (e.key === 'Escape') cleanup(false);
+                };
+
+                window.addEventListener('keydown', handleKey);
+                modal.onclick = (e) => {
+                    if (e.target === modal) cleanup(false);
+                };
+                cancelBtn.onclick = () => cleanup(false);
+                confirmBtn.onclick = () => cleanup(true);
+
+                modal.classList.remove('hidden');
+                requestAnimationFrame(() => {
+                    modal.classList.remove('opacity-0', 'pointer-events-none');
+                    card.classList.remove('translate-y-8', 'sm:scale-95');
+                });
+                window.haptic('selection');
+            });
+        };
+
+        window.setSyncStatus = (status = 'synced', label = null) => {
+            const pill = document.getElementById('syncStatusPill');
+            const dot = document.getElementById('syncStatusDot');
+            const text = document.getElementById('syncStatusText');
+            const pillMobile = document.getElementById('syncStatusPillMobile');
+            const dotMobile = document.getElementById('syncStatusDotMobile');
+            const textMobile = document.getElementById('syncStatusTextMobile');
+            const modalPill = document.getElementById('modalSyncPill');
+            const modalDot = document.getElementById('modalSyncDot');
+            const modalText = document.getElementById('modalSyncText');
+
+            if (status === 'saving') {
+                const saveTxt = label || 'Ukládám koncept...';
+                if (pill && text) {
+                    pill.className = 'hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-medium transition-all duration-300';
+                    if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping';
+                    text.innerText = saveTxt;
+                }
+                if (pillMobile && textMobile) {
+                    pillMobile.className = 'sm:hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[9px] font-medium transition-all duration-300';
+                    if (dotMobile) dotMobile.className = 'w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping';
+                    textMobile.innerText = 'Ukládám';
+                }
+                if (modalPill && modalText) {
+                    modalPill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-medium transition-all duration-300 shadow-xs';
+                    if (modalDot) modalDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping';
+                    modalText.innerText = saveTxt;
+                }
+            } else if (status === 'offline') {
+                const offTxt = label || 'Offline paměť';
+                if (pill && text) {
+                    pill.className = 'hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-600 border border-zinc-300 text-[10px] font-medium transition-all duration-300';
+                    if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-zinc-400';
+                    text.innerText = offTxt;
+                }
+                if (pillMobile && textMobile) {
+                    pillMobile.className = 'sm:hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-600 border border-zinc-300 text-[9px] font-medium transition-all duration-300';
+                    if (dotMobile) dotMobile.className = 'w-1.5 h-1.5 rounded-full bg-zinc-400';
+                    textMobile.innerText = 'Offline';
+                }
+                if (modalPill && modalText) {
+                    modalPill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-600 border border-zinc-300 text-[10px] font-medium transition-all duration-300';
+                    if (modalDot) modalDot.className = 'w-1.5 h-1.5 rounded-full bg-zinc-400';
+                    modalText.innerText = offTxt;
+                }
+            } else {
+                const syncTxt = label || 'Koncept uložen';
+                if (pill && text) {
+                    pill.className = 'hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-medium transition-all duration-300';
+                    if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500';
+                    text.innerText = 'Synchronizováno';
+                }
+                if (pillMobile && textMobile) {
+                    pillMobile.className = 'sm:hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[9px] font-medium transition-all duration-300';
+                    if (dotMobile) dotMobile.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500';
+                    textMobile.innerText = 'Live';
+                }
+                if (modalPill && modalText) {
+                    modalPill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-medium transition-all duration-300';
+                    if (modalDot) modalDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500';
+                    modalText.innerText = syncTxt;
+                }
+            }
+        };
+
+        window.addEventListener('online', () => window.setSyncStatus('synced', 'Připojeno'));
+        window.addEventListener('offline', () => window.setSyncStatus('offline', 'Offline paměť'));
+
+        window.updateFlavorCountBadge = () => {
+            const badge = document.getElementById('flavorTagsBadge');
+            if (!badge) return;
+            const count = document.querySelectorAll('#flavorTagsContainer .tag-chip.selected').length;
+            if (count === 0) {
+                badge.innerText = '0 vybráno';
+            } else if (count === 1) {
+                badge.innerText = '1 tón';
+            } else if (count < 5) {
+                badge.innerText = `${count} tóny`;
+            } else {
+                badge.innerText = `${count} tónů`;
+            }
+        };
+
         // Initialize OneSignal
         window.OneSignalDeferred = window.OneSignalDeferred || [];
         OneSignalDeferred.push(async function(OneSignal) {
-            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const isLocal = window.location.hostname === 'localhost' || 
+                            window.location.hostname === '127.0.0.1' || 
+                            window.location.hostname.startsWith('192.168.') || 
+                            window.location.hostname.startsWith('10.') || 
+                            window.location.hostname.endsWith('.local');
             const scopePath = isLocal ? '/' : '/kavy-vyber/';
             const swPath = isLocal ? 'sw.js' : '/kavy-vyber/sw.js';
             await OneSignal.init({
@@ -1493,9 +1895,10 @@
         window.toggleRecipeStatus = async (id, status) => {
             try {
                 await updateDoc(doc(db, "recipes", id), { isCurrent: status });
+                window.showToast(status ? "Recept nastaven jako aktuální" : "Recept odebrán z aktuálních", "info");
             } catch (error) {
                 console.error(error);
-                alert("Chyba při aktualizaci receptu.");
+                window.showToast("Chyba při aktualizaci receptu.", "error");
             }
         };
 
@@ -1618,7 +2021,7 @@
             if (actionCuppingId && actionAttendance) {
                 const targetStatus = actionAttendance === 'yes' ? 'yes' : 'no';
                 window.updateAttendance(actionCuppingId, targetStatus).then(() => {
-                    alert(targetStatus === 'yes' ? '✅ Vaše účast na cuppingu byla úspěšně potvrzena!' : '❌ Byla odeslána omluva z cuppingu.');
+                    window.showToast(targetStatus === 'yes' ? 'Vaše účast na cuppingu byla úspěšně potvrzena!' : 'Byla odeslána omluva z cuppingu.', targetStatus === 'yes' ? 'success' : 'info');
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }).catch((err) => {
                     console.error("Failed to update attendance from notification link:", err);
@@ -1738,6 +2141,7 @@
                 const userCred = await signInWithEmailAndPassword(auth, email, password);
                 // Okamžité otevření aplikace hned na první pokus
                 setupUserSession(userCred.user);
+                window.showToast("Vítejte v Poppy OS!", "success");
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = origBtnText;
@@ -1776,6 +2180,7 @@
             const passwordInput = document.getElementById('passwordInput');
             if (passwordInput) passwordInput.value = '';
             document.getElementById('loginError')?.classList.add('hidden');
+            window.showToast("Byli jste odhlášeni", "info");
         });
 
         window.addSampleField = () => {
@@ -1789,6 +2194,7 @@
         };
 
         window.switchTab = (tabId) => {
+            window.haptic('light');
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             const target = document.getElementById(tabId);
             if (target) {
@@ -1943,20 +2349,30 @@
                     samples: arrayUnion(input.value.trim())
                 });
                 input.value = '';
+                window.showToast("Vzorek byl přidán do cuppingu", "success");
             } catch (error) {
                 console.error(error);
-                alert("Chyba při ukládání vzorku.");
+                window.showToast("Chyba při ukládání vzorku.", "error");
             }
         };
 
         window.removeSampleFromCupping = async (id, sampleName) => {
-            if(!confirm(`Opravdu smazat vzorek "${sampleName}"?`)) return;
+            const ok = await window.showConfirm({
+                title: 'Odebrat vzorek',
+                message: `Opravdu chcete odebrat vzorek "${sampleName}" z tohoto cuppingu?`,
+                confirmText: 'Odebrat',
+                isDestructive: true,
+                icon: '🗑️'
+            });
+            if (!ok) return;
             try {
                 await updateDoc(doc(db, "cuppings", id), {
                     samples: arrayRemove(sampleName)
                 });
+                window.showToast(`Vzorek "${sampleName}" byl odebrán.`, "info");
             } catch (error) {
                 console.error(error);
+                window.showToast("Chyba při odebírání vzorku.", "error");
             }
         };
 
@@ -1968,23 +2384,37 @@
         window.saveOneSignalKey = async () => {
             const keyVal = document.getElementById('onesignal_config_key').value.trim();
             if (!keyVal) {
-                alert("⚠️ Zadejte prosím platný API klíč.");
+                window.showToast("Zadejte prosím platný API klíč.", "warning");
                 return;
             }
             try {
                 await setDoc(doc(db, "cuppings", "config_onesignal"), { key: keyVal });
                 window.onesignalApiKey = keyVal;
-                alert("✅ OneSignal API klíč byl úspěšně uložen do databáze!");
+                window.showToast("OneSignal API klíč byl úspěšně uložen!", "success");
             } catch (err) {
                 console.error("Failed to save OneSignal API key to Firestore:", err);
-                alert("❌ Nepodařilo se uložit klíč. Zkontrolujte prosím své připojení a oprávnění.");
+                window.showToast("Nepodařilo se uložit klíč. Zkontrolujte připojení.", "error");
             }
         };
         window.vote = async (id, type) => {
             const ref = doc(db, "roasterySets", id);
             await updateDoc(ref, { [type === 'up' ? 'votesUp' : 'votesDown']: increment(1), votedBy: arrayUnion(currentUser.uid) });
+            window.haptic('selection');
+            window.showToast(type === 'up' ? 'Váš hlas PRO byl zaznamenán!' : 'Váš hlas PROTI byl zaznamenán!', 'success');
         };
-        window.deleteDocById = async (coll, id) => { if(confirm('Tuto položku opravdu smazat?')) await deleteDoc(doc(db, coll, id)); };
+        window.deleteDocById = async (coll, id) => { 
+            const ok = await window.showConfirm({
+                title: 'Smazat položku',
+                message: 'Opravdu si přejete tuto položku trvale smazat?',
+                confirmText: 'Smazat',
+                isDestructive: true,
+                icon: '🗑️'
+            });
+            if (ok) {
+                await deleteDoc(doc(db, coll, id));
+                window.showToast("Položka byla úspěšně smazána.", "info");
+            }
+        };
 
         window.openModal = (id) => {
             const el = document.getElementById(id);
@@ -2076,13 +2506,19 @@
             });
         }
 
+        let draftSaveTimer = null;
         window.saveCuppingSessionDraft = () => {
             const session = window.cuppingSession;
-            const cuppingId = document.getElementById('eval_cuppingId').value;
+            const cuppingId = document.getElementById('eval_cuppingId')?.value;
             if (!session || !cuppingId || !currentUser) return;
             const draftKey = `cupping_session_${cuppingId}_${currentUser.uid}`;
             try {
                 localStorage.setItem(draftKey, JSON.stringify(session));
+                window.setSyncStatus('saving', '⏳ Ukládám koncept...');
+                if (draftSaveTimer) clearTimeout(draftSaveTimer);
+                draftSaveTimer = setTimeout(() => {
+                    window.setSyncStatus('synced', '✓ Uloženo');
+                }, 850);
             } catch (e) {
                 console.warn("Chyba při ukládání draftu do localStorage:", e);
             }
@@ -2140,7 +2576,9 @@
         };
 
         window.openEvalModal = async (cuppingId) => {
+            window.haptic('light');
             document.getElementById('eval_cuppingId').value = cuppingId;
+            window.setSyncStatus('synced', '✓ Koncept připraven');
             const cuppingData = window.globalCuppings[cuppingId] || {};
             const samples = cuppingData.samples || [];
             const select = document.getElementById('eval_sample');
@@ -2215,6 +2653,8 @@
                     const sData = window.cuppingSession.samples[s] || getDefaultSampleEval(s);
                     const savedAromaInt = sData.aroma_int ?? 6.5;
                     const savedAromaQual = sData.aroma_qual ?? 8.0;
+                    const cleanSample = s.replace(/[^a-zA-Z0-9_-]/g, '_');
+                    const isDone = window.cuppingSession.samples[s]?.completed;
 
                     return `
                         <div class="bg-theme-bg p-4 rounded-theme border border-theme-border space-y-3">
@@ -2222,7 +2662,9 @@
                                 <span class="text-xs font-extrabold uppercase tracking-wider text-theme-text flex items-center gap-1.5">
                                     <span>☕</span> ${s}
                                 </span>
-                                <span class="text-[10px] font-bold text-theme-muted uppercase tracking-wider">Aroma šálku</span>
+                                <span id="card_status_${cleanSample}" class="text-[9px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isDone ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-theme-subtle text-theme-muted border border-theme-border'}">
+                                    ${isDone ? '✓ Uloženo' : 'Aroma'}
+                                </span>
                             </div>
                             <div>
                                 <div class="text-[9px] font-bold uppercase tracking-widest text-theme-muted mb-1.5">Intenzita vůně:</div>
@@ -2295,6 +2737,7 @@
         };
 
         window.selectTasteSample = (sample) => {
+            window.haptic('selection');
             const session = window.cuppingSession;
             if (!session.sampleList || session.sampleList.length === 0) return;
             if (!session.sampleList.includes(sample)) return;
@@ -2387,6 +2830,7 @@
                     btn.classList.remove('selected');
                 }
             });
+            window.updateFlavorCountBadge();
 
             const noteEl = document.getElementById('eval_note');
             if (noteEl) noteEl.value = sEval.note || "";
@@ -2397,6 +2841,7 @@
         };
 
         window.navSample = (direction) => {
+            window.haptic('selection');
             const session = window.cuppingSession;
             if (!session.sampleList || session.sampleList.length === 0) return;
             
@@ -2413,10 +2858,18 @@
         };
 
         window.selectBreakChip = (sample, field, val, btn) => {
+            window.haptic('chip');
             const numVal = parseFloat(val);
             if (btn && btn.parentElement) {
                 btn.parentElement.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
+            }
+
+            const cleanSample = sample.replace(/[^a-zA-Z0-9_-]/g, '_');
+            const cardBadge = document.getElementById(`card_status_${cleanSample}`);
+            if (cardBadge) {
+                cardBadge.className = 'text-[9px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200';
+                cardBadge.innerText = '✓ Uloženo';
             }
 
             const session = window.cuppingSession;
@@ -2440,6 +2893,7 @@
         };
 
         window.switchCuppingPhase = (phase) => {
+            window.haptic('light');
             const phaseBreak = document.getElementById('evalPhaseBreak');
             const phaseTaste = document.getElementById('evalPhaseTaste');
             const tabBreak = document.getElementById('tabPhaseBreak');
@@ -2480,6 +2934,7 @@
         };
 
         window.selectChip = (field, val, btn) => {
+            window.haptic('chip');
             const numVal = parseFloat(val);
             window.currentEval[field] = numVal;
             
@@ -2521,6 +2976,8 @@
 
         window.toggleFlavorTag = (btn) => {
             btn.classList.toggle('selected');
+            window.haptic('selection');
+            window.updateFlavorCountBadge();
             const session = window.cuppingSession;
             const currentSample = document.getElementById('eval_sample') ? document.getElementById('eval_sample').value : null;
             if (session && currentSample && session.samples[currentSample]) {
@@ -2551,18 +3008,25 @@
 
             const samplesToSubmit = session.sampleList.filter(s => session.samples[s] && session.samples[s].completed);
             if (samplesToSubmit.length === 0) {
-                alert("Zatím jste neohodnotili žádný vzorek.");
+                window.showToast("Zatím jste neohodnotili žádný vzorek.", "warning");
                 return;
             }
 
             if (samplesToSubmit.length < session.sampleList.length) {
-                const ok = confirm(`Máte ohodnoceno ${samplesToSubmit.length} z ${session.sampleList.length} vzorků.\n\nChcete nyní odeslat hodnocení na stůl? Zbývající vzorky můžete kdykoli doplnit nebo upravit.`);
+                const ok = await window.showConfirm({
+                    title: 'Odeslat hodnocení na stůl',
+                    message: `Máte ohodnoceno ${samplesToSubmit.length} z ${session.sampleList.length} vzorků.\n\nChcete nyní odeslat hodnocení na stůl? Zbývající vzorky můžete kdykoli doplnit nebo upravit.`,
+                    confirmText: 'Odeslat na stůl',
+                    cancelText: 'Zpět k hodnocení',
+                    icon: '🚀'
+                });
                 if (!ok) return;
             }
 
             const btn = document.getElementById('btnSubmitFullCupping');
             const origHtml = btn.innerHTML;
             btn.disabled = true;
+            window.setSyncStatus('saving', 'Odesílám na stůl...');
             btn.innerHTML = `
                 <span class="inline-flex items-center gap-2">
                     <svg class="animate-spin w-4 h-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -2621,6 +3085,8 @@
                     </span>
                 `;
                 btn.classList.replace('btn-primary', 'bg-emerald-700');
+                window.showToast(`Hodnocení ${samplesToSubmit.length} vzorků bylo úspěšně odesláno na stůl!`, "success", 4000);
+                window.setSyncStatus('synced');
 
                 if (currentUser) {
                     localStorage.removeItem(`cupping_session_${cuppingId}_${currentUser.uid}`);
@@ -2636,7 +3102,8 @@
 
             } catch (err) {
                 console.error("Error submitting cupping scores:", err);
-                alert("Chyba při ukládání: " + (err.message || err));
+                window.showToast("Chyba při ukládání: " + (err.message || err), "error");
+                window.setSyncStatus('synced');
                 btn.disabled = false;
                 btn.innerHTML = origHtml;
             }
@@ -2949,7 +3416,7 @@
             });
             const cuppingId = docRef.id;
 
-            alert(`✅ ${typeVal === 'filter' ? 'Ochutnávka filtrů' : 'Cupping'} "${titleVal}" byl úspěšně vypsán! Notifikace se odesílá baristům přes Cloud Function.`);
+            window.showToast(`✅ ${typeVal === 'filter' ? 'Ochutnávka filtrů' : 'Cupping'} "${titleVal}" byl úspěšně vypsán!`, "success", 4000);
             
             e.target.reset();
             document.getElementById('cup_exclude_leaderboard').checked = false;
@@ -2973,10 +3440,10 @@
                     createdAt: serverTimestamp() 
                 });
                 e.target.reset();
-                alert("Záznam o údržbě uložen!");
+                window.showToast("Záznam o údržbě byl úspěšně uložen!", "success");
                 loadMaintenance();
             } catch (error) {
-                alert("Chyba při zápisu údržby.");
+                window.showToast("Chyba při zápisu údržby.", "error");
             }
         });
 
@@ -3005,7 +3472,9 @@
         document.getElementById('roasteryForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const set = { roasteryName: document.getElementById('roasteryName').value, votesUp: 0, votesDown: 0, votedBy: [], coffees: [ { name: document.getElementById('c1_name').value, origin: document.getElementById('c1_origin').value, variety: document.getElementById('c1_variety').value, price: document.getElementById('c1_price').value, notes: document.getElementById('c1_notes').value }, { name: document.getElementById('c2_name').value, origin: document.getElementById('c2_origin').value, variety: document.getElementById('c2_variety').value, price: document.getElementById('c2_price').value, notes: document.getElementById('c2_notes').value }, { name: document.getElementById('c3_name').value, origin: document.getElementById('c3_origin').value, variety: document.getElementById('c3_variety').value, price: document.getElementById('c3_price').value, notes: document.getElementById('c3_notes').value } ] };
-            await addDoc(collection(db, "roasterySets"), set); e.target.reset();
+            await addDoc(collection(db, "roasterySets"), set); 
+            e.target.reset();
+            window.showToast("Sada káv z pražírny byla uložena!", "success");
         });
 
         document.getElementById('recipeForm').addEventListener('submit', async (e) => {
@@ -3022,6 +3491,7 @@
                 if (editId) {
                     await updateDoc(doc(db, "recipes", editId), recipeData);
                     window.cancelEditRecipe(); 
+                    window.showToast("Recept byl upraven", "success");
                 } else {
                     await addDoc(collection(db, "recipes"), { 
                         ...recipeData,
@@ -3030,10 +3500,11 @@
                         branch: currentBranch 
                     }); 
                     e.target.reset();
+                    window.showToast("Nový recept byl přidán!", "success");
                 }
             } catch (error) {
                 console.error(error);
-                alert("Chyba při ukládání receptu.");
+                window.showToast("Chyba při ukládání receptu.", "error");
             }
         });
 
@@ -3055,11 +3526,11 @@
                     createdAt: serverTimestamp()
                 });
                 e.target.reset();
-                alert(`${type} byla úspěšně zapsána do systému!`);
+                window.showToast(`${type} byla úspěšně zapsána do systému!`, "success");
                 loadChecklists();
             } catch (error) {
                 console.error(error);
-                alert("Chyba při zápisu do databáze.");
+                window.showToast("Chyba při zápisu do databáze.", "error");
             }
         };
 
