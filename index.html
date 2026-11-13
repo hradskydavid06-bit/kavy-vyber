@@ -534,6 +534,20 @@
     </style>
     <link rel="manifest" href="manifest.json">
     <script>
+      window._loginPending = false;
+      window.handleLoginSubmit = function(e) {
+        if (e) {
+          if (typeof e.preventDefault === 'function') e.preventDefault();
+          if (typeof e.stopPropagation === 'function') e.stopPropagation();
+        }
+        window._loginPending = true;
+        const btn = document.getElementById('loginSubmitBtn');
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = '<span>Ověřuji...</span>';
+        }
+      };
+
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js')
           .then(reg => console.log('SW Registered:', reg.scope))
@@ -555,13 +569,13 @@
                 <h1 class="text-2xl sm:text-3xl font-light tracking-tight text-theme-text">Poppy OS</h1>
                 <p class="text-xs text-theme-muted mt-1 font-light">Cuppingy, výběr káv, směny & receptury</p>
             </div>
-            <form id="loginForm" class="space-y-4" autocomplete="on" action="javascript:void(0);" onsubmit="return false;">
+            <form id="loginForm" class="space-y-4" autocomplete="on" onsubmit="window.handleLoginSubmit(event); return false;">
                 <input type="email" id="emailInput" name="email" class="input-minimal text-sm" placeholder="E-mail" required 
                        inputmode="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
                 <input type="password" id="passwordInput" name="password" class="input-minimal text-sm" placeholder="Heslo" required 
                        autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false">
                 <div id="loginError" class="text-red-500 text-xs hidden font-medium text-center">Přihlášení se nezdařilo.</div>
-                <button type="submit" id="loginSubmitBtn" class="w-full btn-primary py-3.5 font-bold uppercase tracking-wider text-xs shadow-sm transition" style="touch-action: manipulation;">Vstoupit</button>
+                <button type="button" id="loginSubmitBtn" onclick="window.handleLoginSubmit(event)" class="w-full btn-primary py-3.5 font-bold uppercase tracking-wider text-xs shadow-sm transition" style="touch-action: manipulation;">Vstoupit</button>
             </form>
         </div>
     </div>
@@ -2118,10 +2132,10 @@
             }
         });
 
-        const handleLoginSubmit = async (e) => {
+        window.handleLoginSubmit = async (e) => {
             if (e) {
-                e.preventDefault();
-                e.stopPropagation();
+                if (typeof e.preventDefault === 'function') e.preventDefault();
+                if (typeof e.stopPropagation === 'function') e.stopPropagation();
             }
             const emailInput = document.getElementById('emailInput');
             const passwordInput = document.getElementById('passwordInput');
@@ -2205,7 +2219,14 @@
 
         const loginFormEl = document.getElementById('loginForm');
         if (loginFormEl) {
-            loginFormEl.addEventListener('submit', handleLoginSubmit);
+            loginFormEl.addEventListener('submit', window.handleLoginSubmit);
+        }
+        document.getElementById('loginSubmitBtn')?.addEventListener('click', window.handleLoginSubmit);
+
+        // Pokud uživatel kliknul na Vstoupit v průběhu načítání modulů, spustit přihlášení
+        if (window._loginPending) {
+            window._loginPending = false;
+            window.handleLoginSubmit();
         }
 
         document.getElementById('logoutBtn')?.addEventListener('click', async () => {
