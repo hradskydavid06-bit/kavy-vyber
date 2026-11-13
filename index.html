@@ -543,17 +543,8 @@
 </head>
 <body class="font-sans min-h-screen antialiased">
 
-    <!-- AUTH CHECK SCREEN (Splash loader zabraňující probliknutí loginu při existujícím přihlášení) -->
-    <div id="authCheckScreen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-theme-bg transition-opacity duration-300">
-        <img src="poppy-logo.png" alt="Poppy Beans Coffee Roastery" class="h-16 w-auto mb-4 object-contain animate-pulse">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-theme-plumSoft border border-theme-plumBorder">
-            <span class="w-1.5 h-1.5 rounded-full bg-theme-accent"></span>
-            <span class="text-[10px] font-bold uppercase tracking-widest text-theme-accent font-mono">Poppy OS</span>
-        </div>
-    </div>
-
     <!-- LOGIN SCREEN -->
-    <div id="loginScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6 relative overflow-hidden bg-theme-bg">
+    <div id="loginScreen" class="flex flex-col items-center justify-center min-h-screen p-6 relative overflow-hidden bg-theme-bg">
         <div class="bg-theme-surface p-8 sm:p-10 border border-theme-border rounded-theme shadow-theme max-w-md w-full anim-modal-in">
             <div class="text-center mb-8">
                 <img src="poppy-logo.png" alt="Poppy Beans Coffee Roastery" class="h-16 w-auto mx-auto mb-5 object-contain">
@@ -2022,33 +2013,12 @@
             }
         };
 
-                const hideAuthCheckScreen = () => {
-            const authScreen = document.getElementById('authCheckScreen');
-            if (authScreen && !authScreen.classList.contains('hidden')) {
-                authScreen.classList.add('opacity-0', 'pointer-events-none');
-                setTimeout(() => {
-                    authScreen.classList.add('hidden');
-                }, 280);
-            }
-        };
-
-        // Bezpečnostní pojistka: pokud by kontrola IndexedDB trvala déle než 2.5s, odkrýt login
-        setTimeout(() => {
-            if (!isAuthReady) {
-                hideAuthCheckScreen();
-                if (!currentUser) {
-                    document.getElementById('loginScreen')?.classList.remove('hidden');
-                }
-            }
-        }, 2500);
-
         const setupUserSession = (user) => {
             if (!user) return;
             const isNewSession = (activeSessionUid !== user.uid);
             currentUser = user;
             activeSessionUid = user.uid;
 
-            hideAuthCheckScreen();
             document.getElementById('loginScreen')?.classList.add('hidden');
             document.getElementById('mainApp')?.classList.remove('hidden');
 
@@ -2135,7 +2105,6 @@
 
         onAuthStateChanged(auth, (user) => {
             isAuthReady = true;
-            hideAuthCheckScreen();
 
             if (user) {
                 setupUserSession(user);
@@ -2223,7 +2192,6 @@
                 window.showToast("Vítejte v Poppy OS!", "success");
             } catch (uiErr) {
                 console.error("Chyba při inicializaci relace:", uiErr);
-                hideAuthCheckScreen();
                 document.getElementById('loginScreen')?.classList.add('hidden');
                 document.getElementById('mainApp')?.classList.remove('hidden');
             } finally {
