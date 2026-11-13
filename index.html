@@ -543,8 +543,17 @@
 </head>
 <body class="font-sans min-h-screen antialiased">
 
+    <!-- AUTH CHECK SCREEN (Splash loader zabraňující probliknutí loginu při existujícím přihlášení) -->
+    <div id="authCheckScreen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-theme-bg transition-opacity duration-300">
+        <img src="poppy-logo.png" alt="Poppy Beans Coffee Roastery" class="h-16 w-auto mb-4 object-contain animate-pulse">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-theme-plumSoft border border-theme-plumBorder">
+            <span class="w-1.5 h-1.5 rounded-full bg-theme-accent"></span>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-theme-accent font-mono">Poppy OS</span>
+        </div>
+    </div>
+
     <!-- LOGIN SCREEN -->
-    <div id="loginScreen" class="flex flex-col items-center justify-center min-h-screen p-6 relative overflow-hidden bg-theme-bg">
+    <div id="loginScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6 relative overflow-hidden bg-theme-bg">
         <div class="bg-theme-surface p-8 sm:p-10 border border-theme-border rounded-theme shadow-theme max-w-md w-full anim-modal-in">
             <div class="text-center mb-8">
                 <img src="poppy-logo.png" alt="Poppy Beans Coffee Roastery" class="h-16 w-auto mx-auto mb-5 object-contain">
@@ -555,10 +564,10 @@
                 <h1 class="text-2xl sm:text-3xl font-light tracking-tight text-theme-text">Poppy OS</h1>
                 <p class="text-xs text-theme-muted mt-1 font-light">Cuppingy, výběr káv, směny & receptury</p>
             </div>
-            <form id="loginForm" class="space-y-4" autocomplete="on">
-                <input type="email" id="emailInput" class="input-minimal text-sm" placeholder="E-mail" required 
-                       inputmode="email" autocomplete="username email" autocapitalize="none" autocorrect="off" spellcheck="false">
-                <input type="password" id="passwordInput" class="input-minimal text-sm" placeholder="Heslo" required 
+            <form id="loginForm" class="space-y-4" autocomplete="on" action="javascript:void(0);" onsubmit="return false;">
+                <input type="email" id="emailInput" name="email" class="input-minimal text-sm" placeholder="E-mail" required 
+                       inputmode="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
+                <input type="password" id="passwordInput" name="password" class="input-minimal text-sm" placeholder="Heslo" required 
                        autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false">
                 <div id="loginError" class="text-red-500 text-xs hidden font-medium text-center">Přihlášení se nezdařilo.</div>
                 <button type="submit" id="loginSubmitBtn" class="w-full btn-primary py-3.5 font-bold uppercase tracking-wider text-xs shadow-sm transition" style="touch-action: manipulation;">Vstoupit</button>
@@ -1257,6 +1266,9 @@
         let myChartInstance = null;
         let currentBranch = "Osobní účet"; 
         let globalAllScores = []; 
+        let isAuthReady = false;
+        let isExplicitlyLoggingIn = false;
+        let activeSessionUid = null; 
         
         window.globalCuppings = {}; 
         window.currentResultsScores = [];
@@ -2010,9 +2022,39 @@
             }
         };
 
-                const setupUserSession = (user) => {
+                const hideAuthCheckScreen = () => {
+            const authScreen = document.getElementById('authCheckScreen');
+            if (authScreen && !authScreen.classList.contains('hidden')) {
+                authScreen.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => {
+                    authScreen.classList.add('hidden');
+                }, 280);
+            }
+        };
+
+        // Bezpečnostní pojistka: pokud by kontrola IndexedDB trvala déle než 2.5s, odkrýt login
+        setTimeout(() => {
+            if (!isAuthReady) {
+                hideAuthCheckScreen();
+                if (!currentUser) {
+                    document.getElementById('loginScreen')?.classList.remove('hidden');
+                }
+            }
+        }, 2500);
+
+        const setupUserSession = (user) => {
             if (!user) return;
+            const isNewSession = (activeSessionUid !== user.uid);
             currentUser = user;
+            activeSessionUid = user.uid;
+
+            hideAuthCheckScreen();
+            document.getElementById('loginScreen')?.classList.add('hidden');
+            document.getElementById('mainApp')?.classList.remove('hidden');
+
+            if (!isNewSession) {
+                return;
+            }
 
             // Handle attendance from notification click
             const urlParams = new URLSearchParams(window.location.search);
@@ -2073,10 +2115,6 @@
             applyTheme(currentBranch);
             updateNavVisibility();
 
-            // Okamžité skrytí login screen a zobrazení aplikace bez čekání
-            document.getElementById('loginScreen')?.classList.add('hidden');
-            document.getElementById('mainApp')?.classList.remove('hidden');
-
             loadData();
             loadMaintenance();
             loadChecklists();
@@ -2096,17 +2134,26 @@
         };
 
         onAuthStateChanged(auth, (user) => {
+            isAuthReady = true;
+            hideAuthCheckScreen();
+
             if (user) {
                 setupUserSession(user);
             } else {
-                currentUser = null;
-                document.getElementById('loginScreen')?.classList.remove('hidden');
-                document.getElementById('mainApp')?.classList.add('hidden');
+                if (!isExplicitlyLoggingIn) {
+                    currentUser = null;
+                    activeSessionUid = null;
+                    document.getElementById('loginScreen')?.classList.remove('hidden');
+                    document.getElementById('mainApp')?.classList.add('hidden');
+                }
             }
         });
 
         const handleLoginSubmit = async (e) => {
-            if (e) e.preventDefault();
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
             const emailInput = document.getElementById('emailInput');
             const passwordInput = document.getElementById('passwordInput');
             const submitBtn = document.getElementById('loginSubmitBtn');
@@ -2116,7 +2163,13 @@
             const email = rawEmail.trim().toLowerCase();
             const password = passwordInput?.value || '';
 
-            if (!email || !password) return;
+            if (!email || !password) {
+                if (errorDiv) {
+                    errorDiv.classList.remove('hidden');
+                    errorDiv.innerText = "Zadejte prosím e-mail i heslo.";
+                }
+                return;
+            }
 
             if (errorDiv) {
                 errorDiv.classList.add('hidden');
@@ -2137,16 +2190,13 @@
                 `;
             }
 
+            isExplicitlyLoggingIn = true;
+            let userCred = null;
+
             try {
-                const userCred = await signInWithEmailAndPassword(auth, email, password);
-                // Okamžité otevření aplikace hned na první pokus
-                setupUserSession(userCred.user);
-                window.showToast("Vítejte v Poppy OS!", "success");
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = origBtnText;
-                }
+                userCred = await signInWithEmailAndPassword(auth, email, password);
             } catch (err) {
+                isExplicitlyLoggingIn = false;
                 console.error("Chyba při přihlašování:", err);
                 if (submitBtn) {
                     submitBtn.disabled = false;
@@ -2164,6 +2214,24 @@
                         errorDiv.innerText = "Přihlášení se nezdařilo. Zkontrolujte prosím připojení a údaje.";
                     }
                 }
+                return;
+            }
+
+            // Otevření relace probíhá odděleně od catch bloku ověřování hesla
+            try {
+                setupUserSession(userCred.user);
+                window.showToast("Vítejte v Poppy OS!", "success");
+            } catch (uiErr) {
+                console.error("Chyba při inicializaci relace:", uiErr);
+                hideAuthCheckScreen();
+                document.getElementById('loginScreen')?.classList.add('hidden');
+                document.getElementById('mainApp')?.classList.remove('hidden');
+            } finally {
+                isExplicitlyLoggingIn = false;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = origBtnText;
+                }
             }
         };
 
@@ -2175,6 +2243,7 @@
         document.getElementById('logoutBtn')?.addEventListener('click', async () => {
             await signOut(auth);
             currentUser = null;
+            activeSessionUid = null;
             document.getElementById('mainApp')?.classList.add('hidden');
             document.getElementById('loginScreen')?.classList.remove('hidden');
             const passwordInput = document.getElementById('passwordInput');
