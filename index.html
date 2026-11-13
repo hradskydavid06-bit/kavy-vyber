@@ -540,11 +540,23 @@
           if (typeof e.preventDefault === 'function') e.preventDefault();
           if (typeof e.stopPropagation === 'function') e.stopPropagation();
         }
-        window._loginPending = true;
+        const emailInput = document.getElementById('emailInput');
+        const passwordInput = document.getElementById('passwordInput');
         const btn = document.getElementById('loginSubmitBtn');
+
+        if (!emailInput?.value || !passwordInput?.value) return;
+
+        window._loginPending = true;
         if (btn) {
           btn.disabled = true;
           btn.innerHTML = '<span>Ověřuji...</span>';
+          setTimeout(() => {
+            if (window._loginPending && btn.disabled) {
+              btn.disabled = false;
+              btn.innerHTML = 'Vstoupit';
+              window._loginPending = false;
+            }
+          }, 6000);
         }
       };
 
@@ -1258,12 +1270,10 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         
-        // Enable Multi-Tab Offline Persistent Cache
+        // Offline Persistent Cache (safe persistence without multi-tab IndexedDB deadlocks on Safari/iOS)
         const db = initializeFirestore(app, { 
             experimentalForceLongPolling: true,
-            localCache: persistentLocalCache({
-                tabManager: persistentMultipleTabManager()
-            })
+            localCache: persistentLocalCache({})
         });
 
         let currentUser = null;
@@ -2146,7 +2156,16 @@
             const email = rawEmail.trim().toLowerCase();
             const password = passwordInput?.value || '';
 
+            const origBtnText = submitBtn ? (submitBtn.getAttribute('data-orig-text') || 'Vstoupit') : 'Vstoupit';
+            if (submitBtn && !submitBtn.getAttribute('data-orig-text')) {
+                submitBtn.setAttribute('data-orig-text', 'Vstoupit');
+            }
+
             if (!email || !password) {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = origBtnText;
+                }
                 if (errorDiv) {
                     errorDiv.classList.remove('hidden');
                     errorDiv.innerText = "Zadejte prosím e-mail i heslo.";
@@ -2159,7 +2178,6 @@
                 errorDiv.innerText = '';
             }
 
-            const origBtnText = submitBtn ? submitBtn.innerHTML : 'Vstoupit';
             if (submitBtn) {
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = `
@@ -2176,8 +2194,19 @@
             isExplicitlyLoggingIn = true;
             let userCred = null;
 
+            const authTimeout = new Promise((_, reject) => {
+                setTimeout(() => {
+                    const err = new Error("Časový limit pro ověření vypršel.");
+                    err.code = "auth/timeout";
+                    reject(err);
+                }, 10000);
+            });
+
             try {
-                userCred = await signInWithEmailAndPassword(auth, email, password);
+                userCred = await Promise.race([
+                    signInWithEmailAndPassword(auth, email, password),
+                    authTimeout
+                ]);
             } catch (err) {
                 isExplicitlyLoggingIn = false;
                 console.error("Chyba při přihlašování:", err);
@@ -2193,6 +2222,8 @@
                         errorDiv.innerText = "Neplatný formát e-mailové adresy.";
                     } else if (err.code === 'auth/too-many-requests') {
                         errorDiv.innerText = "Příliš mnoho neúspěšných pokusů. Zkuste to prosím za chvíli.";
+                    } else if (err.code === 'auth/timeout' || err.message?.includes('network')) {
+                        errorDiv.innerText = "Ověření trvalo příliš dlouho. Zkontrolujte připojení a zkuste to znovu.";
                     } else {
                         errorDiv.innerText = "Přihlášení se nezdařilo. Zkontrolujte prosím připojení a údaje.";
                     }
