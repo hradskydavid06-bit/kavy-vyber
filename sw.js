@@ -4,7 +4,7 @@ try {
   console.warn('[Service Worker] OneSignal SDK import skipped:', err);
 }
 
-const CACHE_NAME = 'poppy-os-cache-v15';
+const CACHE_NAME = 'poppy-os-cache-v16';
 const STATIC_ASSETS = [
   './index.html',
   './manifest.json',

@@ -765,7 +765,12 @@
         <!-- ZÁLOŽKA: RECEPTY -->
         <section id="tab-recepty" class="tab-content hidden">
             <div id="admin-recipe-form" class="bg-theme-surface p-8 border-theme border-theme-border rounded-theme shadow-theme mb-10 hidden transition-all">
-                <h2 id="recipeFormTitle" class="font-bold uppercase mb-4 text-theme-accent">Sdílet nový recept</h2>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                    <h2 id="recipeFormTitle" class="font-bold uppercase text-theme-accent">Sdílet nový recept</h2>
+                    <button type="button" onclick="window.bulkArchiveOldEspressoBatch()" class="btn-secondary px-4 py-2 text-[10px] uppercase tracking-widest font-bold self-start sm:self-auto flex items-center gap-1.5" title="Přesune neaktuální Espresso a Batch do archivu (V60, Speciální Espresso a kávy Na mlýnku zůstanou)">
+                        <span>🧹</span> <span>Archivovat staré Espresso & Batch</span>
+                    </button>
+                </div>
                 <form id="recipeForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <input type="hidden" id="edit_recipe_id" value="">
                     <input type="text" id="rec_bean" class="input-minimal text-sm" placeholder="Káva / Zpracování" required>
@@ -794,6 +799,7 @@
                     <button type="button" onclick="setRecipeFilter('Speciální Espresso')" id="filter-specialni-espresso" class="filter-btn btn-secondary px-5 py-3 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap hidden">Speciální Espresso</button>
                     <button type="button" onclick="setRecipeFilter('V60')" id="filter-v60" class="filter-btn btn-secondary px-5 py-3 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap">V60</button>
                     <button type="button" onclick="setRecipeFilter('Batch')" id="filter-batch" class="filter-btn btn-secondary px-5 py-3 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap">Batch</button>
+                    <button type="button" onclick="setRecipeFilter('ARCHIV')" id="filter-archiv" class="filter-btn btn-secondary px-5 py-3 text-[10px] uppercase tracking-widest font-bold whitespace-nowrap hidden">📦 Archiv</button>
                 </div>
             </div>
 
@@ -1315,6 +1321,13 @@
         let isExplicitlyLoggingIn = false;
         let activeSessionUid = null;
         let activeUnsubscribers = [];
+        let loadedTabs = {
+            cupping: false,
+            kavy: false,
+            recepty: false,
+            maintenance: false,
+            checklists: false
+        };
 
         const cleanupFirestoreListeners = () => {
             while (activeUnsubscribers.length > 0) {
@@ -1323,11 +1336,19 @@
                     if (typeof unsub === 'function') unsub();
                 } catch (e) {}
             }
+            loadedTabs = {
+                cupping: false,
+                kavy: false,
+                recepty: false,
+                maintenance: false,
+                checklists: false
+            };
         }; 
         
         window.globalCuppings = {}; 
         window.currentResultsScores = [];
         window.globalRecipes = [];
+        window.globalArchivedRecipes = [];
         window.currentRecipeFilter = '';
 
         // ========================================================
@@ -1878,10 +1899,24 @@
             const list = document.getElementById('recipeList');
             if(!list) return;
             list.innerHTML = '';
+
+            const archiveBtn = document.getElementById('filter-archiv');
+            const archivedForBranch = (window.globalArchivedRecipes || []).filter(r => r.branch === currentBranch || currentBranch === "Osobní účet");
+            if (archiveBtn) {
+                if (isAdmin) {
+                    archiveBtn.classList.remove('hidden');
+                    archiveBtn.innerText = `📦 Archiv (${archivedForBranch.length})`;
+                } else {
+                    archiveBtn.classList.add('hidden');
+                }
+            }
+
+            const isArchiveView = window.currentRecipeFilter === 'ARCHIV';
+            let recipesArr = isArchiveView
+                ? [...archivedForBranch]
+                : window.globalRecipes.filter(r => r.branch === currentBranch || currentBranch === "Osobní účet");
             
-            let recipesArr = window.globalRecipes.filter(r => r.branch === currentBranch || currentBranch === "Osobní účet");
-            
-            if (window.currentRecipeFilter !== '') {
+            if (!isArchiveView && window.currentRecipeFilter !== '') {
                 recipesArr = recipesArr.filter(r => r.method === window.currentRecipeFilter);
             }
 
@@ -1890,29 +1925,48 @@
                 recipesArr = recipesArr.filter(r => 
                     (r.bean && r.bean.toLowerCase().includes(searchTerm)) ||
                     (r.author && r.author.toLowerCase().includes(searchTerm)) ||
+                    (r.originalAuthor && r.originalAuthor.toLowerCase().includes(searchTerm)) ||
                     (r.steps && r.steps.toLowerCase().includes(searchTerm))
                 );
             }
             
             recipesArr.sort((a, b) => (b.isCurrent ? 1 : 0) - (a.isCurrent ? 1 : 0));
 
+            if (isArchiveView && recipesArr.length === 0) {
+                list.innerHTML = `
+                    <div class="md:col-span-2 bg-theme-surface border border-theme-border rounded-theme p-8 text-center text-xs text-theme-muted">
+                        📦 V archivu pobočky <strong>${currentBranch}</strong> zatím nejsou žádné uložené recepty.
+                    </div>
+                `;
+                return;
+            }
+
             recipesArr.forEach(data => {
                 const card = document.createElement('div');
-                const isCurrent = data.isCurrent === true;
+                const isCurrent = !isArchiveView && data.isCurrent === true;
+                const displayAuthor = data.originalAuthor || data.author;
                 
-                card.className = `bg-theme-surface border border-theme-border rounded-theme shadow-theme p-6 sm:p-7 anim-card transition-all hover:border-theme-accent ${isCurrent ? 'ring-1 ring-theme-accent border-theme-accent' : ''}`;
+                card.className = `bg-theme-surface border border-theme-border rounded-theme shadow-theme p-6 sm:p-7 anim-card transition-all hover:border-theme-accent ${isCurrent ? 'ring-1 ring-theme-accent border-theme-accent' : ''} ${isArchiveView ? 'opacity-90 bg-theme-subtle/50' : ''}`;
                 
-                const currentBadge = isCurrent ? `<span class="recipe-current-badge">☕ Na mlýnku</span>` : '';
+                const currentBadge = isArchiveView
+                    ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-zinc-200 text-zinc-700 text-[9px] font-bold uppercase tracking-wider">📦 V archivu</span>`
+                    : (isCurrent ? `<span class="recipe-current-badge">☕ Na mlýnku</span>` : '');
                 
-                const adminControls = isAdmin ? `
+                const adminControls = isAdmin ? (isArchiveView ? `
                     <div class="mt-5 flex justify-between border-t border-theme-border pt-4 items-center">
+                        <button onclick="restoreArchivedRecipe('${data.id}')" class="text-[10px] uppercase font-bold text-emerald-700 hover:underline transition">♻️ Vrátit do nabídky</button>
+                        <button onclick="deleteArchivedRecipe('${data.id}')" class="text-[10px] uppercase font-bold text-red-500 hover:underline">Smazat trvale</button>
+                    </div>
+                ` : `
+                    <div class="mt-5 flex flex-wrap justify-between border-t border-theme-border pt-4 items-center gap-2">
                         <button onclick="toggleRecipeStatus('${data.id}', ${!isCurrent})" class="text-[10px] uppercase font-bold text-theme-text hover:text-theme-accent transition">${isCurrent ? '✕ Sundat z mlýnku' : '⚡ Dát na mlýnek'}</button>
-                        <div class="flex gap-4">
+                        <div class="flex items-center gap-3.5">
+                            <button onclick="archiveRecipe('${data.id}')" class="text-[10px] uppercase font-bold text-amber-700 hover:underline">📦 Archivovat</button>
                             <button onclick="editRecipe('${data.id}')" class="text-[10px] uppercase font-bold text-blue-500 hover:underline">Upravit</button>
                             <button onclick="deleteDocById('recipes', '${data.id}')" class="text-[10px] uppercase font-bold text-red-500 hover:underline">Smazat</button>
                         </div>
                     </div>
-                ` : '';
+                `) : '';
 
                 card.innerHTML = `
                     <div class="flex justify-between mb-4 items-center">
@@ -1920,7 +1974,7 @@
                             <span class="recipe-method-badge">${data.method}</span>
                             ${currentBadge}
                         </div>
-                        <span class="text-[10px] text-theme-muted uppercase font-mono tracking-wider font-semibold">${data.author ? data.author.split('@')[0] : 'Barista'}</span>
+                        <span class="text-[10px] text-theme-muted uppercase font-mono tracking-wider font-semibold">${displayAuthor ? displayAuthor.split('@')[0] : 'Barista'}</span>
                     </div>
                     <h3 class="text-xl font-semibold tracking-tight text-theme-text mb-1">${data.bean}</h3>
                     <div class="flex justify-between items-center mb-4 border-b border-theme-border pb-3">
@@ -1957,6 +2011,134 @@
                 `;
                 list.appendChild(card);
             });
+        };
+
+        window.archiveRecipe = async (id) => {
+            const recipe = window.globalRecipes.find(r => r.id === id);
+            if (!recipe || !currentUser) return;
+            try {
+                const archivedItem = {
+                    id: recipe.id,
+                    bean: recipe.bean || '',
+                    method: recipe.method || 'Espresso',
+                    ratio: recipe.ratio || '',
+                    steps: recipe.steps || '',
+                    author: recipe.originalAuthor || recipe.author || currentUser.email,
+                    branch: recipe.branch || currentBranch,
+                    archivedAt: new Date().toISOString()
+                };
+                const existing = (window.globalArchivedRecipes || []).filter(r => r.id !== id);
+                const updatedArchive = [archivedItem, ...existing];
+
+                await setDoc(doc(db, "recipes", "config_recipe_archive"), {
+                    author: currentUser.email,
+                    items: updatedArchive
+                });
+                await deleteDoc(doc(db, "recipes", id));
+                window.showToast(`Recept "${recipe.bean}" byl přesunut do archivu.`, "info");
+            } catch (error) {
+                console.error("Archive recipe error:", error);
+                window.showToast("Chyba při archivaci receptu.", "error");
+            }
+        };
+
+        window.restoreArchivedRecipe = async (id) => {
+            const item = (window.globalArchivedRecipes || []).find(r => r.id === id);
+            if (!item || !currentUser) return;
+            try {
+                await setDoc(doc(db, "recipes", item.id), {
+                    bean: item.bean || '',
+                    method: item.method || 'Espresso',
+                    ratio: item.ratio || '',
+                    steps: item.steps || '',
+                    branch: item.branch || currentBranch,
+                    isCurrent: false,
+                    author: currentUser.email,
+                    originalAuthor: item.author || currentUser.email
+                });
+                const remaining = (window.globalArchivedRecipes || []).filter(r => r.id !== id);
+                await setDoc(doc(db, "recipes", "config_recipe_archive"), {
+                    author: currentUser.email,
+                    items: remaining
+                });
+                window.showToast(`Recept "${item.bean}" byl vrácen do aktivní nabídky!`, "success");
+            } catch (error) {
+                console.error("Restore recipe error:", error);
+                window.showToast("Chyba při obnovování receptu z archivu.", "error");
+            }
+        };
+
+        window.deleteArchivedRecipe = async (id) => {
+            const item = (window.globalArchivedRecipes || []).find(r => r.id === id);
+            if (!item || !currentUser) return;
+            const ok = await window.showConfirm({
+                title: 'Trvale smazat z archivu',
+                message: `Opravdu chcete recept "${item.bean}" trvale odstranit z archivu?`,
+                confirmText: 'Smazat trvale',
+                isDestructive: true,
+                icon: '🗑️'
+            });
+            if (!ok) return;
+            try {
+                const remaining = (window.globalArchivedRecipes || []).filter(r => r.id !== id);
+                await setDoc(doc(db, "recipes", "config_recipe_archive"), {
+                    author: currentUser.email,
+                    items: remaining
+                });
+                window.showToast("Recept byl trvale smazán z archivu.", "info");
+            } catch (error) {
+                console.error("Delete archived recipe error:", error);
+                window.showToast("Chyba při mazání receptu z archivu.", "error");
+            }
+        };
+
+        window.bulkArchiveOldEspressoBatch = async () => {
+            if (!currentUser) return;
+            const candidates = window.globalRecipes.filter(r =>
+                (r.branch === currentBranch || currentBranch === "Osobní účet") &&
+                (r.method === 'Espresso' || r.method === 'Batch') &&
+                r.isCurrent !== true
+            );
+
+            if (candidates.length === 0) {
+                window.showToast(`Na pobočce ${currentBranch} nejsou žádné neaktuální Espresso nebo Batch recepty k archivaci.`, "info");
+                return;
+            }
+
+            const ok = await window.showConfirm({
+                title: 'Archivovat staré Espresso & Batch',
+                message: `Chcete přesunout ${candidates.length} neaktuálních receptů (pouze Espresso a Batch, které nejsou Na mlýnku) z pobočky ${currentBranch} do archivu?\n\nVšechny recepty V60, Speciální Espresso a kávy Na mlýnku zůstanou v nabídce.`,
+                confirmText: `Archivovat (${candidates.length})`,
+                cancelText: 'Zrušit',
+                icon: '📦'
+            });
+            if (!ok) return;
+
+            try {
+                const candidateIds = new Set(candidates.map(c => c.id));
+                const newArchivedItems = candidates.map(recipe => ({
+                    id: recipe.id,
+                    bean: recipe.bean || '',
+                    method: recipe.method || 'Espresso',
+                    ratio: recipe.ratio || '',
+                    steps: recipe.steps || '',
+                    author: recipe.originalAuthor || recipe.author || currentUser.email,
+                    branch: recipe.branch || currentBranch,
+                    archivedAt: new Date().toISOString()
+                }));
+                const existing = (window.globalArchivedRecipes || []).filter(r => !candidateIds.has(r.id));
+                const updatedArchive = [...newArchivedItems, ...existing];
+
+                await setDoc(doc(db, "recipes", "config_recipe_archive"), {
+                    author: currentUser.email,
+                    items: updatedArchive
+                });
+                await Promise.all(candidates.map(c => deleteDoc(doc(db, "recipes", c.id))));
+                window.showToast(`Přesunuto ${candidates.length} receptů do archivu!`, "success");
+            } catch (error) {
+                console.error("Bulk archive error:", error);
+                window.showToast("Chyba při hromadné archivaci.", "error");
+            }
         };
 
         window.toggleRecipeStatus = async (id, status) => {
@@ -2040,9 +2222,9 @@
         document.getElementById('adminBranchSelect').addEventListener('change', (e) => {
             currentBranch = e.target.value;
             applyTheme(currentBranch);
-            loadMaintenance();
-            loadChecklists();
-            if(typeof window.renderRecipesList === 'function') window.renderRecipesList();
+            if (loadedTabs.maintenance) loadMaintenance();
+            if (loadedTabs.checklists) loadChecklists();
+            if (typeof window.renderRecipesList === 'function') window.renderRecipesList();
         });
 
         const updateNavVisibility = () => {
@@ -2131,6 +2313,17 @@
                 document.getElementById('admin-coffee-form')?.classList.remove('hidden');
                 document.getElementById('admin-recipe-form')?.classList.remove('hidden');
                 document.getElementById('admin-maintenance-form')?.classList.remove('hidden');
+
+                // Fetch OneSignal API key from Firestore config only for Admin
+                getDoc(doc(db, "cuppings", "config_onesignal")).then(docSnap => {
+                    if (docSnap.exists()) {
+                        window.onesignalApiKey = docSnap.data().key;
+                        const configInput = document.getElementById('onesignal_config_key');
+                        if (configInput) configInput.value = window.onesignalApiKey;
+                    }
+                }).catch(err => {
+                    console.error("Failed to load OneSignal configuration:", err);
+                });
             } else {
                 currentBranch = getBranch(cleanEmail);
                 if (adminBranchSelect) adminBranchSelect.classList.add('hidden');
@@ -2148,21 +2341,6 @@
 
             applyTheme(currentBranch);
             updateNavVisibility();
-
-            loadData();
-            loadMaintenance();
-            loadChecklists();
-
-            // Fetch OneSignal API key from Firestore config
-            getDoc(doc(db, "cuppings", "config_onesignal")).then(docSnap => {
-                if (docSnap.exists()) {
-                    window.onesignalApiKey = docSnap.data().key;
-                    const configInput = document.getElementById('onesignal_config_key');
-                    if (configInput) configInput.value = window.onesignalApiKey;
-                }
-            }).catch(err => {
-                console.error("Failed to load OneSignal configuration:", err);
-            });
 
             updateBellStatus();
         };
@@ -2336,30 +2514,9 @@
             container.appendChild(input);
         };
 
-        window.switchTab = (tabId) => {
-            window.haptic('light');
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            const target = document.getElementById(tabId);
-            if (target) {
-                target.classList.remove('hidden');
-                target.classList.remove('anim-sample-slide');
-                void target.offsetWidth;
-                target.classList.add('anim-sample-slide');
-            }
-            
-            document.querySelectorAll('#mainNav button').forEach(btn => {
-                btn.classList.remove('tab-active');
-                btn.classList.add('tab-inactive');
-            });
-            const activeBtn = document.getElementById('btn-' + tabId);
-            if(activeBtn) {
-                activeBtn.classList.remove('tab-inactive');
-                activeBtn.classList.add('tab-active');
-            }
-        };
-
-        function loadData() {
-            cleanupFirestoreListeners();
+        function loadCuppingTab() {
+            if (loadedTabs.cupping) return;
+            loadedTabs.cupping = true;
 
             activeUnsubscribers.push(onSnapshot(collection(db, "cuppingScores"), (sn) => {
                 globalAllScores = [];
@@ -2446,7 +2603,13 @@
                     `;
                     list.appendChild(card);
                 });
+                if (typeof window.renderLeaderboard === 'function') window.renderLeaderboard();
             }, (err) => console.warn("cuppings listener error:", err)));
+        }
+
+        function loadKavyTab() {
+            if (loadedTabs.kavy) return;
+            loadedTabs.kavy = true;
 
             activeUnsubscribers.push(onSnapshot(collection(db, "roasterySets"), (sn) => {
                 const list = document.getElementById('roasteryList');
@@ -2481,13 +2644,84 @@
                     list.appendChild(card);
                 });
             }, (err) => console.warn("roasterySets listener error:", err)));
+        }
+
+        function loadReceptyTab() {
+            if (loadedTabs.recepty) return;
+            loadedTabs.recepty = true;
 
             activeUnsubscribers.push(onSnapshot(collection(db, "recipes"), (sn) => {
                 window.globalRecipes = [];
-                sn.forEach(d => window.globalRecipes.push({ id: d.id, ...d.data() }));
+                let vaultItems = [];
+                let legacyArchived = [];
+                sn.forEach(d => {
+                    if (d.id === 'config_recipe_archive') {
+                        const vaultData = d.data();
+                        if (Array.isArray(vaultData.items)) {
+                            vaultItems = vaultData.items;
+                        }
+                        return;
+                    }
+                    const rData = { id: d.id, ...d.data() };
+                    if (rData.isArchived === true) {
+                        legacyArchived.push(rData);
+                    } else {
+                        window.globalRecipes.push(rData);
+                    }
+                });
+                const combinedMap = new Map();
+                [...vaultItems, ...legacyArchived].forEach(item => {
+                    if (item && item.id) combinedMap.set(item.id, item);
+                });
+                window.globalArchivedRecipes = Array.from(combinedMap.values());
                 if(typeof window.renderRecipesList === 'function') window.renderRecipesList();
             }, (err) => console.warn("recipes listener error:", err)));
         }
+
+        function ensureTabLoaded(tabId) {
+            if (!currentUser) return;
+            if (tabId === 'tab-cupping') {
+                loadCuppingTab();
+            } else if (tabId === 'tab-kavy') {
+                loadKavyTab();
+            } else if (tabId === 'tab-recepty') {
+                loadReceptyTab();
+            } else if (tabId === 'tab-maintenance') {
+                if (!loadedTabs.maintenance) {
+                    loadedTabs.maintenance = true;
+                    loadMaintenance();
+                }
+            } else if (tabId === 'tab-checklists') {
+                if (!loadedTabs.checklists) {
+                    loadedTabs.checklists = true;
+                    loadChecklists();
+                }
+            }
+        }
+
+        window.switchTab = (tabId) => {
+            window.haptic('light');
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(tabId);
+            if (target) {
+                target.classList.remove('hidden');
+                target.classList.remove('anim-sample-slide');
+                void target.offsetWidth;
+                target.classList.add('anim-sample-slide');
+            }
+            
+            document.querySelectorAll('#mainNav button').forEach(btn => {
+                btn.classList.remove('tab-active');
+                btn.classList.add('tab-inactive');
+            });
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if(activeBtn) {
+                activeBtn.classList.remove('tab-inactive');
+                activeBtn.classList.add('tab-active');
+            }
+
+            ensureTabLoaded(tabId);
+        };
 
         window.addSampleToCupping = async (id) => {
             const input = document.getElementById(`add_sample_${id}`);
