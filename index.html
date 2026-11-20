@@ -15,9 +15,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script src="https://js.puter.com/v2/"></script>
 
     <script>
         tailwind.config = {
@@ -535,6 +534,7 @@
     <link rel="manifest" href="manifest.json">
     <script>
       window._loginPending = false;
+      window._loginPendingTimer = null;
       window.handleLoginSubmit = function(e) {
         if (e) {
           if (typeof e.preventDefault === 'function') e.preventDefault();
@@ -543,26 +543,50 @@
         const emailInput = document.getElementById('emailInput');
         const passwordInput = document.getElementById('passwordInput');
         const btn = document.getElementById('loginSubmitBtn');
+        const errorDiv = document.getElementById('loginError');
 
-        if (!emailInput?.value || !passwordInput?.value) return;
+        const email = (emailInput?.value || '').trim();
+        const password = passwordInput?.value || '';
+
+        if (!email || !password) {
+          if (errorDiv) {
+            errorDiv.classList.remove('hidden');
+            errorDiv.innerText = 'Zadejte prosím e-mail i heslo.';
+          }
+          return false;
+        }
+
+        if (errorDiv) {
+          errorDiv.classList.add('hidden');
+          errorDiv.innerText = '';
+        }
 
         window._loginPending = true;
         if (btn) {
           btn.disabled = true;
           btn.innerHTML = '<span>Ověřuji...</span>';
-          setTimeout(() => {
+          if (window._loginPendingTimer) clearTimeout(window._loginPendingTimer);
+          window._loginPendingTimer = setTimeout(() => {
             if (window._loginPending && btn.disabled) {
               btn.disabled = false;
               btn.innerHTML = 'Vstoupit';
               window._loginPending = false;
+              if (errorDiv) {
+                errorDiv.classList.remove('hidden');
+                errorDiv.innerText = 'Systém se ještě načítá nebo chybí připojení. Zkuste to prosím znovu.';
+              }
             }
-          }, 6000);
+          }, 8000);
         }
+        return false;
       };
 
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('SW Registered:', reg.scope))
+          .then(reg => {
+            console.log('SW Registered:', reg.scope);
+            reg.update().catch(() => {});
+          })
           .catch(err => console.error('SW Registration failed:', err));
       }
     </script>
@@ -581,13 +605,13 @@
                 <h1 class="text-2xl sm:text-3xl font-light tracking-tight text-theme-text">Poppy OS</h1>
                 <p class="text-xs text-theme-muted mt-1 font-light">Cuppingy, výběr káv, směny & receptury</p>
             </div>
-            <form id="loginForm" class="space-y-4" autocomplete="on" onsubmit="window.handleLoginSubmit(event); return false;">
+            <form id="loginForm" class="space-y-4" autocomplete="on" novalidate onsubmit="window.handleLoginSubmit(event); return false;">
                 <input type="email" id="emailInput" name="email" class="input-minimal text-sm" placeholder="E-mail" required 
                        inputmode="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
                 <input type="password" id="passwordInput" name="password" class="input-minimal text-sm" placeholder="Heslo" required 
                        autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false">
                 <div id="loginError" class="text-red-500 text-xs hidden font-medium text-center">Přihlášení se nezdařilo.</div>
-                <button type="button" id="loginSubmitBtn" onclick="window.handleLoginSubmit(event)" class="w-full btn-primary py-3.5 font-bold uppercase tracking-wider text-xs shadow-sm transition" style="touch-action: manipulation;">Vstoupit</button>
+                <button type="submit" id="loginSubmitBtn" class="w-full btn-primary py-3.5 font-bold uppercase tracking-wider text-xs shadow-sm transition" style="touch-action: manipulation;">Vstoupit</button>
             </form>
         </div>
     </div>
@@ -1250,8 +1274,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-        import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, addDoc, deleteDoc, doc, updateDoc, setDoc, getDoc, onSnapshot, arrayUnion, arrayRemove, increment, query, where, getDocs, serverTimestamp, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+        import { initializeAuth, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence, getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { initializeFirestore, collection, addDoc, deleteDoc, doc, updateDoc, setDoc, getDoc, onSnapshot, arrayUnion, arrayRemove, increment, query, where, getDocs, serverTimestamp, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
         // VÍCE ADMINŮ PRO PROVOZ (ROZDĚLENÍ PRÁV)
         const ADMIN_EMAILS = ["hradskydavid06@gmail.com", "nemec.tereza@seznam.cz"];
@@ -1268,12 +1292,18 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+        let auth;
+        try {
+            auth = initializeAuth(app, {
+                persistence: [browserLocalPersistence, browserSessionPersistence, inMemoryPersistence]
+            });
+        } catch (e) {
+            auth = getAuth(app);
+        }
         
-        // Offline Persistent Cache (safe persistence without multi-tab IndexedDB deadlocks on Safari/iOS)
+        // Use in-memory cache with long-polling to prevent single-tab/multi-tab IndexedDB deadlocks on iOS/Safari
         const db = initializeFirestore(app, { 
-            experimentalForceLongPolling: true,
-            localCache: persistentLocalCache({})
+            experimentalForceLongPolling: true
         });
 
         let currentUser = null;
@@ -1283,7 +1313,17 @@
         let globalAllScores = []; 
         let isAuthReady = false;
         let isExplicitlyLoggingIn = false;
-        let activeSessionUid = null; 
+        let activeSessionUid = null;
+        let activeUnsubscribers = [];
+
+        const cleanupFirestoreListeners = () => {
+            while (activeUnsubscribers.length > 0) {
+                const unsub = activeUnsubscribers.pop();
+                try {
+                    if (typeof unsub === 'function') unsub();
+                } catch (e) {}
+            }
+        }; 
         
         window.globalCuppings = {}; 
         window.currentResultsScores = [];
@@ -2134,6 +2174,7 @@
                 setupUserSession(user);
             } else {
                 if (!isExplicitlyLoggingIn) {
+                    cleanupFirestoreListeners();
                     currentUser = null;
                     activeSessionUid = null;
                     document.getElementById('loginScreen')?.classList.remove('hidden');
@@ -2147,6 +2188,15 @@
                 if (typeof e.preventDefault === 'function') e.preventDefault();
                 if (typeof e.stopPropagation === 'function') e.stopPropagation();
             }
+
+            window._loginPending = false;
+            if (window._loginPendingTimer) {
+                clearTimeout(window._loginPendingTimer);
+                window._loginPendingTimer = null;
+            }
+
+            if (isExplicitlyLoggingIn) return;
+
             const emailInput = document.getElementById('emailInput');
             const passwordInput = document.getElementById('passwordInput');
             const submitBtn = document.getElementById('loginSubmitBtn');
@@ -2193,9 +2243,10 @@
 
             isExplicitlyLoggingIn = true;
             let userCred = null;
+            let authTimeoutId = null;
 
             const authTimeout = new Promise((_, reject) => {
-                setTimeout(() => {
+                authTimeoutId = setTimeout(() => {
                     const err = new Error("Časový limit pro ověření vypršel.");
                     err.code = "auth/timeout";
                     reject(err);
@@ -2222,13 +2273,17 @@
                         errorDiv.innerText = "Neplatný formát e-mailové adresy.";
                     } else if (err.code === 'auth/too-many-requests') {
                         errorDiv.innerText = "Příliš mnoho neúspěšných pokusů. Zkuste to prosím za chvíli.";
-                    } else if (err.code === 'auth/timeout' || err.message?.includes('network')) {
+                    } else if (err.code === 'auth/timeout' || err.code === 'auth/network-request-failed' || err.message?.includes('network')) {
                         errorDiv.innerText = "Ověření trvalo příliš dlouho. Zkontrolujte připojení a zkuste to znovu.";
                     } else {
                         errorDiv.innerText = "Přihlášení se nezdařilo. Zkontrolujte prosím připojení a údaje.";
                     }
                 }
                 return;
+            } finally {
+                if (authTimeoutId) {
+                    clearTimeout(authTimeoutId);
+                }
             }
 
             // Otevření relace probíhá odděleně od catch bloku ověřování hesla
@@ -2248,12 +2303,6 @@
             }
         };
 
-        const loginFormEl = document.getElementById('loginForm');
-        if (loginFormEl) {
-            loginFormEl.addEventListener('submit', window.handleLoginSubmit);
-        }
-        document.getElementById('loginSubmitBtn')?.addEventListener('click', window.handleLoginSubmit);
-
         // Pokud uživatel kliknul na Vstoupit v průběhu načítání modulů, spustit přihlášení
         if (window._loginPending) {
             window._loginPending = false;
@@ -2261,9 +2310,14 @@
         }
 
         document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-            await signOut(auth);
+            cleanupFirestoreListeners();
             currentUser = null;
             activeSessionUid = null;
+            try {
+                await signOut(auth);
+            } catch (e) {
+                console.warn("SignOut error:", e);
+            }
             document.getElementById('mainApp')?.classList.add('hidden');
             document.getElementById('loginScreen')?.classList.remove('hidden');
             const passwordInput = document.getElementById('passwordInput');
@@ -2305,22 +2359,26 @@
         };
 
         function loadData() {
-            onSnapshot(collection(db, "cuppingScores"), (sn) => {
+            cleanupFirestoreListeners();
+
+            activeUnsubscribers.push(onSnapshot(collection(db, "cuppingScores"), (sn) => {
                 globalAllScores = [];
                 sn.forEach(d => globalAllScores.push(normalizeScore(d.data())));
                 if(typeof window.renderLeaderboard === 'function') window.renderLeaderboard();
-            });
+            }, (err) => console.warn("cuppingScores listener error:", err)));
 
-            onSnapshot(collection(db, "cuppings"), (sn) => {
+            activeUnsubscribers.push(onSnapshot(collection(db, "cuppings"), (sn) => {
                 const list = document.getElementById('cuppingList');
+                if (!list) return;
                 list.innerHTML = '';
                 sn.forEach(d => {
                     if (d.id === 'config_onesignal') return; // Skip configuration document
                     const data = d.data();
                     window.globalCuppings[d.id] = data; 
                     
-                    const isAttending = data.attendees?.includes(currentUser.email);
-                    const isDeclined = data.declined?.includes(currentUser.email);
+                    const userEmail = currentUser?.email || '';
+                    const isAttending = data.attendees?.includes(userEmail);
+                    const isDeclined = data.declined?.includes(userEmail);
                     const sampleCount = data.samples ? data.samples.length : 0;
 
                     const card = document.createElement('div');
@@ -2388,14 +2446,15 @@
                     `;
                     list.appendChild(card);
                 });
-            });
+            }, (err) => console.warn("cuppings listener error:", err)));
 
-            onSnapshot(collection(db, "roasterySets"), (sn) => {
+            activeUnsubscribers.push(onSnapshot(collection(db, "roasterySets"), (sn) => {
                 const list = document.getElementById('roasteryList');
+                if (!list) return;
                 list.innerHTML = '';
                 sn.forEach(d => {
                     const block = d.data();
-                    const hasVoted = block.votedBy?.includes(currentUser.uid);
+                    const hasVoted = block.votedBy?.includes(currentUser?.uid);
                     const card = document.createElement('div');
                     card.className = "bg-theme-surface border border-theme-border rounded-theme shadow-theme p-6 sm:p-8 mb-6 anim-card";
                     card.innerHTML = `
@@ -2421,13 +2480,13 @@
                     `;
                     list.appendChild(card);
                 });
-            });
+            }, (err) => console.warn("roasterySets listener error:", err)));
 
-            onSnapshot(collection(db, "recipes"), (sn) => {
+            activeUnsubscribers.push(onSnapshot(collection(db, "recipes"), (sn) => {
                 window.globalRecipes = [];
                 sn.forEach(d => window.globalRecipes.push({ id: d.id, ...d.data() }));
                 if(typeof window.renderRecipesList === 'function') window.renderRecipesList();
-            });
+            }, (err) => console.warn("recipes listener error:", err)));
         }
 
         window.addSampleToCupping = async (id) => {

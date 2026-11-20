@@ -1,27 +1,22 @@
-importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
+try {
+  importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
+} catch (err) {
+  console.warn('[Service Worker] OneSignal SDK import skipped:', err);
+}
 
-const CACHE_NAME = 'poppy-os-cache-v14';
+const CACHE_NAME = 'poppy-os-cache-v15';
 const STATIC_ASSETS = [
   './index.html',
   './manifest.json',
   './poppy_os_plum.png',
   './poppy_os_plum_192.png',
   './poppy-logo.png',
-  './sw.js',
-  './OneSignalSDKWorker.js',
-  'https://js.puter.com/v2/',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap',
-  'https://cdn.tailwindcss.com',
-  'https://cdn.jsdelivr.net/npm/chart.js',
   'https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js',
   'https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js',
-  'https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js',
-  'https://cdn-icons-png.flaticon.com/512/924/924514.png',
-  'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js',
-  'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js'
+  'https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js'
 ];
 
-// Install Event - Pre-cache core assets
+// Install Event - Pre-cache core assets (never using no-cors/opaque for scripts or modules)
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -29,17 +24,17 @@ self.addEventListener('install', (event) => {
       const promises = STATIC_ASSETS.map((url) => {
         const urlObj = new URL(url, self.location.href);
         const isExternal = urlObj.hostname !== self.location.hostname;
-        const request = new Request(url, isExternal ? { mode: 'no-cors' } : {});
+        const request = new Request(url, isExternal ? { mode: 'cors', credentials: 'omit' } : {});
         return fetch(request)
           .then((response) => {
-            if (response.status === 200 || response.type === 'opaque') {
+            if (response && response.status === 200 && response.type !== 'opaque') {
               return cache.put(url, response);
             } else {
-              console.warn(`[Service Worker] Failed to cache: ${url} (status: ${response.status})`);
+              console.warn(`[Service Worker] Skipped caching: ${url} (status: ${response?.status}, type: ${response?.type})`);
             }
           })
           .catch((err) => {
-            console.error(`[Service Worker] Fetch failed for: ${url}`, err);
+            console.warn(`[Service Worker] Pre-cache fetch skipped for: ${url}`, err);
           });
       });
       return Promise.all(promises);
@@ -70,8 +65,11 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
 
-  // Skip Firebase Firestore backend calls, WebSockets, auth endpoints, or OneSignal API calls
-  if (url.hostname.includes('firestore.googleapis.com') || 
+  // Skip Service Worker scripts themselves, Firebase backend/Auth calls, OneSignal, or non-HTTP(S) schemes
+  if (!url.protocol.startsWith('http') ||
+      url.pathname.endsWith('/sw.js') ||
+      url.pathname.endsWith('/OneSignalSDKWorker.js') ||
+      url.hostname.includes('firestore.googleapis.com') || 
       url.hostname.includes('identitytoolkit.googleapis.com') ||
       url.hostname.includes('securetoken.googleapis.com') ||
       url.hostname.includes('onesignal.com') ||
@@ -86,8 +84,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          // If successful network response, cache it
-          if (response.status === 200) {
+          if (response && response.status === 200) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then((cache) => {
               cache.put(event.request, responseClone);
@@ -96,18 +93,20 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() => {
-          // Fallback to cache if network is offline
-          return caches.match(event.request);
+          return caches.match(event.request).then((cached) => cached || caches.match('./index.html'));
         })
     );
   } else {
-    // Cache-First (stale-while-revalidate for assets)
+    // Cache-First (stale-while-revalidate for assets), ensuring opaque responses never poison CORS requests
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
-        if (cachedResponse) {
+        const isOpaqueForCors = cachedResponse && cachedResponse.type === 'opaque' &&
+          (event.request.mode === 'cors' || event.request.destination === 'script');
+
+        if (cachedResponse && !isOpaqueForCors) {
           // Fetch in background to update cache (stale-while-revalidate)
           fetch(event.request).then((networkResponse) => {
-            if (networkResponse.status === 200) {
+            if (networkResponse && networkResponse.status === 200 && networkResponse.type !== 'opaque') {
               caches.open(CACHE_NAME).then((cache) => {
                 cache.put(event.request, networkResponse);
               });
@@ -117,7 +116,7 @@ self.addEventListener('fetch', (event) => {
         }
 
         return fetch(event.request).then((response) => {
-          if (!response || response.status !== 200 || response.type !== 'basic' && !event.request.url.startsWith('http')) {
+          if (!response || response.status !== 200 || response.type === 'opaque') {
             return response;
           }
           const responseToCache = response.clone();
@@ -126,7 +125,10 @@ self.addEventListener('fetch', (event) => {
           });
           return response;
         }).catch(() => {
-          // Return offline fallback if dynamic assets are requested and network is down
+          if (cachedResponse && !isOpaqueForCors) {
+            return cachedResponse;
+          }
+          return Response.error();
         });
       })
     );
